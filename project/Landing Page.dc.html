@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#e9e8e4;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+a:hover{opacity:.75}
+input[type=range]{width:100%}
+</style>
+</helmet>
+
+<div style="position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:#1d1d1b;color:#f2f1ed;font:500 13px/1 'Instrument Sans',system-ui,sans-serif">
+  <div style="display:flex;align-items:center;gap:10px"><span style="opacity:.6">Landing page</span><span style="opacity:.3">/</span><span>{{ dirLabel }}</span></div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap">
+    <div style="display:flex;gap:2px;background:#33332f;padding:3px;border-radius:8px">
+      <sc-for list="{{ dirTabs }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.go }}" style="border:0;cursor:pointer;padding:7px 12px;border-radius:6px;font:inherit;background:{{ t.bg }};color:{{ t.color }}">{{ t.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:2px;background:#33332f;padding:3px;border-radius:8px">
+      <sc-for list="{{ viewTabs }}" as="t" hint-placeholder-count="2">
+        <button onClick="{{ t.go }}" style="border:0;cursor:pointer;padding:7px 12px;border-radius:6px;font:inherit;background:{{ t.bg }};color:{{ t.color }}">{{ t.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+</div>
+
+<div style="padding:{{ stagePad }};display:flex;justify-content:center">
+<div style="width:100%;max-width:{{ frameW }};container-type:inline-size;overflow:hidden;border-radius:{{ frameR }};box-shadow:{{ frameShadow }}">
+
+<!-- ============ DIRECTION A ============ -->
+<sc-if value="{{ isA }}" hint-placeholder-val="{{ true }}">
+<div style="background:oklch(0.975 0.006 95);color:oklch(0.22 0.01 120);font-family:'Instrument Sans',system-ui,sans-serif">
+  <nav style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px clamp(20px,5cqi,64px)">
+    <div style="display:flex;align-items:center;gap:9px;font-weight:700;font-size:19px;letter-spacing:-0.02em"><span style="width:12px;height:12px;border-radius:50%;background:oklch(0.62 0.15 150)"></span>Firstsend</div>
+    <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;gap:28px;font-size:15px;color:oklch(0.42 0.01 120)"><a href="#how-a">How it works</a><a href="#pricing-a">Pricing</a><a href="#kit-a">Launch kit</a><a href="#faq-a">FAQ</a></div>
+    </sc-if>
+    <div style="display:flex;align-items:center;gap:16px;font-size:15px"><sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}"><a href="#">Log in</a></sc-if><button onClick="{{ goPricing }}" style="border:0;cursor:pointer;background:oklch(0.22 0.01 120);color:#fff;padding:11px 18px;border-radius:999px;font:600 15px 'Instrument Sans',sans-serif" style-hover="background:oklch(0.32 0.01 120)">Get started</button></div>
+  </nav>
+
+  <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:clamp(32px,5cqi,72px);align-items:center;padding:clamp(32px,6cqi,88px) clamp(20px,5cqi,64px) clamp(48px,6cqi,96px)">
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:oklch(0.93 0.05 150);color:oklch(0.38 0.1 150);font-size:14px;font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:oklch(0.62 0.15 150)"></span>Self-serve. No sales call.</div>
+      <h1 style="margin:0;font-size:clamp(40px,6.2cqi,76px);line-height:1.02;letter-spacing:-0.035em;font-weight:600;text-wrap:balance">Cold email infrastructure for new agencies. <span style="color:oklch(0.55 0.15 150)">Start small, send today.</span></h1>
+      <p style="margin:0;font-size:clamp(17px,1.5cqi,20px);line-height:1.5;color:oklch(0.42 0.01 120);max-width:520px;text-wrap:pretty">Buy 25 Outlook inboxes, not 400. We set up your domains, DNS and warmup, then hand you a launch kit so your first campaign goes out today.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px"><button onClick="{{ goPricing }}" style="border:0;cursor:pointer;background:oklch(0.55 0.15 150);color:#fff;padding:16px 26px;border-radius:999px;font:600 16px 'Instrument Sans',sans-serif" style-hover="background:oklch(0.49 0.15 150)">Pick a plan</button><a href="#how-a" style="display:inline-flex;align-items:center;padding:16px 22px;border-radius:999px;border:1px solid oklch(0.85 0.01 120);font-weight:600;font-size:16px">How it works</a></div>
+      <div style="font-size:14px;color:oklch(0.5 0.01 120)">From $49/mo · Pay monthly · Cancel anytime</div>
+    </div>
+    <div style="background:#fff;border:1px solid oklch(0.9 0.008 100);border-radius:20px;padding:10px;box-shadow:0 20px 50px -24px oklch(0.3 0.03 120 / 0.25)">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 14px 12px;font-size:14px;color:oklch(0.5 0.01 120)"><span style="font-weight:600;color:oklch(0.22 0.01 120)">Plans</span><span>per month</span></div>
+      <sc-for list="{{ plansA }}" as="p" hint-placeholder-count="3">
+        <div onClick="{{ p.select }}" style="cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:16px 14px;border-radius:12px;background:{{ p.rowBg }};border:1px solid {{ p.border }};margin-bottom:6px">
+          <span style="width:18px;height:18px;border-radius:50%;border:2px solid {{ p.border }};background:{{ p.dot }}"></span>
+          <div><div style="font-weight:600;font-size:17px">{{ p.name }}</div><div style="font-size:14px;color:oklch(0.5 0.01 120)">{{ p.inboxes }} inboxes · {{ p.domainsLabel }}</div></div>
+          <div style="font-size:24px;font-weight:600;letter-spacing:-0.02em">${{ p.price }}</div>
+        </div>
+      </sc-for>
+      <button onClick="{{ goPricing }}" style="width:100%;border:0;cursor:pointer;margin-top:4px;background:oklch(0.22 0.01 120);color:#fff;padding:15px;border-radius:12px;font:600 15px 'Instrument Sans',sans-serif">Continue with {{ plan }}</button>
+      <div style="text-align:center;font-size:13px;color:oklch(0.5 0.01 120);padding:12px 0 6px">Launch kit and burned inbox replacement on every plan</div>
+    </div>
+  </section>
+
+  <section style="padding:28px clamp(20px,5cqi,64px);border-top:1px solid oklch(0.9 0.008 100);border-bottom:1px solid oklch(0.9 0.008 100);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px">
+    <div style="font-size:15px;color:oklch(0.45 0.01 120)">One-click export to your sequencer</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <sc-for list="{{ seqs }}" as="s" hint-placeholder-count="4">
+        <div style="width:132px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:500 12px 'IBM Plex Mono',monospace;color:oklch(0.5 0.01 120);background:repeating-linear-gradient(135deg,oklch(0.94 0.006 100) 0 6px,oklch(0.965 0.006 100) 6px 12px)">{{ s }}</div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="how-a" style="padding:clamp(56px,8cqi,112px) clamp(20px,5cqi,64px);display:flex;flex-direction:column;gap:40px">
+    <h2 style="margin:0;font-size:clamp(32px,4cqi,48px);letter-spacing:-0.03em;font-weight:600;line-height:1.05;max-width:640px">From checkout to sending in three steps.</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+        <div style="background:#fff;border:1px solid oklch(0.9 0.008 100);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:14px">
+          <div style="width:36px;height:36px;border-radius:50%;background:oklch(0.93 0.05 150);color:oklch(0.38 0.1 150);display:flex;align-items:center;justify-content:center;font-weight:700">{{ s.n }}</div>
+          <div style="font-size:21px;font-weight:600;letter-spacing:-0.01em">{{ s.title }}</div>
+          <div style="font-size:16px;line-height:1.5;color:oklch(0.45 0.01 120)">{{ s.body }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="kit-a" style="padding:0 clamp(20px,5cqi,64px) clamp(56px,8cqi,112px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:40px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:14px;font-weight:600;color:oklch(0.5 0.13 150)">Launch kit included</div>
+      <h2 style="margin:0;font-size:clamp(32px,4cqi,48px);letter-spacing:-0.03em;font-weight:600;line-height:1.05">Inboxes are step one. We cover the rest.</h2>
+      <p style="margin:0;font-size:17px;line-height:1.55;color:oklch(0.42 0.01 120);max-width:460px">Every plan unlocks the stuff beginners usually have to figure out alone. Open it from your dashboard the moment setup finishes.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px">
+      <sc-for list="{{ kit }}" as="k" hint-placeholder-count="6">
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:18px;border-radius:14px;background:#fff;border:1px solid oklch(0.9 0.008 100)">
+          <span style="flex:none;margin-top:2px;width:20px;height:20px;border-radius:50%;background:oklch(0.62 0.15 150);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center">✓</span>
+          <div><div style="font-weight:600;font-size:16px">{{ k.title }}</div><div style="font-size:14px;color:oklch(0.5 0.01 120);margin-top:3px;line-height:1.4">{{ k.body }}</div></div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="margin:0 clamp(12px,3cqi,40px);border-radius:28px;background:oklch(0.26 0.03 150);color:#fff;padding:clamp(40px,6cqi,80px) clamp(24px,5cqi,64px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:32px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:14px;font-weight:600;color:oklch(0.82 0.12 150)">Burned inbox guarantee</div>
+      <h2 style="margin:0;font-size:clamp(32px,4.4cqi,54px);letter-spacing:-0.03em;font-weight:600;line-height:1.02">If an inbox tanks, we replace it. Free.</h2>
+      <p style="margin:0;font-size:17px;line-height:1.55;color:oklch(0.88 0.02 150);max-width:460px">We watch inbox health for you. When one drops, you get a new one in a click. No ticket, no back and forth.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;background:oklch(0.31 0.03 150);border-radius:18px;padding:16px">
+      <sc-for list="{{ health }}" as="h" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:10px;background:oklch(0.35 0.03 150);font-size:15px">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0"><span style="flex:none;width:9px;height:9px;border-radius:50%;background:{{ h.dot }}"></span><span style="overflow:hidden;text-overflow:ellipsis;font-family:'IBM Plex Mono',monospace;font-size:13px">{{ h.inbox }}</span></div>
+          <span style="flex:none;color:{{ h.dot }};font-weight:600;font-size:14px">{{ h.status }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="pricing-a" style="padding:clamp(56px,8cqi,112px) clamp(20px,5cqi,64px);display:flex;flex-direction:column;gap:36px">
+    <div style="display:flex;flex-direction:column;gap:12px;max-width:620px">
+      <h2 style="margin:0;font-size:clamp(32px,4cqi,48px);letter-spacing:-0.03em;font-weight:600;line-height:1.05">Pay for the inboxes you need.</h2>
+      <p style="margin:0;font-size:17px;color:oklch(0.42 0.01 120)">Monthly billing. Cancel anytime. Upgrade in a click when you sign your next client.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px">
+      <sc-for list="{{ plansA }}" as="p" hint-placeholder-count="3">
+        <div onClick="{{ p.select }}" style="cursor:pointer;background:#fff;border:2px solid {{ p.border }};border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:19px;font-weight:600">{{ p.name }}</span><span style="font-size:13px;color:oklch(0.5 0.01 120)">{{ p.fit }}</span></div>
+          <div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:48px;font-weight:600;letter-spacing:-0.04em">${{ p.price }}</span><span style="color:oklch(0.5 0.01 120)">/mo</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:15px">
+            <div>{{ p.inboxes }} Outlook inboxes</div><div>{{ p.domainsLabel }}</div><div>Launch kit</div><div>{{ p.replace }}</div>
+          </div>
+          <button style="border:1px solid {{ p.btnBorder }};cursor:pointer;background:{{ p.btnBg }};color:{{ p.btnColor }};padding:14px;border-radius:999px;font:600 15px 'Instrument Sans',sans-serif">{{ p.cta }}</button>
+        </div>
+      </sc-for>
+    </div>
+    <div style="font-size:15px;color:oklch(0.45 0.01 120)">Add-ons: extra inboxes in packs of 25, extra domains, or bring your own domains.</div>
+  </section>
+
+  <section id="faq-a" style="padding:0 clamp(20px,5cqi,64px) clamp(56px,8cqi,112px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:32px">
+    <h2 style="margin:0;font-size:clamp(32px,4cqi,48px);letter-spacing:-0.03em;font-weight:600;line-height:1.05">Questions</h2>
+    <div style="display:flex;flex-direction:column">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="4">
+        <div style="border-top:1px solid oklch(0.88 0.008 100)">
+          <button onClick="{{ f.toggle }}" style="width:100%;display:flex;justify-content:space-between;gap:16px;align-items:center;text-align:left;background:none;border:0;cursor:pointer;padding:20px 0;font:600 17px 'Instrument Sans',sans-serif;color:inherit"><span>{{ f.q }}</span><span style="font-weight:400;font-size:22px">{{ f.sign }}</span></button>
+          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}"><div style="padding:0 0 22px;font-size:16px;line-height:1.55;color:oklch(0.42 0.01 120);max-width:560px">{{ f.a }}</div></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:clamp(56px,8cqi,104px) clamp(20px,5cqi,64px);background:oklch(0.94 0.05 150);display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px">
+    <h2 style="margin:0;font-size:clamp(34px,5cqi,60px);letter-spacing:-0.035em;font-weight:600;line-height:1.02;text-wrap:balance;max-width:760px">No call. No application. No 400-inbox minimum.</h2>
+    <p style="margin:0;font-size:17px;color:oklch(0.38 0.06 150)">Check out, pick your domains, and start sending today.</p>
+    <button onClick="{{ goPricing }}" style="border:0;cursor:pointer;background:oklch(0.22 0.01 120);color:#fff;padding:17px 30px;border-radius:999px;font:600 16px 'Instrument Sans',sans-serif">Get started from $49</button>
+  </section>
+  <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;padding:28px clamp(20px,5cqi,64px);font-size:14px;color:oklch(0.5 0.01 120)"><span>© 2026 Firstsend</span><div style="display:flex;gap:20px;flex-wrap:wrap"><a href="#">Acceptable use</a><a href="#">Affiliates</a><a href="#">DNS checker</a><a href="#">Domain generator</a></div></footer>
+</div>
+</sc-if>
+
+<!-- ============ DIRECTION B ============ -->
+<sc-if value="{{ isB }}" hint-placeholder-val="{{ false }}">
+<div style="background:oklch(0.97 0.015 80);color:oklch(0.22 0.02 50);font-family:'DM Sans',system-ui,sans-serif">
+  <nav style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px clamp(20px,5cqi,64px)">
+    <div style="font:800 22px 'Bricolage Grotesque',sans-serif;letter-spacing:-0.03em">firstsend<span style="color:oklch(0.66 0.17 45)">.</span></div>
+    <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:28px;font-size:15px;font-weight:500"><a href="#how-b">How it works</a><a href="#kit-b">Launch kit</a><a href="#pricing-b">Pricing</a></div></sc-if>
+    <button onClick="{{ goPricing }}" style="border:2px solid oklch(0.22 0.02 50);cursor:pointer;background:transparent;color:inherit;padding:10px 18px;border-radius:12px;font:700 15px 'DM Sans',sans-serif" style-hover="background:oklch(0.22 0.02 50);color:#fff">Start now</button>
+  </nav>
+
+  <section style="padding:clamp(32px,6cqi,80px) clamp(20px,5cqi,64px) clamp(48px,6cqi,88px);display:flex;flex-direction:column;align-items:center;text-align:center;gap:24px">
+    <div style="font-size:15px;font-weight:700;color:oklch(0.55 0.16 45)">Cold email infrastructure for new agencies</div>
+    <h1 style="margin:0;font:800 clamp(52px,10cqi,132px)/0.92 'Bricolage Grotesque',sans-serif;letter-spacing:-0.05em;text-wrap:balance">Start small.<br>Send today.</h1>
+    <p style="margin:0;font-size:clamp(17px,1.6cqi,21px);line-height:1.5;max-width:580px;color:oklch(0.4 0.02 50);text-wrap:pretty">Outlook inboxes and domains you can buy at checkout, set up for you, with a launch kit to get your first campaign out. No sales call.</p>
+
+    <div style="width:100%;max-width:760px;margin-top:16px;background:#fff;border-radius:24px;padding:clamp(20px,3.5cqi,36px);box-shadow:0 2px 0 oklch(0.22 0.02 50),0 0 0 2px oklch(0.22 0.02 50);text-align:left;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><span style="font:700 20px 'Bricolage Grotesque',sans-serif">How many inboxes do you need?</span><span style="font:800 36px 'Bricolage Grotesque',sans-serif;letter-spacing:-0.03em">{{ n }}</span></div>
+      <input type="range" min="10" max="300" step="5" value="{{ n }}" onChange="{{ setN }}" style="accent-color:oklch(0.66 0.17 45)">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:oklch(0.5 0.02 50);margin-top:-12px"><span>10</span><span>1 client ≈ 20–30</span><span>300</span></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;align-items:center;padding-top:20px;border-top:2px dashed oklch(0.88 0.02 70)">
+        <div><div style="font-size:14px;color:oklch(0.5 0.02 50)">Your plan</div><div style="font:800 28px 'Bricolage Grotesque',sans-serif">{{ calcPlan }} · ${{ calcPrice }}<span style="font-size:16px;font-weight:500">/mo</span></div><div style="font-size:14px;color:oklch(0.5 0.02 50);margin-top:4px">{{ calcNote }}</div></div>
+        <button onClick="{{ goPricing }}" style="border:0;cursor:pointer;background:oklch(0.66 0.17 45);color:oklch(0.18 0.02 50);padding:18px 24px;border-radius:14px;font:700 17px 'DM Sans',sans-serif;box-shadow:0 3px 0 oklch(0.22 0.02 50)" style-active="transform:translateY(2px);box-shadow:0 1px 0 oklch(0.22 0.02 50)">Get {{ calcPlan }} →</button>
+      </div>
+    </div>
+    <div style="font-size:14px;color:oklch(0.5 0.02 50)">Most providers start at 400 inboxes and $199/mo. We start at 25.</div>
+  </section>
+
+  <section style="padding:0 clamp(20px,5cqi,64px) 24px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="font-size:14px;font-weight:700;color:oklch(0.5 0.02 50)">Works with</div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px">
+      <sc-for list="{{ seqs }}" as="s" hint-placeholder-count="4">
+        <div style="width:140px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font:500 12px 'IBM Plex Mono',monospace;color:oklch(0.5 0.02 50);background:repeating-linear-gradient(135deg,oklch(0.93 0.02 75) 0 6px,oklch(0.955 0.015 75) 6px 12px)">{{ s }}</div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="how-b" style="padding:clamp(56px,8cqi,112px) clamp(20px,5cqi,64px);display:flex;flex-direction:column;gap:40px">
+    <h2 style="margin:0;font:800 clamp(36px,5.5cqi,68px)/0.98 'Bricolage Grotesque',sans-serif;letter-spacing:-0.04em">Three steps.<br>Same day.</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:clamp(20px,3cqi,40px)">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:12px;border-top:2px solid oklch(0.22 0.02 50);padding-top:20px">
+          <div style="font:800 64px/1 'Bricolage Grotesque',sans-serif;color:oklch(0.66 0.17 45);letter-spacing:-0.04em">0{{ s.n }}</div>
+          <div style="font:700 24px 'Bricolage Grotesque',sans-serif;letter-spacing:-0.02em">{{ s.title }}</div>
+          <div style="font-size:16px;line-height:1.55;color:oklch(0.4 0.02 50)">{{ s.body }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="kit-b" style="padding:clamp(56px,8cqi,104px) clamp(20px,5cqi,64px);background:oklch(0.22 0.02 50);color:oklch(0.97 0.015 80);display:flex;flex-direction:column;gap:36px">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:20px">
+      <h2 style="margin:0;font:800 clamp(36px,5.5cqi,68px)/0.98 'Bricolage Grotesque',sans-serif;letter-spacing:-0.04em;max-width:640px">You don't just get inboxes. You get the whole kit.</h2>
+      <p style="margin:0;font-size:17px;line-height:1.5;max-width:340px;color:oklch(0.85 0.02 70)">Included on every plan. Unlocks the moment your setup is done.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px">
+      <sc-for list="{{ kit }}" as="k" hint-placeholder-count="6">
+        <div style="background:oklch(0.29 0.02 50);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:8px;min-height:150px;justify-content:flex-end">
+          <div style="font:700 21px 'Bricolage Grotesque',sans-serif">{{ k.title }}</div>
+          <div style="font-size:15px;line-height:1.45;color:oklch(0.82 0.02 70)">{{ k.body }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:clamp(56px,8cqi,104px) clamp(20px,5cqi,64px)">
+    <div style="background:oklch(0.66 0.17 45);border-radius:28px;padding:clamp(32px,6cqi,72px);display:flex;flex-direction:column;gap:18px;box-shadow:0 4px 0 oklch(0.22 0.02 50),0 0 0 2px oklch(0.22 0.02 50)">
+      <div style="font-size:15px;font-weight:700">The burned inbox guarantee</div>
+      <h2 style="margin:0;font:800 clamp(38px,6.5cqi,84px)/0.95 'Bricolage Grotesque',sans-serif;letter-spacing:-0.045em;max-width:860px;text-wrap:balance">Inbox tanks? We swap it. Free.</h2>
+      <p style="margin:0;font-size:18px;line-height:1.5;max-width:560px">We track every inbox's health. If one goes bad, request a replacement in one click from your dashboard.</p>
+    </div>
+  </section>
+
+  <section id="pricing-b" style="padding:0 clamp(20px,5cqi,64px) clamp(56px,8cqi,112px);display:flex;flex-direction:column;gap:32px">
+    <h2 style="margin:0;font:800 clamp(36px,5.5cqi,68px)/0.98 'Bricolage Grotesque',sans-serif;letter-spacing:-0.04em">Pick your size.</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px">
+      <sc-for list="{{ plansB }}" as="p" hint-placeholder-count="3">
+        <div onClick="{{ p.select }}" style="cursor:pointer;background:{{ p.rowBg }};border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:18px;box-shadow:0 0 0 2px {{ p.border }}">
+          <div style="font:700 22px 'Bricolage Grotesque',sans-serif">{{ p.name }}</div>
+          <div style="font:800 56px/1 'Bricolage Grotesque',sans-serif;letter-spacing:-0.04em">${{ p.price }}<span style="font:500 16px 'DM Sans',sans-serif">/mo</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:16px"><div><b>{{ p.inboxes }}</b> inboxes</div><div>{{ p.domainsLabel }}</div><div>Launch kit</div><div>{{ p.replace }}</div></div>
+          <button style="border:2px solid oklch(0.22 0.02 50);cursor:pointer;background:{{ p.btnBg }};color:{{ p.btnColor }};padding:14px;border-radius:12px;font:700 15px 'DM Sans',sans-serif">{{ p.cta }}</button>
+        </div>
+      </sc-for>
+    </div>
+    <div style="font-size:15px;color:oklch(0.45 0.02 50)">Need more? Add inboxes in packs of 25, extra domains, or use your own domains.</div>
+  </section>
+
+  <section style="padding:clamp(56px,8cqi,104px) clamp(20px,5cqi,64px);border-top:2px solid oklch(0.22 0.02 50);display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px">
+    <h2 style="margin:0;font:800 clamp(40px,7cqi,92px)/0.95 'Bricolage Grotesque',sans-serif;letter-spacing:-0.045em;max-width:900px">No call needed.</h2>
+    <p style="margin:0;font-size:18px;color:oklch(0.4 0.02 50)">Check out with a card and be set up today.</p>
+    <button onClick="{{ goPricing }}" style="border:0;cursor:pointer;background:oklch(0.22 0.02 50);color:#fff;padding:18px 30px;border-radius:14px;font:700 17px 'DM Sans',sans-serif">Start with 25 inboxes</button>
+  </section>
+  <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;padding:24px clamp(20px,5cqi,64px);font-size:14px;color:oklch(0.5 0.02 50)"><span>© 2026 firstsend</span><div style="display:flex;gap:20px;flex-wrap:wrap"><a href="#">Acceptable use</a><a href="#">Affiliates</a><a href="#">Free tools</a></div></footer>
+</div>
+</sc-if>
+
+<!-- ============ DIRECTION C ============ -->
+<sc-if value="{{ isC }}" hint-placeholder-val="{{ false }}">
+<div style="background:oklch(0.975 0.004 250);color:oklch(0.2 0.02 255);font-family:'IBM Plex Sans',system-ui,sans-serif">
+  <nav style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(20px,5cqi,64px);border-bottom:1px solid oklch(0.91 0.006 250)">
+    <div style="display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px"><span style="width:22px;height:22px;border-radius:6px;background:oklch(0.52 0.15 255)"></span>Firstsend</div>
+    <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:28px;font-size:15px;color:oklch(0.42 0.02 255)"><a href="#pricing-c">Pricing</a><a href="#how-c">How it works</a><a href="#guarantee-c">Guarantee</a></div></sc-if>
+    <button onClick="{{ goPricing }}" style="border:0;cursor:pointer;background:oklch(0.52 0.15 255);color:#fff;padding:10px 16px;border-radius:8px;font:500 15px 'IBM Plex Sans',sans-serif" style-hover="background:oklch(0.46 0.15 255)">Get started</button>
+  </nav>
+
+  <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:clamp(32px,5cqi,64px);align-items:center;padding:clamp(40px,6cqi,88px) clamp(20px,5cqi,64px) clamp(32px,4cqi,56px)">
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <h1 style="margin:0;font-size:clamp(38px,5.4cqi,66px);line-height:1.04;letter-spacing:-0.03em;font-weight:600;text-wrap:balance">Cold email infrastructure for new agencies.</h1>
+      <p style="margin:0;font-size:clamp(17px,1.5cqi,20px);line-height:1.5;color:oklch(0.42 0.02 255);max-width:520px;text-wrap:pretty">Start with 25 inboxes. We buy the domains, set up DNS and warmup, and export everything to your sequencer. You just hit send.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px"><button onClick="{{ goPricing }}" style="border:0;cursor:pointer;background:oklch(0.52 0.15 255);color:#fff;padding:15px 24px;border-radius:8px;font:500 16px 'IBM Plex Sans',sans-serif">Start small, send today</button></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px 20px;font:400 13px 'IBM Plex Mono',monospace;color:oklch(0.48 0.02 255)"><span>✓ no sales call</span><span>✓ no 400-inbox minimum</span><span>✓ cancel anytime</span></div>
+    </div>
+    <div style="background:#fff;border:1px solid oklch(0.9 0.006 250);border-radius:14px;overflow:hidden;box-shadow:0 24px 48px -28px oklch(0.3 0.05 255 / 0.3)">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid oklch(0.92 0.006 250)"><span style="font-weight:600">Your setup</span><span style="display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:999px;background:oklch(0.94 0.06 150);color:oklch(0.4 0.12 150);font-size:13px;font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:oklch(0.62 0.16 150)"></span>Ready to send</span></div>
+      <sc-for list="{{ setup }}" as="s" hint-placeholder-count="5">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid oklch(0.95 0.004 250);font-size:15px">
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:20px;height:20px;border-radius:50%;background:oklch(0.62 0.16 150);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;flex:none">✓</span>{{ s.label }}</div>
+          <span style="font:400 12px 'IBM Plex Mono',monospace;color:oklch(0.55 0.02 255);flex:none">{{ s.meta }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="pricing-c" style="padding:clamp(24px,3cqi,40px) clamp(20px,5cqi,64px) clamp(56px,8cqi,104px)">
+    <div style="background:#fff;border:1px solid oklch(0.9 0.006 250);border-radius:14px;overflow-x:auto">
+      <div style="min-width:680px">
+        <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr 1.3fr 1fr;gap:12px;padding:14px 20px;font:500 12px 'IBM Plex Mono',monospace;color:oklch(0.5 0.02 255);text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid oklch(0.92 0.006 250)"><span>Plan</span><span>Price/mo</span><span>Inboxes</span><span>Domains</span><span>Burned inbox</span><span></span></div>
+        <sc-for list="{{ plansC }}" as="p" hint-placeholder-count="3">
+          <div onClick="{{ p.select }}" style="cursor:pointer;display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr 1.3fr 1fr;gap:12px;align-items:center;padding:18px 20px;background:{{ p.rowBg }};border-bottom:1px solid oklch(0.95 0.004 250);font-size:16px">
+            <span style="font-weight:600">{{ p.name }}</span><span style="font-weight:600">${{ p.price }}</span><span>{{ p.inboxes }}</span><span>{{ p.domains }}</span><span>{{ p.replaceShort }}</span>
+            <button style="justify-self:end;border:1px solid {{ p.btnBorder }};cursor:pointer;background:{{ p.btnBg }};color:{{ p.btnColor }};padding:9px 14px;border-radius:7px;font:500 14px 'IBM Plex Sans',sans-serif">{{ p.cta }}</button>
+          </div>
+        </sc-for>
+        <div style="padding:14px 20px;font-size:14px;color:oklch(0.48 0.02 255)">Launch kit on every plan. Add-ons: inboxes in packs of 25, extra domains, bring your own domains.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:0 clamp(20px,5cqi,64px) clamp(56px,8cqi,104px);display:flex;flex-direction:column;gap:28px">
+    <h2 style="margin:0;font-size:clamp(28px,3.4cqi,42px);letter-spacing:-0.025em;font-weight:600">Built for your first clients, not your fiftieth.</h2>
+    <div style="border:1px solid oklch(0.9 0.006 250);border-radius:14px;overflow:hidden;background:#fff">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:12px 20px;font:500 12px 'IBM Plex Mono',monospace;color:oklch(0.5 0.02 255);text-transform:uppercase;letter-spacing:0.04em;background:oklch(0.965 0.004 250)"><span></span><span style="color:oklch(0.45 0.15 255)">Firstsend</span><span>Typical provider</span></div>
+      <sc-for list="{{ compare }}" as="c" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px 20px;border-top:1px solid oklch(0.94 0.004 250);font-size:15px"><span style="color:oklch(0.48 0.02 255)">{{ c.k }}</span><span style="font-weight:600">{{ c.us }}</span><span style="color:oklch(0.48 0.02 255)">{{ c.them }}</span></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="how-c" style="padding:0 clamp(20px,5cqi,64px) clamp(56px,8cqi,104px);display:flex;flex-direction:column;gap:28px">
+    <h2 style="margin:0;font-size:clamp(28px,3.4cqi,42px);letter-spacing:-0.025em;font-weight:600">How it works</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:0;border-top:1px solid oklch(0.88 0.006 250)">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+        <div style="padding:24px 24px 8px 0;display:flex;flex-direction:column;gap:10px">
+          <div style="font:500 13px 'IBM Plex Mono',monospace;color:oklch(0.52 0.15 255)">STEP {{ s.n }}</div>
+          <div style="font-size:20px;font-weight:600">{{ s.title }}</div>
+          <div style="font-size:16px;line-height:1.55;color:oklch(0.42 0.02 255)">{{ s.body }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding-top:12px"><span style="font-size:14px;color:oklch(0.48 0.02 255);margin-right:8px">Exports to</span>
+      <sc-for list="{{ seqs }}" as="s" hint-placeholder-count="4">
+        <div style="width:128px;height:40px;border-radius:7px;display:flex;align-items:center;justify-content:center;font:500 12px 'IBM Plex Mono',monospace;color:oklch(0.5 0.02 255);background:repeating-linear-gradient(135deg,oklch(0.93 0.006 250) 0 6px,oklch(0.96 0.004 250) 6px 12px)">{{ s }}</div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="guarantee-c" style="padding:clamp(48px,7cqi,96px) clamp(20px,5cqi,64px);background:oklch(0.95 0.035 150);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:36px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:500 13px 'IBM Plex Mono',monospace;color:oklch(0.42 0.12 150)">BURNED INBOX GUARANTEE</div>
+      <h2 style="margin:0;font-size:clamp(30px,4cqi,48px);letter-spacing:-0.03em;font-weight:600;line-height:1.08">Green means good to send. Anything else, we replace.</h2>
+      <p style="margin:0;font-size:17px;line-height:1.55;color:oklch(0.36 0.05 150);max-width:460px">Inbox health is checked automatically. If one tanks, it's swapped free with one click.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ health }}" as="h" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:10px;background:#fff;font-size:15px">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0"><span style="flex:none;width:9px;height:9px;border-radius:50%;background:{{ h.dotC }}"></span><span style="overflow:hidden;text-overflow:ellipsis;font:400 13px 'IBM Plex Mono',monospace">{{ h.inbox }}</span></div>
+          <span style="flex:none;font-weight:600;font-size:14px;color:{{ h.dotC }}">{{ h.status }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:clamp(56px,8cqi,104px) clamp(20px,5cqi,64px);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:24px">
+    <h2 style="margin:0;font-size:clamp(30px,4cqi,48px);letter-spacing:-0.03em;font-weight:600;line-height:1.08;max-width:620px">Set up today. No call, no application.</h2>
+    <button onClick="{{ goPricing }}" style="border:0;cursor:pointer;background:oklch(0.52 0.15 255);color:#fff;padding:16px 26px;border-radius:8px;font:500 16px 'IBM Plex Sans',sans-serif">Get started from $49/mo</button>
+  </section>
+  <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;padding:24px clamp(20px,5cqi,64px);border-top:1px solid oklch(0.91 0.006 250);font:400 13px 'IBM Plex Mono',monospace;color:oklch(0.5 0.02 255)"><span>© 2026 Firstsend</span><div style="display:flex;gap:20px;flex-wrap:wrap"><a href="#">Acceptable use</a><a href="#">Affiliates</a><a href="#">DNS checker</a><a href="#">Deliverability test</a></div></footer>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;direction&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;],&quot;default&quot;:&quot;A&quot;,&quot;tsType&quot;:&quot;'A'|'B'|'C'&quot;}}">
+class Component extends DCLogic {
+  state = { dir: this.props.direction ?? 'A', view: 'desktop', plan: 'Growth', n: 40, faq: 0 };
+  renderVals() {
+    const s = this.state;
+    const P = [
+      { name: 'Starter', price: 49, inboxes: 25, domains: 1, replace: 'Free burned inbox replacement', replaceShort: 'Free', fit: '1–2 clients' },
+      { name: 'Growth', price: 99, inboxes: 100, domains: 2, replace: 'Free burned inbox replacement', replaceShort: 'Free', fit: '3–5 clients' },
+      { name: 'Scale', price: 179, inboxes: 300, domains: 3, replace: 'Priority burned inbox replacement', replaceShort: 'Priority', fit: '6+ clients' }
+    ];
+    const T = {
+      A: { accent: 'oklch(0.55 0.15 150)', ink: 'oklch(0.22 0.01 120)', line: 'oklch(0.9 0.008 100)', on: 'oklch(0.965 0.03 150)', off: '#fff' },
+      B: { accent: 'oklch(0.22 0.02 50)', ink: 'oklch(0.22 0.02 50)', line: 'oklch(0.22 0.02 50)', on: 'oklch(0.93 0.06 70)', off: '#fff' },
+      C: { accent: 'oklch(0.52 0.15 255)', ink: 'oklch(0.2 0.02 255)', line: 'oklch(0.85 0.01 250)', on: 'oklch(0.965 0.02 255)', off: '#fff' }
+    };
+    const mk = t => P.map(p => {
+      const on = p.name === s.plan;
+      return { ...p, on, domainsLabel: p.domains + (p.domains > 1 ? ' domains' : ' domain'),
+        border: on ? t.accent : t.line, rowBg: on ? t.on : t.off, dot: on ? t.accent : 'transparent',
+        btnBg: on ? t.accent : 'transparent', btnColor: on ? '#fff' : t.ink, btnBorder: on ? t.accent : t.line,
+        cta: on ? 'Selected' : 'Choose ' + p.name, select: () => this.setState({ plan: p.name }) };
+    });
+    const n = s.n;
+    const base = n <= 25 ? P[0] : n <= 100 ? P[1] : P[2];
+    const steps = [
+      { n: 1, title: 'Pick a plan', body: 'Choose how many inboxes you need and check out with a card. Takes two minutes.' },
+      { n: 2, title: 'Choose your domains', body: 'Pick from our suggestions or bring your own. We handle SPF, DKIM, DMARC and inbox setup.' },
+      { n: 3, title: 'Connect and send', body: 'Export to Instantly, Smartlead or EmailBison in one click, open your launch kit, and start sending.' }
+    ];
+    const kit = [
+      { title: 'Outlook inboxes', body: 'Created and configured for you.' },
+      { title: 'Domains + DNS', body: 'SPF, DKIM and DMARC done automatically.' },
+      { title: 'Warmup', body: 'Started for you, with a plain-English guide.' },
+      { title: 'Sequencer connection', body: 'One-click export or CSV download.' },
+      { title: 'Copy templates', body: 'Proven first-campaign emails to adapt.' },
+      { title: 'Starter lead list', body: 'Enough leads to run your first test.' }
+    ];
+    const faqItems = [
+      { q: 'Do I need to book a call?', a: 'No. You pick a plan, check out, and fill in a short form about your business and use case. That is it.' },
+      { q: 'How fast can I start sending?', a: 'Setup runs automatically after checkout. Most accounts are ready the same day.' },
+      { q: 'Do I need to know anything about DNS?', a: 'No. We configure SPF, DKIM and DMARC for you and show a simple green status when it is done.' },
+      { q: 'What if I need more inboxes later?', a: 'Upgrade your plan or add inboxes in packs of 25 from your dashboard.' }
+    ];
+    const tab = (label, on, go) => ({ label, go, bg: on ? '#f2f1ed' : 'transparent', color: on ? '#1d1d1b' : '#c9c8c2' });
+    const mobile = s.view === 'mobile';
+    const labels = { A: 'A · Clean & calm', B: 'B · Bold & friendly', C: 'C · Clear & precise' };
+    return {
+      isA: s.dir === 'A', isB: s.dir === 'B', isC: s.dir === 'C', desktop: !mobile, dirLabel: labels[s.dir],
+      dirTabs: ['A', 'B', 'C'].map(d => tab(labels[d], s.dir === d, () => { this.setState({ dir: d }); window.scrollTo(0, 0); })),
+      viewTabs: [tab('Desktop', !mobile, () => this.setState({ view: 'desktop' })), tab('Mobile', mobile, () => this.setState({ view: 'mobile' }))],
+      frameW: mobile ? '390px' : '100%', stagePad: mobile ? '32px 16px' : '0', frameR: mobile ? '28px' : '0',
+      frameShadow: mobile ? '0 30px 60px -20px rgba(0,0,0,.25), 0 0 0 8px #1d1d1b' : 'none',
+      plan: s.plan, plansA: mk(T.A), plansB: mk(T.B), plansC: mk(T.C),
+      n, setN: e => this.setState({ n: +e.target.value }),
+      calcPlan: base.name, calcPrice: base.price,
+      calcNote: base.inboxes + ' inboxes, ' + base.domains + (base.domains > 1 ? ' domains' : ' domain') + ', launch kit included',
+      steps, kit, seqs: ['instantly logo', 'smartlead logo', 'emailbison logo', 'csv export'],
+      faqs: faqItems.map((f, i) => ({ ...f, open: s.faq === i, sign: s.faq === i ? '–' : '+', toggle: () => this.setState({ faq: s.faq === i ? -1 : i }) })),
+      health: [
+        { inbox: 'alex@getacme-mail.com', status: 'Good to send', dot: 'oklch(0.78 0.16 150)', dotC: 'oklch(0.55 0.15 150)' },
+        { inbox: 'alex@tryacme-hq.com', status: 'Good to send', dot: 'oklch(0.78 0.16 150)', dotC: 'oklch(0.55 0.15 150)' },
+        { inbox: 'sam@getacme-mail.com', status: 'Warming up', dot: 'oklch(0.82 0.14 85)', dotC: 'oklch(0.6 0.13 70)' },
+        { inbox: 'sam@tryacme-hq.com', status: 'Replaced free', dot: 'oklch(0.8 0.1 240)', dotC: 'oklch(0.52 0.15 255)' }
+      ],
+      setup: [
+        { label: 'Plan purchased', meta: 'Starter · 25' },
+        { label: 'Domains registered', meta: '1 domain' },
+        { label: 'SPF, DKIM, DMARC set', meta: 'verified' },
+        { label: 'Inboxes created', meta: '25 / 25' },
+        { label: 'Exported to sequencer', meta: 'instantly' }
+      ],
+      compare: [
+        { k: 'Minimum', us: '25 inboxes', them: '400 inboxes' },
+        { k: 'Starting price', us: '$49/mo', them: '$199/mo' },
+        { k: 'Getting access', us: 'Check out online', them: 'Application call' },
+        { k: 'Launch kit', us: 'Included', them: 'Figure it out' }
+      ],
+      goPricing: () => { const el = document.getElementById('pricing-' + s.dir.toLowerCase()); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 60, behavior: 'smooth' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

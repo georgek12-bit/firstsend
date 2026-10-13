@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:oklch(0.97 0.012 85);-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+a:hover{color:oklch(0.54 0.18 42)}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+</style>
+</helmet>
+
+<div style="background:{{ outerBg }};padding:{{ outerPad }};min-height:100vh">
+<div style="max-width:{{ frameW }};margin:0 auto;container-type:inline-size;background:oklch(0.97 0.012 85);color:oklch(0.2 0.015 60);font-family:'Geist',system-ui,sans-serif;overflow:hidden;border-radius:{{ frameR }}">
+
+  <nav style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(20px,4.5cqi,56px)">
+    <a href="#" style="display:flex;align-items:center;gap:10px;font:400 28px/1 'Instrument Serif',serif;letter-spacing:-0.01em"><span style="position:relative;width:22px;height:22px;border:3px solid oklch(0.2 0.015 60);flex:none"><span style="position:absolute;right:-3px;top:-3px;width:9px;height:9px;background:oklch(0.68 0.2 45)"></span></span>Firstsend</a>
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;gap:32px;font-size:15px"><a href="#volume">Pricing</a><a href="#how">How it works</a><a href="#kit">Launch kit</a><a href="#faq">FAQ</a></div>
+    </sc-if>
+    <div style="display:flex;align-items:center;gap:18px;font-size:15px">
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}"><a href="#">Log in</a></sc-if>
+      <a href="#volume" style="background:oklch(0.2 0.015 60);color:oklch(0.97 0.012 85);padding:11px 18px;font-weight:500" style-hover="background:oklch(0.68 0.2 45);color:oklch(0.2 0.015 60)">Start sending</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section style="padding:clamp(40px,7cqi,104px) clamp(20px,4.5cqi,56px) 0">
+    <div data-reveal="12px" style="font:500 13px 'Geist Mono',monospace;letter-spacing:0.02em;text-transform:uppercase;color:oklch(0.45 0.015 60);margin-bottom:clamp(20px,3cqi,36px)">Cold email infrastructure for new agencies</div>
+    <h1 style="margin:0;font:400 clamp(72px,15.5cqi,232px)/0.86 'Instrument Serif',serif;letter-spacing:-0.035em">
+      <span style="display:block;overflow:hidden;padding-bottom:0.04em"><span data-reveal="105%" data-delay="80" style="display:block">Start small.</span></span>
+      <span style="display:block;overflow:hidden;padding-bottom:0.2em;margin-bottom:-0.12em;padding-left:clamp(0px,14cqi,240px)"><span data-reveal="105%" data-delay="200" style="display:block;font-style:italic;color:oklch(0.68 0.2 45)">Send today.</span></span>
+    </h1>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:28px;margin-top:clamp(28px,4cqi,48px)">
+      <p data-reveal="16px" data-delay="340" style="margin:0;max-width:440px;font-size:clamp(18px,1.6cqi,21px);line-height:1.45;text-wrap:pretty">Pick how many emails a day you want to send. We set up the inboxes, domains and warmup. You send the same day.</p>
+      <div data-reveal="16px" data-delay="420" style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+        <a href="#volume" style="display:inline-flex;align-items:center;gap:14px;background:oklch(0.68 0.2 45);color:oklch(0.2 0.015 60);padding:18px 26px;font-size:17px;font-weight:500" style-hover="background:oklch(0.2 0.015 60);color:#fff">Start sending <span style="font-family:'Geist Mono',monospace">→</span></a>
+        <span style="font:400 13px 'Geist Mono',monospace;color:oklch(0.45 0.015 60)">No sales call · No 400-inbox minimum</span>
+      </div>
+    </div>
+
+    <div style="position:relative;margin-top:clamp(48px,7cqi,96px)">
+      <div style="position:absolute;left:calc(-1 * clamp(20px,4.5cqi,56px));right:calc(-1 * clamp(20px,4.5cqi,56px));top:38%;bottom:0;background:oklch(0.68 0.2 45)"></div>
+      <div data-reveal="80px" data-delay="480" style="position:relative;margin-left:clamp(0px,10cqi,180px);background:oklch(0.99 0.006 85);border:1px solid oklch(0.2 0.015 60);box-shadow:12px 12px 0 oklch(0.2 0.015 60)">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid oklch(0.88 0.015 80);font-size:14px">
+          <div style="display:flex;align-items:center;gap:10px"><span style="position:relative;width:16px;height:16px;border:2px solid oklch(0.2 0.015 60);flex:none"><span style="position:absolute;right:-2px;top:-2px;width:7px;height:7px;background:oklch(0.68 0.2 45)"></span></span><b style="font-weight:600">Acme Outbound</b><span style="color:oklch(0.5 0.015 60)">/ Dashboard</span></div>
+          <span style="padding:7px 12px;border:1px solid oklch(0.2 0.015 60);font-size:13px;font-weight:500">Open launch kit</span>
+        </div>
+        <div style="padding:clamp(18px,3cqi,32px);display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;align-items:center;gap:10px;font:400 clamp(24px,2.8cqi,34px)/1.1 'Instrument Serif',serif"><span style="width:10px;height:10px;border-radius:50%;background:oklch(0.62 0.15 150);flex:none"></span>Morning, Alex. You're good to send.</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1px;background:oklch(0.88 0.015 80);border:1px solid oklch(0.88 0.015 80)">
+            <sc-for list="{{ dashStats }}" as="d" hint-placeholder-count="3">
+              <div style="background:oklch(0.99 0.006 85);padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+                <span style="font:400 12px 'Geist Mono',monospace;text-transform:uppercase;color:oklch(0.5 0.015 60)">{{ d.label }}</span>
+                <span style="font-size:26px;font-weight:500;letter-spacing:-0.02em">{{ d.value }} <span style="font-size:15px;color:oklch(0.5 0.015 60);font-weight:400">{{ d.sub }}</span></span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ inboxes }}" as="i" hint-placeholder-count="4">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid oklch(0.92 0.012 80);font-size:14px">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0"><span style="width:8px;height:8px;border-radius:50%;flex:none;background:{{ i.dot }}"></span><span style="font-family:'Geist Mono',monospace;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ i.addr }}</span></div>
+                <span style="flex:none;color:oklch(0.45 0.015 60)">{{ i.status }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="position:relative;height:clamp(40px,6cqi,72px)"></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <section style="background:oklch(0.2 0.015 60);color:oklch(0.97 0.012 85);padding:22px 0;overflow:hidden;display:flex;align-items:center;gap:0">
+    <div style="flex:none;padding:0 28px 0 clamp(20px,4.5cqi,56px);font:400 12px 'Geist Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;opacity:0.7;white-space:nowrap;position:relative;z-index:1;background:oklch(0.2 0.015 60)">Exports to</div>
+    <div style="flex:1;overflow:hidden;min-width:0">
+      <div data-marquee="1" style="display:flex;width:max-content;gap:56px;padding-right:56px">
+        <sc-for list="{{ logos }}" as="l" hint-placeholder-count="12">
+          <div style="height:40px;flex:none;display:flex;align-items:center;gap:10px;color:#fff;font:600 22px/1 'Geist',sans-serif;letter-spacing:-0.02em">
+            <img src="{{ l.src }}" alt="{{ l.alt }}" style="height:{{ l.h }};width:auto;display:block;filter:{{ l.filter }}">
+            <sc-if value="{{ l.label }}" hint-placeholder-val="{{ false }}"><span>{{ l.label }}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUSTED BY -->
+  <section data-reveal="16px" style="padding:clamp(56px,7cqi,96px) clamp(20px,4.5cqi,56px) 0;display:flex;flex-direction:column;align-items:center;gap:clamp(28px,3.5cqi,44px)">
+    <div style="font:500 12px 'Geist Mono',monospace;text-transform:uppercase;letter-spacing:0.18em;color:oklch(0.55 0.012 70)">Trusted by</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:clamp(24px,3cqi,40px);width:100%;max-width:1120px">
+      <sc-for list="{{ trustRows }}" as="row" hint-placeholder-count="2">
+        <div style="display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:clamp(20px,4.5cqi,64px)">
+          <sc-for list="{{ row.items }}" as="t" hint-placeholder-count="6">
+            <img src="{{ t.src }}" alt="{{ t.n }}" style="display:block;height:{{ t.h }};width:auto;opacity:0.5;flex:none">
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- VOLUME -->
+  <section id="volume" style="padding:clamp(72px,10cqi,144px) clamp(20px,4.5cqi,56px);display:flex;flex-wrap:wrap;gap:clamp(32px,5cqi,72px)">
+    <div data-reveal="24px" style="flex:1 1 300px;display:flex;flex-direction:column;gap:20px">
+      <div style="font:500 13px 'Geist Mono',monospace;color:oklch(0.54 0.18 42)">01 / Pricing</div>
+      <h2 style="margin:0;font:400 clamp(52px,7.5cqi,104px)/0.92 'Instrument Serif',serif;letter-spacing:-0.03em">How many emails a day?</h2>
+      <p style="margin:0;max-width:380px;font-size:18px;line-height:1.45;color:oklch(0.4 0.015 60)">Start where you are. Move up when you land the next client. No 400-inbox minimum.</p>
+    </div>
+    <div data-reveal="24px" data-delay="100" style="flex:1.3 1 420px;background:oklch(0.99 0.006 85);border:1px solid oklch(0.2 0.015 60);padding:clamp(22px,3.5cqi,44px);display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px">
+        <div>
+          <div style="font:400 12px 'Geist Mono',monospace;text-transform:uppercase;color:oklch(0.5 0.015 60);margin-bottom:6px">Emails a day</div>
+          <div style="font:400 clamp(56px,7cqi,88px)/0.9 'Instrument Serif',serif;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">{{ vFmt }}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font:400 12px 'Geist Mono',monospace;text-transform:uppercase;color:oklch(0.5 0.015 60);margin-bottom:6px">{{ tierName }} plan</div>
+          <div style="font-size:clamp(40px,4.6cqi,56px);font-weight:500;letter-spacing:-0.04em;line-height:1;font-variant-numeric:tabular-nums;color:oklch(0.68 0.2 45)">${{ shown }}<span style="font-size:17px;font-weight:400;letter-spacing:0;color:oklch(0.45 0.015 60)">/mo</span></div>
+        </div>
+      </div>
+
+      <div style="position:relative;height:44px">
+        <div style="position:absolute;left:0;right:0;top:20px;height:4px;background:oklch(0.88 0.015 80)"></div>
+        <div style="position:absolute;left:0;top:20px;height:4px;width:{{ pct }};background:oklch(0.68 0.2 45)"></div>
+        <sc-for list="{{ ticks }}" as="t" hint-placeholder-count="2">
+          <div style="position:absolute;top:14px;left:{{ t.left }};width:2px;height:16px;background:oklch(0.2 0.015 60)"></div>
+        </sc-for>
+        <div style="position:absolute;top:10px;left:{{ pct }};width:24px;height:24px;margin-left:-12px;background:oklch(0.68 0.2 45);border:3px solid oklch(0.99 0.006 85);box-shadow:0 0 0 1px oklch(0.2 0.015 60);pointer-events:none"></div>
+        <input type="range" min="100" max="3500" step="50" value="{{ v }}" onChange="{{ onSlide }}" aria-label="Emails a day" style="position:absolute;inset:0;width:100%;height:44px;margin:0;opacity:0;cursor:pointer">
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+        <sc-for list="{{ tierChips }}" as="t" hint-placeholder-count="3">
+          <button onClick="{{ t.go }}" style="cursor:pointer;text-align:left;padding:12px 14px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.color }};font-family:'Geist',sans-serif;display:flex;flex-direction:column;gap:4px;min-height:44px">
+            <span style="font:400 12px 'Geist Mono',monospace">{{ t.vol }}/day</span>
+            <span style="font-size:17px;font-weight:500">${{ t.price }}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding-top:24px;border-top:1px solid oklch(0.88 0.015 80)">
+        <span style="font-size:15px;color:oklch(0.4 0.015 60);max-width:300px">Launch kit and burned inbox guarantee on every plan.</span>
+        <a href="#" style="background:oklch(0.2 0.015 60);color:oklch(0.97 0.012 85);padding:16px 22px;font-weight:500" style-hover="background:oklch(0.68 0.2 45);color:oklch(0.2 0.015 60)">Start sending</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" style="padding:0 clamp(20px,4.5cqi,56px) clamp(72px,10cqi,144px)">
+    <div data-reveal="24px" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:clamp(28px,4cqi,48px)">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="font:500 13px 'Geist Mono',monospace;color:oklch(0.54 0.18 42)">02 / How it works</div>
+        <h2 style="margin:0;font:400 clamp(48px,6.5cqi,88px)/0.92 'Instrument Serif',serif;letter-spacing:-0.03em">Buy it, set it, send it.</h2>
+      </div>
+      <span style="font-size:17px;color:oklch(0.4 0.015 60)">All in one day.</span>
+    </div>
+    <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+      <div data-reveal="24px" style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px clamp(20px,4cqi,64px);padding:clamp(22px,3cqi,36px) 0;border-top:1px solid oklch(0.2 0.015 60)">
+        <span style="flex:0 0 auto;width:clamp(64px,10cqi,150px);font:400 italic clamp(56px,7cqi,104px)/0.8 'Instrument Serif',serif;color:oklch(0.68 0.2 45)">{{ s.n }}</span>
+        <span style="flex:1 1 260px;font:400 clamp(30px,3.6cqi,48px)/1 'Instrument Serif',serif;letter-spacing:-0.01em">{{ s.title }}</span>
+        <span style="flex:1 1 300px;max-width:420px;font-size:17px;line-height:1.5;color:oklch(0.4 0.015 60)">{{ s.body }}</span>
+      </div>
+    </sc-for>
+  </section>
+
+  <!-- LAUNCH KIT -->
+  <section id="kit" style="padding:clamp(72px,10cqi,128px) clamp(20px,4.5cqi,56px);background:oklch(0.93 0.018 80);display:flex;flex-direction:column;gap:clamp(32px,4cqi,48px)">
+    <div data-reveal="24px" style="display:flex;flex-wrap:wrap;gap:20px 48px;align-items:flex-end;justify-content:space-between">
+      <div style="display:flex;flex-direction:column;gap:16px;max-width:760px">
+        <div style="font:500 13px 'Geist Mono',monospace;color:oklch(0.54 0.18 42)">03 / Launch kit</div>
+        <h2 style="margin:0;font:400 clamp(48px,6.5cqi,88px)/0.92 'Instrument Serif',serif;letter-spacing:-0.03em">Everything for campaign one. <span style="font-style:italic;color:oklch(0.68 0.2 45)">In the box.</span></h2>
+      </div>
+      <p style="margin:0;max-width:320px;font-size:17px;line-height:1.5;color:oklch(0.4 0.015 60)">Inboxes alone don't get replies. So we bundle the rest.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px">
+
+      <div data-reveal="24px" style="background:oklch(0.99 0.006 85);border:1px solid oklch(0.2 0.015 60);padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:28px;min-height:280px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ kitInboxes }}" as="m" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid oklch(0.88 0.015 80);font:400 13px 'Geist Mono',monospace;margin-left:{{ m.indent }}"><span style="width:18px;height:18px;flex:none;background:oklch(0.93 0.05 65);color:oklch(0.68 0.2 45);font-size:10px;display:flex;align-items:center;justify-content:center">@</span>{{ m.a }}</div>
+          </sc-for>
+        </div>
+        <div><div style="font:400 30px/1 'Instrument Serif',serif">Outlook inboxes</div><div style="font-size:15px;color:oklch(0.45 0.015 60);margin-top:6px">Created and ready to go.</div></div>
+      </div>
+
+      <div data-reveal="24px" data-delay="60" style="background:oklch(0.68 0.2 45);color:oklch(0.2 0.015 60);padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:28px;min-height:280px">
+        <div style="display:flex;flex-direction:column;gap:1px;background:oklch(0.6 0.19 42)">
+          <sc-for list="{{ dns }}" as="r" hint-placeholder-count="3">
+            <div style="display:flex;justify-content:space-between;padding:12px 14px;background:oklch(0.68 0.2 45);font:400 14px 'Geist Mono',monospace"><span>{{ r }}</span><span>set ✓</span></div>
+          </sc-for>
+        </div>
+        <div><div style="font:400 30px/1 'Instrument Serif',serif">Domains + DNS</div><div style="font-size:15px;opacity:0.85;margin-top:6px">Bought and configured. You never see a DNS record.</div></div>
+      </div>
+
+      <div data-reveal="24px" data-delay="120" style="background:oklch(0.99 0.006 85);border:1px solid oklch(0.2 0.015 60);padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:28px;min-height:280px">
+        <div style="display:flex;align-items:flex-end;gap:6px;height:110px">
+          <sc-for list="{{ warm }}" as="h" hint-placeholder-count="12">
+            <div style="flex:1;height:{{ h }};background:oklch(0.68 0.2 45)"></div>
+          </sc-for>
+        </div>
+        <div><div style="font:400 30px/1 'Instrument Serif',serif">Warmup</div><div style="font-size:15px;color:oklch(0.45 0.015 60);margin-top:6px">Started for you, with a plain-English guide.</div></div>
+      </div>
+
+      <div data-reveal="24px" style="background:oklch(0.2 0.015 60);color:oklch(0.97 0.012 85);padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:28px;min-height:280px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ seqLogos }}" as="q" hint-placeholder-count="5">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;height:40px;padding:0 12px;border:1px solid oklch(0.35 0.015 60);font:400 13px 'Geist Mono',monospace">
+              <div style="display:flex;align-items:center;gap:8px;font:600 15px/1 'Geist',sans-serif"><img src="{{ q.src }}" alt="{{ q.alt }}" style="height:{{ q.hs }};width:auto;display:block;filter:{{ q.filter }}"><sc-if value="{{ q.label }}" hint-placeholder-val="{{ false }}"><span>{{ q.label }}</span></sc-if></div>
+              <span style="opacity:0.7">export →</span>
+            </div>
+          </sc-for>
+        </div>
+        <div><div style="font:400 30px/1 'Instrument Serif',serif">Sequencer connection</div><div style="font-size:15px;opacity:0.75;margin-top:6px">One click. Or download a CSV.</div></div>
+      </div>
+
+      <div data-reveal="24px" data-delay="60" style="background:oklch(0.99 0.006 85);border:1px solid oklch(0.2 0.015 60);padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:28px;min-height:280px">
+        <div style="border:1px solid oklch(0.88 0.015 80);padding:14px;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:8px">
+          <div style="font:400 12px 'Geist Mono',monospace;color:oklch(0.5 0.015 60)">Subject: quick idea for [company]</div>
+          <div>Hey [first name], saw you're hiring SDRs. Most teams your size book 10+ calls a month without adding headcount.</div>
+          <div style="height:8px;width:70%;background:oklch(0.92 0.012 80)"></div>
+        </div>
+        <div><div style="font:400 30px/1 'Instrument Serif',serif">Copy templates</div><div style="font-size:15px;color:oklch(0.45 0.015 60);margin-top:6px">First-campaign emails you can adapt.</div></div>
+      </div>
+
+      <div data-reveal="24px" data-delay="120" style="background:oklch(0.99 0.006 85);border:1px solid oklch(0.2 0.015 60);padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:28px;min-height:280px">
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ leads }}" as="l" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:9px 0;border-bottom:1px solid oklch(0.92 0.012 80);font-size:14px"><span>{{ l.n }}</span><span style="color:oklch(0.5 0.015 60)">{{ l.r }}</span></div>
+          </sc-for>
+        </div>
+        <div><div style="font:400 30px/1 'Instrument Serif',serif">Starter lead list</div><div style="font-size:15px;color:oklch(0.45 0.015 60);margin-top:6px">Enough leads to run your first test.</div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- GUARANTEE -->
+  <section style="background:oklch(0.68 0.2 45);color:oklch(0.2 0.015 60);padding:clamp(72px,10cqi,144px) clamp(20px,4.5cqi,56px);display:flex;flex-wrap:wrap;gap:clamp(40px,6cqi,96px);align-items:center">
+    <div data-reveal="24px" style="flex:1.4 1 420px;display:flex;flex-direction:column;gap:24px">
+      <div style="font:500 13px 'Geist Mono',monospace;opacity:0.8">04 / Burned inbox guarantee</div>
+      <h2 style="margin:0;font:400 clamp(60px,9.5cqi,148px)/0.88 'Instrument Serif',serif;letter-spacing:-0.035em">Inbox died? <span style="font-style:italic">We replace it free.</span></h2>
+      <p style="margin:0;max-width:440px;font-size:18px;line-height:1.5;opacity:0.9">We check every inbox's health for you. When one burns, you get a new one in a click. No ticket. No argument.</p>
+    </div>
+    <div data-reveal="40px" data-delay="120" style="flex:1 1 300px;background:oklch(0.99 0.006 85);color:oklch(0.2 0.015 60);padding:20px;box-shadow:12px 12px 0 oklch(0.2 0.015 60);display:flex;flex-direction:column;gap:2px">
+      <div style="display:flex;justify-content:space-between;padding:4px 0 12px;font:400 12px 'Geist Mono',monospace;text-transform:uppercase;color:oklch(0.5 0.015 60)"><span>Inbox health</span><span>live</span></div>
+      <sc-for list="{{ healthRows }}" as="h" hint-placeholder-count="4">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-top:1px solid oklch(0.92 0.012 80);font-size:14px">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0"><span style="width:10px;height:10px;border-radius:50%;flex:none;background:{{ h.dot }}"></span><span style="font:400 13px 'Geist Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.addr }}</span></div>
+          <span style="flex:none;font-weight:500">{{ h.status }}</span>
+        </div>
+      </sc-for>
+      <div style="margin-top:10px;padding:13px;background:oklch(0.2 0.015 60);color:#fff;text-align:center;font-size:14px;font-weight:500">Replace burned inbox</div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section data-reveal="24px" data-stats="1" style="padding:clamp(72px,10cqi,128px) clamp(20px,4.5cqi,56px);display:flex;flex-direction:column;gap:clamp(28px,4cqi,48px)">
+    <div style="font:500 13px 'Geist Mono',monospace;color:oklch(0.54 0.18 42)">05 / By the numbers</div>
+    <div style="display:grid;grid-template-columns:repeat({{ statCols }},minmax(0,1fr));border-top:1px solid oklch(0.2 0.015 60)">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+        <div style="padding:24px 20px 8px 0;display:flex;flex-direction:column;gap:10px">
+          <div style="font:400 clamp(72px,9cqi,128px)/0.9 'Instrument Serif',serif;letter-spacing:-0.03em;font-variant-numeric:tabular-nums">{{ s.pre }}<span data-count="{{ s.to }}">{{ s.toFmt }}</span>{{ s.suf }}</div>
+          <div style="font-size:16px;line-height:1.4;color:oklch(0.4 0.015 60);max-width:220px">{{ s.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" style="padding:0 clamp(20px,4.5cqi,56px) clamp(72px,10cqi,128px);display:flex;flex-wrap:wrap;gap:32px clamp(32px,6cqi,96px)">
+    <div data-reveal="24px" style="flex:1 1 280px;display:flex;flex-direction:column;gap:16px">
+      <div style="font:500 13px 'Geist Mono',monospace;color:oklch(0.54 0.18 42)">06 / FAQ</div>
+      <h2 style="margin:0;font:400 clamp(48px,6cqi,80px)/0.92 'Instrument Serif',serif;letter-spacing:-0.03em">Fair questions.</h2>
+    </div>
+    <div data-reveal="24px" data-delay="80" style="flex:2 1 460px;display:flex;flex-direction:column;border-bottom:1px solid oklch(0.2 0.015 60)">
+      <sc-for list="{{ faqs }}" as="f" hint-placeholder-count="6">
+        <div style="border-top:1px solid oklch(0.2 0.015 60)">
+          <button onClick="{{ f.toggle }}" aria-expanded="{{ f.open }}" style="width:100%;min-height:64px;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;background:none;border:0;cursor:pointer;padding:18px 0;color:inherit;font:500 18px 'Geist',sans-serif" style-hover="color:oklch(0.54 0.18 42)">
+            <span>{{ f.q }}</span>
+            <span style="flex:none;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font:400 20px 'Geist Mono',monospace;transition:transform .25s ease;transform:{{ f.rot }}">+</span>
+          </button>
+          <div style="display:grid;grid-template-rows:{{ f.rows }};transition:grid-template-rows .3s ease">
+            <div style="overflow:hidden"><p style="margin:0;padding:0 48px 22px 0;font-size:17px;line-height:1.55;color:oklch(0.4 0.015 60)">{{ f.a }}</p></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section style="background:oklch(0.2 0.015 60);color:oklch(0.97 0.012 85);padding:clamp(72px,11cqi,160px) clamp(20px,4.5cqi,56px) clamp(40px,5cqi,64px);display:flex;flex-direction:column;gap:clamp(40px,6cqi,88px)">
+    <h2 data-reveal="32px" style="margin:0;font:400 clamp(60px,11cqi,168px)/0.88 'Instrument Serif',serif;letter-spacing:-0.035em">Your first campaign <span style="font-style:italic;color:oklch(0.74 0.18 52)">goes out today.</span></h2>
+    <div data-reveal="16px" data-delay="120" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:24px">
+      <a href="#volume" style="display:inline-flex;align-items:center;gap:14px;background:oklch(0.68 0.2 45);color:oklch(0.2 0.015 60);padding:20px 30px;font-size:18px;font-weight:500" style-hover="background:oklch(0.97 0.012 85);color:oklch(0.2 0.015 60)">Start sending <span style="font-family:'Geist Mono',monospace">→</span></a>
+      <span style="font:400 13px 'Geist Mono',monospace;opacity:0.7">From $69/mo · Cancel anytime · No call needed</span>
+    </div>
+    <footer style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;padding-top:28px;border-top:1px solid oklch(0.35 0.015 60);font-size:14px;opacity:0.75">
+      <span style="display:flex;align-items:center;gap:10px"><span style="position:relative;width:16px;height:16px;border:2px solid oklch(0.97 0.012 85);flex:none"><span style="position:absolute;right:-2px;top:-2px;width:7px;height:7px;background:oklch(0.68 0.2 45)"></span></span>© 2026 Firstsend</span>
+      <div style="display:flex;flex-wrap:wrap;gap:24px"><a href="#">Domain generator</a><a href="#">DNS checker</a><a href="#">Affiliates</a><a href="#">Acceptable use</a></div>
+    </footer>
+  </section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;frame&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Desktop&quot;,&quot;Mobile&quot;],&quot;default&quot;:&quot;Desktop&quot;,&quot;tsType&quot;:&quot;'Desktop'|'Mobile'&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;motion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Preview&quot;}}">
+class Component extends DCLogic {
+  tiers = [
+    { max: 500, price: 69, name: 'Starter' },
+    { max: 1600, price: 199, name: 'Growth' },
+    { max: 3500, price: 399, name: 'Scale' }
+  ];
+  state = { v: 1600, shown: 199, faq: 0, w: typeof window !== 'undefined' ? window.innerWidth : 1280 };
+  tierFor(v) { return this.tiers.find(t => v <= t.max); }
+  componentDidMount() {
+    this.onResize = () => this.setState({ w: window.innerWidth });
+    window.addEventListener('resize', this.onResize);
+    requestAnimationFrame(() => this.initMotion());
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+    if (this.io) this.io.disconnect();
+    cancelAnimationFrame(this.raf);
+  }
+  initMotion() {
+    const motion = this.props.motion !== false;
+    const els = Array.from(document.querySelectorAll('[data-reveal]'));
+    if (!motion) return;
+    document.querySelectorAll('[data-marquee]').forEach(el => { el.style.animation = 'mq 32s linear infinite'; });
+    const ease = 'cubic-bezier(.2,.7,.2,1)';
+    els.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(' + (el.dataset.reveal || '24px') + ')';
+      el.style.transition = 'opacity .55s ' + ease + ', transform .65s ' + ease;
+      el.style.transitionDelay = (el.dataset.delay || 0) + 'ms';
+      el.style.willChange = 'transform, opacity';
+    });
+    const show = el => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      if (el.dataset.stats) this.countUp(el);
+    };
+    const masked = el => (el.dataset.reveal || '').endsWith('%');
+    this.io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      this.io.unobserve(e.target);
+      (e.target.__revealTargets || [e.target]).forEach(show);
+    }), { threshold: 0.12 });
+    els.forEach(el => {
+      if (masked(el) && el.parentElement) {
+        const p = el.parentElement;
+        (p.__revealTargets = p.__revealTargets || []).push(el);
+        this.io.observe(p);
+      } else this.io.observe(el);
+    });
+  }
+  countUp(root) {
+    root.querySelectorAll('[data-count]').forEach(el => {
+      const to = +el.dataset.count, t0 = performance.now(), d = 1100;
+      const step = now => {
+        const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = Math.round(to * e).toLocaleString('en-US');
+        if (k < 1) requestAnimationFrame(step);
+      };
+      el.textContent = '0';
+      requestAnimationFrame(step);
+    });
+  }
+  setV(v) {
+    const nw = this.tierFor(v);
+    this.setState({ v });
+    if (nw.price !== this.target) this.animPrice(nw.price);
+  }
+  animPrice(to) {
+    this.target = to;
+    cancelAnimationFrame(this.raf);
+    const from = this.state.shown, t0 = performance.now(), d = 320;
+    const step = now => {
+      const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3);
+      this.setState({ shown: Math.round(from + (to - from) * e) });
+      if (k < 1) this.raf = requestAnimationFrame(step);
+    };
+    this.raf = requestAnimationFrame(step);
+  }
+  renderVals() {
+    const s = this.state;
+    const mobile = this.props.frame === 'Mobile';
+    const tier = this.tierFor(s.v);
+    const pos = x => ((x - 100) / 3400 * 100).toFixed(2) + '%';
+    const faqs = [
+      { q: 'Do I have to talk to sales?', a: 'No. Pick your volume, check out with a card, answer a few quick questions about your business. Done.' },
+      { q: 'How fast can I start sending?', a: 'Setup runs automatically after checkout. Most accounts are sending the same day.' },
+      { q: "I don't know anything about DNS. Is that a problem?", a: "Not at all. We set up SPF, DKIM and DMARC for you. Your dashboard tells you when you're ready to send." },
+      { q: 'What counts as a burned inbox?', a: 'Any inbox our health checks flag as damaged. You request a swap in one click and we replace it free.' },
+      { q: 'Can I change my volume later?', a: 'Yes. Move up or down from your dashboard. Billing is monthly and you can cancel anytime.' },
+      { q: 'Which sequencers do you work with?', a: 'Instantly, Smartlead, EmailBison, lemlist and Apollo, all with one-click export. Anything else works with a CSV.' }
+    ];
+    const blue = 'oklch(0.68 0.2 45)', ink = 'oklch(0.2 0.015 60)', line = 'oklch(0.88 0.015 80)';
+    const green = 'oklch(0.62 0.15 150)', amber = 'oklch(0.8 0.15 92)', red = 'oklch(0.55 0.2 18)';
+    const stats = [
+      { pre: '', to: 500, suf: '', label: 'emails a day is where you can start' },
+      { pre: '', to: 6, suf: '', label: 'things in every launch kit' },
+      { pre: '', to: 5, suf: '', label: 'sequencers, one-click export' },
+      { pre: '', to: 100, suf: '%', label: 'of burned inboxes replaced free' }
+    ].map(x => ({ ...x, toFmt: x.to.toLocaleString('en-US') }));
+    const logoSet = [
+      { src: 'assets/instantly-white.png', alt: 'Instantly', h: '26px', hs: '15px', filter: 'none', label: '' },
+      { src: 'assets/smartlead-white.png', alt: 'Smartlead', h: '26px', hs: '15px', filter: 'none', label: '' },
+      { src: 'assets/emailbison-white.png', alt: 'EmailBison', h: '24px', hs: '14px', filter: 'none', label: '' },
+      { src: 'assets/lemlist-white.png', alt: 'lemlist', h: '28px', hs: '16px', filter: 'none', label: '' },
+      { src: 'assets/apollo-icon.png', alt: 'Apollo', h: '28px', hs: '17px', filter: 'invert(1)', label: 'Apollo' }
+    ];
+    const logos = [];
+    for (let i = 0; i < 6; i++) logos.push(...logoSet);
+    return {
+      wide: !mobile && s.w >= 820,
+      statCols: mobile || s.w < 560 ? 1 : s.w < 1100 ? 2 : 4,
+      outerBg: mobile ? 'oklch(0.86 0.01 80)' : 'transparent',
+      outerPad: mobile ? '32px 16px' : '0',
+      frameW: mobile ? '390px' : 'none',
+      frameR: mobile ? '24px' : '0',
+      v: s.v, vFmt: s.v.toLocaleString('en-US'), shown: s.shown, tierName: tier.name, pct: pos(s.v),
+      onSlide: e => this.setV(+e.target.value),
+      ticks: [{ left: pos(500) }, { left: pos(1600) }],
+      tierChips: this.tiers.map(t => {
+        const on = t === tier;
+        return { vol: t.max.toLocaleString('en-US'), price: t.price, go: () => this.setV(t.max),
+          bg: on ? ink : 'transparent', color: on ? 'oklch(0.97 0.012 85)' : ink, border: on ? ink : line };
+      }),
+      dashStats: [
+        { label: 'Sent today', value: '1,184', sub: '/ 1,600' },
+        { label: 'Inbox health', value: '15', sub: 'of 16 good' },
+        { label: 'Setup', value: 'Done', sub: '4 domains' }
+      ],
+      inboxes: [
+        { addr: 'alex@getacme-mail.com', status: 'Good to send', dot: green },
+        { addr: 'alex@tryacmehq.com', status: 'Good to send', dot: green },
+        { addr: 'sam@getacme-mail.com', status: 'Warming up', dot: amber },
+        { addr: 'sam@tryacmehq.com', status: 'Replacing, free', dot: red }
+      ],
+      healthRows: [
+        { addr: 'jo@meetnorth.co', status: 'Good to send', dot: green },
+        { addr: 'jo@northgrowth.io', status: 'Good to send', dot: green },
+        { addr: 'dev@meetnorth.co', status: 'Watch', dot: amber },
+        { addr: 'dev@northgrowth.io', status: 'Burned', dot: red }
+      ],
+      logos, seqLogos: logoSet,
+      trustRows: (() => {
+        const T = [
+          ['Aalto Capital', 8.583, 0.241], ['AICertified', 5.991, 0.442], ['OKY Capital', 3.234, 0.341],
+          ['CrossBridge', 6.008, 0.262], ['Talent Thrive', 4.178, 0.188], ['Macwood Capital', 3.321, 0.181],
+          ['Atomyc', 4.175, 0.291], ['Yanne Capital', 2.713, 0.163], ['Waddell Group', 3.525, 0.146],
+          ['SwiftSift', 4.944, 0.436], ['Teleperson', 5.286, 0.247]
+        ];
+        const small = mobile || s.w < 640, mid = !small && s.w < 1180;
+        const A = small ? 1700 : mid ? 3800 : 4600;
+        const split = small ? [3, 3, 3, 2] : mid ? [4, 4, 3] : [6, 5];
+        const items = T.map(([n, r, d]) => {
+          const k = Math.min(1.18, Math.max(0.82, Math.pow(0.27 / d, 0.3)));
+          return { n, src: 'assets/trusted/' + n.toLowerCase().replace(/\s+/g, '-') + '.png', h: (Math.sqrt(A / r) * k).toFixed(1) + 'px' };
+        });
+        let i = 0;
+        return split.map(c => ({ items: items.slice(i, i += c) }));
+      })(),
+      steps: [
+        { n: '1', title: 'Choose volume', body: 'Slide to the emails a day you need. Check out with a card. Two minutes, tops.' },
+        { n: '2', title: 'We set everything up', body: "We buy your domains and set up DNS, inboxes and warmup. You don't touch a thing." },
+        { n: '3', title: 'Export to your sequencer', body: 'One click into Instantly, Smartlead, EmailBison, lemlist or Apollo. Or grab a CSV and go.' }
+      ],
+      kitInboxes: [{ a: 'alex@getacme-mail.com', indent: '0' }, { a: 'sam@getacme-mail.com', indent: '16px' }, { a: 'jo@tryacmehq.com', indent: '32px' }],
+      dns: ['SPF', 'DKIM', 'DMARC'],
+      warm: ['14%', '20%', '24%', '32%', '38%', '46%', '52%', '60%', '68%', '76%', '88%', '100%'],
+      seqs: ['Instantly', 'Smartlead', 'EmailBison'],
+      leads: [{ n: 'Priya Shah', r: 'Head of Growth' }, { n: 'Tom Reyes', r: 'Founder' }, { n: 'Mia Chen', r: 'VP Sales' }, { n: 'Owen Hart', r: 'COO' }],
+      stats,
+      faqs: faqs.map((f, i) => {
+        const open = s.faq === i;
+        return { ...f, open, rows: open ? '1fr' : '0fr', rot: open ? 'rotate(45deg)' : 'none',
+          toggle: () => this.setState({ faq: open ? -1 : i }) };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

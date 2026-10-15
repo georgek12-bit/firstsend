@@ -11,9 +11,9 @@ export default function Nav() {
       </Link>
       <div className="nav__links">
         {navLinks.map(l => (
-          <a key={l.href} href={l.href}>
+          <Link key={l.href} href={l.href}>
             {l.label}
-          </a>
+          </Link>
         ))}
       </div>
       <div className="nav__actions">

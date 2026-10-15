@@ -1,3 +1,5 @@
+import { asset } from './asset';
+
 // All page copy and data. The product name is set once here so it is easy to swap.
 export const BRAND = 'Firstsend';
 
@@ -42,11 +44,11 @@ export type SequencerLogo = {
 };
 
 export const sequencers: SequencerLogo[] = [
-  { src: '/assets/instantly-white.png', alt: 'Instantly', h: 26, hs: 15 },
-  { src: '/assets/smartlead-white.png', alt: 'Smartlead', h: 26, hs: 15 },
-  { src: '/assets/emailbison-white.png', alt: 'EmailBison', h: 24, hs: 14 },
-  { src: '/assets/lemlist-white.png', alt: 'lemlist', h: 28, hs: 16 },
-  { src: '/assets/apollo-icon.png', alt: 'Apollo', h: 28, hs: 17, invert: true, label: 'Apollo' },
+  { src: asset('/assets/instantly-white.png'), alt: 'Instantly', h: 26, hs: 15 },
+  { src: asset('/assets/smartlead-white.png'), alt: 'Smartlead', h: 26, hs: 15 },
+  { src: asset('/assets/emailbison-white.png'), alt: 'EmailBison', h: 24, hs: 14 },
+  { src: asset('/assets/lemlist-white.png'), alt: 'lemlist', h: 28, hs: 16 },
+  { src: asset('/assets/apollo-icon.png'), alt: 'Apollo', h: 28, hs: 17, invert: true, label: 'Apollo' },
 ];
 
 // [name, aspect ratio (w/h), ink density]. Logos are sized by visual weight, not pixel height.
@@ -78,7 +80,7 @@ export const trustLayouts: TrustLayout[] = TRUST_SIZES.map(({ size, area, split 
     const k = Math.min(1.18, Math.max(0.82, Math.pow(0.27 / density, 0.3)));
     return {
       name,
-      src: '/assets/trusted/' + name.toLowerCase().replace(/\s+/g, '-') + '.png',
+      src: asset('/assets/trusted/' + name.toLowerCase().replace(/\s+/g, '-') + '.png'),
       h: (Math.sqrt(area / ratio) * k).toFixed(1) + 'px',
     };
   });

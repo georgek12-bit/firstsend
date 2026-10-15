@@ -5,6 +5,7 @@ import { Suspense, useState } from 'react';
 import ExportPanel from '@/components/ExportPanel';
 import { Modal, StatusPill, useToast } from '@/components/ui';
 import { fmt } from '@/lib/plans';
+import { errorText } from '@/lib/store';
 import type { Inbox } from '@/lib/types';
 import { useView } from '@/lib/view';
 
@@ -38,9 +39,13 @@ function Inboxes() {
     { id: 'good', label: 'Good to send', n: counts.good },
   ];
 
-  const replace = (b: Inbox) => {
-    requestReplacement(b.id);
-    showToast(`Replacing ${b.addr}. Free, as promised.`);
+  const replace = async (b: Inbox) => {
+    try {
+      await requestReplacement(b.id);
+      showToast(`Replacing ${b.addr}. Free, as promised.`);
+    } catch (err) {
+      showToast(errorText(err));
+    }
   };
 
   return (

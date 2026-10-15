@@ -23,7 +23,7 @@ function greeting(now: number) {
 }
 
 export default function Dashboard() {
-  const { state, now, sub, plan, progress, counts, total, cap, fullCap, sent, ready, firstName } = useView();
+  const { state, now, sub, plan, progress, counts, total, cap, fullCap, sent, ready, firstName, live } = useView();
   const capRisesAt = state.account!.createdAt + STARTER_CAP_DAYS * DAY;
   const sorted = [...state.inboxes].sort((a, b) => ORDER.indexOf(a.status) - ORDER.indexOf(b.status));
   const preview = sorted.slice(0, 6);
@@ -31,7 +31,11 @@ export default function Dashboard() {
   const preferred = state.business?.sequencer ?? 'other';
 
   let headline: { dot: string; text: string };
-  if (!ready) headline = { dot: 'var(--warn)', text: `Setting up. About ${Math.max(1, Math.ceil((SETUP_MS - progress.elapsed) / 1000))}s left.` };
+  if (!ready)
+    headline = {
+      dot: 'var(--warn)',
+      text: live ? "We're setting up your inboxes. Usually ready the same day." : `Setting up. About ${Math.max(1, Math.ceil((SETUP_MS - progress.elapsed) / 1000))}s left.`,
+    };
   else if (counts.burned) headline = { dot: 'var(--bad)', text: `${counts.burned} inbox${counts.burned > 1 ? 'es' : ''} burned. Replace free in one click.` };
   else if (counts.good === 0) headline = { dot: 'var(--warn)', text: 'Inboxes are warming up. Almost there.' };
   else headline = { dot: 'var(--good)', text: "You're good to send." };

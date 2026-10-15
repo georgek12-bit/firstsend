@@ -6,19 +6,19 @@ import { Loading, useGuard } from '@/components/Flow';
 import LogoMark from '@/components/LogoMark';
 import { BRAND } from '@/lib/content';
 import { fmt, planById } from '@/lib/plans';
-import { setupProgress } from '@/lib/sim';
+import { setupComplete } from '@/lib/sim';
 import { useStore } from '@/lib/store';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const ok = useGuard('/app');
-  const { state, now, logout } = useStore();
+  const { state, logout, isAdmin } = useStore();
   const path = usePathname();
   const router = useRouter();
 
   if (!ok) return <Loading />;
 
   const plan = planById(state.subscription!.plan);
-  const setupDone = setupProgress(state.setupStartedAt, now).done && state.inboxes.length > 0;
+  const setupDone = setupComplete(state);
   const attention = state.inboxes.filter(b => b.status === 'burned').length;
 
   const nav = [
@@ -28,10 +28,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: '/app/kit', label: 'Launch kit' },
     { href: '/app/billing', label: 'Billing' },
     { href: '/app/settings', label: 'Settings' },
+    ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
   ];
 
-  const signOut = () => {
-    logout();
+  const signOut = async () => {
+    await logout();
     router.push('/login');
   };
 

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { FlowShell, Loading, useGuard } from '@/components/Flow';
 import { Choice, Field } from '@/components/ui';
 import { SEQUENCER_OPTIONS } from '@/lib/sequencers';
-import { useStore } from '@/lib/store';
+import { errorText, useStore } from '@/lib/store';
 import type { Business, ClientCount, LeadSource, UseCase } from '@/lib/types';
 
 const CLIENTS: { v: ClientCount; t: string }[] = [
@@ -59,10 +59,12 @@ export default function Onboarding() {
       return;
     }
     setChecking(true);
-    setTimeout(() => {
-      const res = submitBusiness(v as Business);
-      router.push(res.result === 'approved' ? '/onboarding/domains' : '/onboarding/declined');
-    }, 900);
+    submitBusiness(v as Business)
+      .then(res => router.push(res.result === 'approved' ? '/onboarding/domains' : '/onboarding/declined'))
+      .catch(err => {
+        setErrors({ form: errorText(err) });
+        setChecking(false);
+      });
   };
 
   return (
@@ -157,6 +159,11 @@ export default function Onboarding() {
           {errors.agree && <span className="ui-error">{errors.agree}</span>}
         </div>
 
+        {errors.form && (
+          <p className="ui-error" role="alert">
+            {errors.form}
+          </p>
+        )}
         <div className="flow__actions">
           <button type="submit" className="ui-btn ui-btn--orange" disabled={checking}>
             {checking ? 'Checking…' : 'Continue to domains'} {!checking && <span className="mono">→</span>}

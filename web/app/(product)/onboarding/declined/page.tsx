@@ -29,8 +29,8 @@ export default function Declined() {
         <button
           type="button"
           className="ui-btn ui-btn--ghost"
-          onClick={() => {
-            reopenOnboarding();
+          onClick={async () => {
+            await reopenOnboarding();
             router.push('/onboarding');
           }}
         >

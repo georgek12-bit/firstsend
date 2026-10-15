@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CardFields, cardFrom, validateCard } from '@/components/CardFields';
 import { Modal, date, money, useToast } from '@/components/ui';
 import { PLANS, fmt, planById } from '@/lib/plans';
+import { errorText } from '@/lib/store';
 import { useView } from '@/lib/view';
 
 export default function Billing() {
@@ -15,20 +16,31 @@ export default function Billing() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const pending = sub.pendingPlan ? planById(sub.pendingPlan) : null;
 
-  const pick = (id: (typeof PLANS)[number]['id']) => {
-    const res = changePlan(id);
+  const pick = async (id: (typeof PLANS)[number]['id']) => {
+    let res;
+    try {
+      res = await changePlan(id);
+    } catch (err) {
+      show(errorText(err));
+      return;
+    }
     const to = planById(id);
-    if (res === 'upgraded') show(`Upgraded to ${to.name}. New inboxes are warming up now.`);
+    if (res === 'upgraded') show(`Upgraded to ${to.name}. We're adding your extra inboxes now.`);
     else if (res === 'scheduled') show(`You'll move to ${to.name} on ${date(sub.renewsAt)}.`);
     else if (pending) show('Plan change canceled.');
   };
 
-  const saveCard = (e: React.FormEvent) => {
+  const saveCard = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validateCard(card);
     setErrors(errs);
     if (Object.keys(errs).length) return;
-    updateCard(cardFrom(card));
+    try {
+      await updateCard(cardFrom(card));
+    } catch (err) {
+      setErrors({ number: errorText(err) });
+      return;
+    }
     setCardOpen(false);
     setCard({ number: '', exp: '', cvc: '' });
     show('Card updated.');
@@ -47,7 +59,7 @@ export default function Billing() {
       {sub.status === 'canceled' && (
         <div className="ui-banner ui-banner--warn">
           <span>Your plan ends on {date(sub.renewsAt)}. After that your inboxes stop sending.</span>
-          <button type="button" className="ui-btn ui-btn--sm" onClick={() => (resume(), show('Welcome back. Your plan continues.'))}>
+          <button type="button" className="ui-btn ui-btn--sm" onClick={() => resume().then(() => show('Welcome back. Your plan continues.'), err => show(errorText(err)))}>
             Keep my plan
           </button>
         </div>
@@ -162,10 +174,14 @@ export default function Billing() {
                     <button
                       type="button"
                       className="ui-btn ui-btn--danger ui-btn--sm"
-                      onClick={() => {
-                        cancel();
+                      onClick={async () => {
+                        try {
+                          await cancel();
+                          show(`Plan canceled. It ends ${date(sub.renewsAt)}.`);
+                        } catch (err) {
+                          show(errorText(err));
+                        }
                         setConfirmCancel(false);
-                        show(`Plan canceled. It ends ${date(sub.renewsAt)}.`);
                       }}
                     >
                       Yes, cancel

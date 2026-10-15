@@ -7,7 +7,7 @@ import PlanSummary from '@/components/PlanSummary';
 import { CardFields, cardFrom, validateCard } from '@/components/CardFields';
 import { Choice, money } from '@/components/ui';
 import { PLANS, fmt, type PlanId } from '@/lib/plans';
-import { useStore } from '@/lib/store';
+import { errorText, useStore } from '@/lib/store';
 
 function Checkout() {
   const ok = useGuard('/checkout');
@@ -29,10 +29,12 @@ function Checkout() {
     setErrors(errs);
     if (Object.keys(errs).length) return;
     setPaying(true);
-    setTimeout(() => {
-      checkout(plan, cardFrom(card));
-      router.push('/onboarding');
-    }, 1100);
+    checkout(plan, cardFrom(card))
+      .then(() => router.push('/onboarding'))
+      .catch(err => {
+        setErrors({ form: errorText(err) });
+        setPaying(false);
+      });
   };
 
   return (
@@ -61,6 +63,11 @@ function Checkout() {
           </div>
         </fieldset>
         <CardFields value={card} onChange={setCard} errors={errors} />
+        {errors.form && (
+          <p className="ui-error" role="alert">
+            {errors.form}
+          </p>
+        )}
         <div className="flow__actions">
           <button type="submit" className="ui-btn ui-btn--orange" disabled={paying}>
             {paying ? 'Processing…' : `Pay ${money(price)} and continue`}

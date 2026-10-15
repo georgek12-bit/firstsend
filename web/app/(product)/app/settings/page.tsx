@@ -4,12 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Field, useToast } from '@/components/ui';
 import { SEQUENCER_OPTIONS, sequencerName } from '@/lib/sequencers';
-import { checkSignupEmail } from '@/lib/store';
+import { checkSignupEmail, errorText } from '@/lib/store';
 import type { Business } from '@/lib/types';
 import { useView } from '@/lib/view';
 
 export default function Settings() {
-  const { state, updateAccount, updateBusiness, disconnect, demo } = useView();
+  const { state, updateAccount, updateBusiness, disconnect, demo, live } = useView();
   const router = useRouter();
   const [toast, show] = useToast();
   const [name, setName] = useState(state.account!.name);
@@ -18,7 +18,7 @@ export default function Settings() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirmReset, setConfirmReset] = useState(false);
 
-  const saveAccount = (e: React.FormEvent) => {
+  const saveAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = 'Enter your name.';
@@ -26,18 +26,26 @@ export default function Settings() {
     if (emailErr) errs.email = emailErr;
     setErrors(errs);
     if (Object.keys(errs).length) return;
-    updateAccount({ name, email });
-    show('Account saved.');
+    try {
+      const { emailPending } = await updateAccount({ name, email });
+      show(emailPending ? 'Saved. Click the link we sent to your new email to confirm it.' : 'Account saved.');
+    } catch (err) {
+      setErrors({ email: errorText(err) });
+    }
   };
 
-  const saveBiz = (e: React.FormEvent) => {
+  const saveBiz = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!biz.company.trim()) {
       setErrors({ company: 'Enter your company name.' });
       return;
     }
-    updateBusiness(biz);
-    show('Business details saved.');
+    try {
+      await updateBusiness(biz);
+      show('Business details saved.');
+    } catch (err) {
+      setErrors({ company: errorText(err) });
+    }
   };
 
   return (
@@ -112,10 +120,12 @@ export default function Settings() {
                   <button
                     type="button"
                     className="ui-link ui-small"
-                    onClick={() => {
-                      disconnect(c.sequencer);
-                      show(`${sequencerName(c.sequencer)} disconnected.`);
-                    }}
+                    onClick={() =>
+                      disconnect(c.sequencer).then(
+                        () => show(`${sequencerName(c.sequencer)} disconnected.`),
+                        err => show(errorText(err)),
+                      )
+                    }
                   >
                     Disconnect
                   </button>
@@ -126,6 +136,7 @@ export default function Settings() {
             )}
           </section>
 
+          {!live && (
           <section className="demo" aria-labelledby="demo-h">
             <h2 id="demo-h" className="ui-h3">
               Demo controls
@@ -167,6 +178,7 @@ export default function Settings() {
               </div>
             )}
           </section>
+          )}
         </div>
       </div>
       {toast}

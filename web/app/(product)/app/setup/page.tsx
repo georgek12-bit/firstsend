@@ -5,7 +5,7 @@ import { SETUP_MS, SETUP_STEPS } from '@/lib/sim';
 import { useView } from '@/lib/view';
 
 export default function Setup() {
-  const { state, progress, ready, total, plan } = useView();
+  const { state, progress, ready, total, plan, live } = useView();
   const left = Math.max(0, Math.ceil((SETUP_MS - progress.elapsed) / 1000));
   const byod = state.domains?.byod;
 
@@ -18,7 +18,9 @@ export default function Setup() {
           <p className="ui-sub">
             {ready
               ? `${total} inboxes across ${state.domains!.names.length} domains are warming up. Connect your sequencer next.`
-              : "Sit back. You don't need to do anything. You can leave this page and come back."}
+              : live
+                ? "Sit back. You don't need to do anything. We'll email you the moment you're ready to send, usually the same day."
+                : "Sit back. You don't need to do anything. You can leave this page and come back."}
           </p>
         </div>
       </div>
@@ -29,7 +31,7 @@ export default function Setup() {
             <h2 id="progress-h" className="ui-h2">
               {ready ? 'All done' : `${Math.round(progress.pct * 100)}% done`}
             </h2>
-            <span className="ui-label ui-num">{ready ? 'Ready' : `About ${left}s left (demo speed)`}</span>
+            <span className="ui-label ui-num">{ready ? 'Ready' : live ? 'Usually same day' : `About ${left}s left (demo speed)`}</span>
           </div>
           <div className="ui-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress.pct * 100)} aria-label="Setup progress">
             <span style={{ width: `${progress.pct * 100}%` }} />
@@ -45,7 +47,7 @@ export default function Setup() {
                     <div className="steps__title">{s.label}</div>
                     <div className="ui-small ui-muted">{s.detail}</div>
                   </div>
-                  <span className="ui-small ui-muted">{done ? 'Done' : active ? 'Working…' : 'Waiting'}</span>
+                  <span className="ui-small ui-muted">{done ? 'Done' : active ? 'Working…' : progress.current < 0 && i === 0 ? 'In the queue' : 'Waiting'}</span>
                 </li>
               );
             })}

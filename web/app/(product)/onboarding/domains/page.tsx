@@ -6,7 +6,7 @@ import { FlowShell, Loading, useGuard } from '@/components/Flow';
 import { Choice, Field } from '@/components/ui';
 import { domainsFor, planById } from '@/lib/plans';
 import { DOMAIN_RE, hash, suggestDomains } from '@/lib/sim';
-import { useStore } from '@/lib/store';
+import { errorText, useStore } from '@/lib/store';
 
 export default function Domains() {
   const ok = useGuard('/onboarding/domains');
@@ -19,6 +19,7 @@ export default function Domains() {
   const [searchMsg, setSearchMsg] = useState<{ text: string; bad: boolean } | null>(null);
   const [own, setOwn] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const company = state.business?.company ?? '';
   const suggestions = useMemo(() => [...extra, ...suggestDomains(company)], [company, extra]);
@@ -57,15 +58,16 @@ export default function Domains() {
     setSearch('');
   };
 
-  const submit = () => {
+  const submit = async () => {
+    let names: string[];
     if (mode === 'pick') {
       if (picked.length !== need) {
         setError(`Pick ${need} domains. You have ${picked.length}.`);
         return;
       }
-      chooseDomains(picked, false);
+      names = picked;
     } else {
-      const names = ownList.map(d => d.trim().toLowerCase());
+      names = ownList.map(d => d.trim().toLowerCase());
       const bad = names.findIndex(d => !DOMAIN_RE.test(d));
       if (bad >= 0) {
         setError(`Domain ${bad + 1} doesn't look right. Use the format yourdomain.com.`);
@@ -75,9 +77,15 @@ export default function Domains() {
         setError('Each domain needs to be different.');
         return;
       }
-      chooseDomains(names, true);
     }
-    router.push('/app/setup');
+    setBusy(true);
+    try {
+      await chooseDomains(names, mode === 'own');
+      router.push('/app/setup');
+    } catch (err) {
+      setError(errorText(err));
+      setBusy(false);
+    }
   };
 
   return (
@@ -179,8 +187,8 @@ export default function Domains() {
         </div>
       )}
       <div className="flow__actions">
-        <button type="button" className="ui-btn ui-btn--orange" onClick={submit}>
-          Start setup <span className="mono">→</span>
+        <button type="button" className="ui-btn ui-btn--orange" onClick={submit} disabled={busy}>
+          {busy ? 'Starting…' : 'Start setup'} {!busy && <span className="mono">→</span>}
         </button>
       </div>
     </FlowShell>

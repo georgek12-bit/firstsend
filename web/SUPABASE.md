@@ -1,0 +1,67 @@
+# Connecting Firstsend to Supabase
+
+Without Supabase settings the app runs as a browser-only demo. With them it uses real accounts
+(email sign-in links) and a real database. Payments are still a placeholder until Stripe is added.
+
+## 1. Create the project
+
+1. Sign in at https://supabase.com and click **New project**. Name it `firstsend`, pick a region near
+   your customers, and save the database password somewhere safe.
+
+## 2. Create the tables
+
+1. In the project, open **SQL Editor** and click **New query**.
+2. Paste the whole of `supabase/migrations/20261015000000_init.sql` and click **Run**.
+   It should finish with "Success. No rows returned".
+
+## 3. Set up sign-in
+
+**Authentication > URL Configuration**
+
+- Site URL: `https://georgek12-bit.github.io/firstsend/`
+- Redirect URLs: add `https://georgek12-bit.github.io/firstsend/**` (and `http://localhost:3000/**` for local work)
+
+**Authentication > Sign In / Providers > Email**: keep Email enabled. Leave "Confirm email" on.
+
+Supabase's built-in email sender only allows a few emails an hour. Before launch, add your own sender
+under **Authentication > Emails > SMTP Settings** (Resend or Postmark both work).
+
+## 4. Give the website its keys
+
+From **Project Settings > API**, copy the **Project URL** and the **anon / publishable** key.
+Both are safe to put in a public website; the database rules protect the data.
+
+In GitHub: **Settings > Secrets and variables > Actions > Variables tab > New repository variable**
+
+| Name | Value |
+| --- | --- |
+| `SUPABASE_URL` | Project URL |
+| `SUPABASE_ANON_KEY` | anon / publishable key |
+
+Then **Actions > Deploy site to GitHub Pages > Run workflow**. The live site now uses Supabase.
+
+For local work, copy `.env.example` to `.env.local` and fill in the same two values.
+
+Never put the `service_role` / secret key in the website or in GitHub variables.
+
+## 5. Make yourself an admin
+
+1. Sign up on the live site with your own email.
+2. In **SQL Editor**, run (with your email):
+
+   ```sql
+   update public.profiles set is_admin = true where email = 'you@yourdomain.com';
+   ```
+
+3. An **Admin** link now shows in your app sidebar, and `/admin` lists every customer.
+
+## How fulfilment works (until it's automated)
+
+1. A customer signs up, "pays", answers the onboarding questions and picks domains. They appear in
+   **Admin > Needs action** with "Setup".
+2. Buy their domains and create the inboxes with your provider. Move the setup stage along as you go;
+   the customer sees each step on their setup page.
+3. Paste their inbox addresses into **Add inboxes**, set each inbox's health, then click **Ready to send**.
+4. When a customer requests a replacement, it shows under **Replacements to do**. Enter the new
+   address and click **Done**.
+5. After an upgrade, the customer shows "More inboxes": add domains and inboxes to reach their plan.

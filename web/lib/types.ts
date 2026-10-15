@@ -56,6 +56,8 @@ export type Replacement = { id: string; oldAddr: string; newAddr?: string; reque
 
 export type Invoice = { id: string; at: number; amount: number; label: string };
 
+export type SetupStage = 'queued' | 'domains' | 'dns' | 'inboxes' | 'warmup' | 'ready';
+
 export type Connection = { sequencer: SequencerId; at: number; inboxes: number };
 
 export type State = {
@@ -66,6 +68,8 @@ export type State = {
   vetting: Vetting | null;
   domains: { names: string[]; byod: boolean } | null;
   setupStartedAt: number | null;
+  /** Live mode only: setup progress set by an admin. Undefined in the demo, where setup runs on a timer. */
+  setupStage?: SetupStage | null;
   inboxes: Inbox[];
   replacements: Replacement[];
   connections: Connection[];

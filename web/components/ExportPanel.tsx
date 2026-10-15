@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { SEQUENCER_OPTIONS } from '@/lib/sequencers';
-import { useStore } from '@/lib/store';
+import { errorText, useStore } from '@/lib/store';
 import type { SequencerId } from '@/lib/types';
 import { Field, downloadCsv } from './ui';
 
@@ -24,10 +24,12 @@ export default function ExportPanel({ onDone }: { onDone: (msg: string) => void 
       return;
     }
     setBusy(true);
-    setTimeout(() => {
-      connect(seq);
-      onDone(`${sendable.length} inboxes sent to ${name}.`);
-    }, 1000);
+    connect(seq)
+      .then(() => onDone(`${sendable.length} inboxes sent to ${name}.`))
+      .catch(err => {
+        setError(errorText(err));
+        setBusy(false);
+      });
   };
 
   const csv = () => {

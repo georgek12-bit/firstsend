@@ -2,7 +2,7 @@
 // DNS provider, Microsoft tenant automation and health monitoring. Timings are sped up
 // so the whole flow can be demoed in a couple of minutes.
 import { domainsFor, inboxesFor, planById, STARTER_CAP_DAYS, STARTER_CAP_SHARE, type Plan } from './plans';
-import type { Inbox, State } from './types';
+import type { Inbox, SetupStage, State } from './types';
 
 export const SETUP_STEPS = [
   { key: 'domains', label: 'Buying your domains', detail: 'Registering the names you picked.', ms: 5000 },
@@ -27,6 +27,23 @@ export function setupProgress(startedAt: number | null, now: number): SetupProgr
     if (elapsed < acc) return { done: false, elapsed, current: i, pct: elapsed / SETUP_MS };
   }
   return { done: true, elapsed, current: SETUP_STEPS.length, pct: 1 };
+}
+
+const STAGE_STEP: Record<SetupStage, number> = { queued: 0, domains: 0, dns: 1, inboxes: 2, warmup: 3, ready: SETUP_STEPS.length };
+
+/** Setup progress for either mode: admin-set stage when live, a timer in the demo. */
+export function progressFor(s: State, now: number): SetupProgress {
+  if (s.setupStage === undefined) return setupProgress(s.setupStartedAt, now);
+  const stage = s.setupStage;
+  if (!stage) return { done: false, elapsed: 0, current: -1, pct: 0 };
+  const current = STAGE_STEP[stage];
+  const done = stage === 'ready';
+  return { done, elapsed: 0, current, pct: done ? 1 : Math.max(0.04, current / SETUP_STEPS.length) };
+}
+
+/** Whether the customer can use their inboxes yet. */
+export function setupComplete(s: State) {
+  return s.setupStage === undefined ? s.inboxes.length > 0 : s.setupStage === 'ready';
 }
 
 // ---------- Names ----------

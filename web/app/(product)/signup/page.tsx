@@ -7,7 +7,7 @@ import { FlowShell } from '@/components/Flow';
 import PlanSummary from '@/components/PlanSummary';
 import { Choice, Field, money } from '@/components/ui';
 import { PLANS, fmt, type PlanId } from '@/lib/plans';
-import { checkSignupEmail, nextRoute, useStore } from '@/lib/store';
+import { checkSignupEmail, errorText, nextRoute, useStore } from '@/lib/store';
 
 function Signup() {
   const params = useSearchParams();
@@ -17,11 +17,13 @@ function Signup() {
   const [plan, setPlan] = useState<PlanId>(initial);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; email?: string; form?: string }>({});
+  const [busy, setBusy] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
 
   const signedIn = ready && state.account?.loggedIn;
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next = {
       name: name.trim() ? undefined : 'Enter your name.',
@@ -29,9 +31,37 @@ function Signup() {
     };
     setErrors(next);
     if (next.name || next.email) return;
-    signup({ name, email });
-    router.push(`/checkout?plan=${plan}`);
+    setBusy(true);
+    try {
+      const { sent } = await signup({ name, email, plan });
+      if (sent) setSentTo(email.trim());
+      else router.push(`/checkout?plan=${plan}`);
+    } catch (err) {
+      setErrors({ form: errorText(err) });
+    } finally {
+      setBusy(false);
+    }
   };
+
+  if (sentTo) {
+    return (
+      <FlowShell step={0} aside={<PlanSummary planId={plan} />}>
+        <div className="ui-stack" style={{ '--gap': '14px' } as React.CSSProperties}>
+          <h1 className="ui-h1">Check your email</h1>
+          <p className="ui-sub">
+            We sent a sign-in link to <b>{sentTo}</b>. Click it to confirm your email and go straight to payment. You can close this tab.
+          </p>
+        </div>
+        <p className="ui-small ui-muted">
+          Nothing there after a minute? Check spam, or{' '}
+          <button type="button" className="ui-link" onClick={() => setSentTo(null)}>
+            try again
+          </button>
+          .
+        </p>
+      </FlowShell>
+    );
+  }
 
   return (
     <FlowShell step={0} aside={<PlanSummary planId={plan} />}>
@@ -97,14 +127,19 @@ function Signup() {
         </Field>
 
         <div className="flow__actions">
-          <button type="submit" className="ui-btn ui-btn--orange">
-            Continue to payment <span className="mono">→</span>
+          <button type="submit" className="ui-btn ui-btn--orange" disabled={busy}>
+            {busy ? 'Sending…' : 'Continue to payment'} {!busy && <span className="mono">→</span>}
           </button>
           <span className="ui-small ui-muted">
             Have an account? <Link href="/login" className="ui-link">Log in</Link>
           </span>
         </div>
-        {state.account && (
+        {errors.form && (
+          <p className="ui-error" role="alert">
+            {errors.form}
+          </p>
+        )}
+        {state.account && !signedIn && (
           <p className="ui-small ui-muted">Signing up again starts a fresh demo account in this browser.</p>
         )}
       </form>

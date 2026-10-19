@@ -61,7 +61,8 @@ function useAdminData() {
     const subs = by(s.data), bizs = by(b.data), doms = by(d.data), inbs = by(i.data), reps = by(r.data);
     setCustomers(
       (p.data ?? [])
-        .filter(x => !x.is_admin)
+        // Admins only show up if they have a plan of their own (e.g. a test order).
+        .filter(x => !x.is_admin || subs.has(x.id))
         .map(x => {
           const sub = subs.get(x.id)?.[0] ?? null;
           const inboxes = inbs.get(x.id) ?? [];

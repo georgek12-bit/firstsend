@@ -2,7 +2,7 @@
 // DNS provider, Microsoft tenant automation and health monitoring. Timings are sped up
 // so the whole flow can be demoed in a couple of minutes.
 import { domainsFor, inboxesFor, planById, STARTER_CAP_DAYS, STARTER_CAP_SHARE, type Plan } from './plans';
-import type { Inbox, SetupStage, State } from './types';
+import type { Inbox, InboxLogin, SetupStage, State } from './types';
 
 export const SETUP_STEPS = [
   { key: 'domains', label: 'Buying your domains', detail: 'Registering the names you picked.', ms: 5000 },
@@ -85,6 +85,23 @@ export const DOMAIN_RE = /^(?!-)[a-z0-9-]{1,63}(?<!-)\.[a-z]{2,}(\.[a-z]{2,})?$/
 
 // ---------- Inboxes ----------
 
+/** Demo: a made-up login so the export file has every column filled. */
+export function demoLogin(addr: string): InboxLogin {
+  const first = addr.split('@')[0].split('.')[0];
+  return {
+    firstName: first[0].toUpperCase() + first.slice(1),
+    lastName: '',
+    imapUsername: addr,
+    imapPassword: 'demo-password',
+    imapHost: 'mail.example.com',
+    imapPort: 993,
+    smtpUsername: addr,
+    smtpPassword: 'demo-password',
+    smtpHost: 'mail.example.com',
+    smtpPort: 587,
+  };
+}
+
 export function makeInboxes(domains: string[], count: number, now: number): Inbox[] {
   const out: Inbox[] = [];
   const perDomain = Math.ceil(count / domains.length);
@@ -99,6 +116,7 @@ export function makeInboxes(domains: string[], count: number, now: number): Inbo
       createdAt: now,
       // Stagger so inboxes finish warmup one after another.
       readyAt: now + WARMUP_MS * (0.6 + (i % 7) * 0.08),
+      login: demoLogin(`${person}@${domain}`),
     });
   }
   return out;
@@ -148,6 +166,7 @@ export function reconcile(state: State, now: number): State {
         status: 'warming',
         createdAt: now,
         readyAt: now + WARMUP_MS * 0.6,
+        login: demoLogin(`${local}.${(hash(n.id) % 90) + 10}@${n.domain}`),
       };
       const r = replacements.findIndex(x => x.oldAddr === n.addr && !x.doneAt);
       if (r >= 0) replacements[r] = { ...replacements[r], newAddr: fresh.addr, doneAt: now };

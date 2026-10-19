@@ -38,6 +38,20 @@ export type Vetting = { result: 'approved' } | { result: 'declined'; reason: str
 
 export type InboxStatus = 'warming' | 'good' | 'watch' | 'burned' | 'replacing';
 
+/** How a sequencer signs in to an inbox. Imported by an admin from the provider's file. */
+export type InboxLogin = {
+  firstName: string;
+  lastName: string;
+  imapUsername: string;
+  imapPassword: string;
+  imapHost: string;
+  imapPort: number;
+  smtpUsername: string;
+  smtpPassword: string;
+  smtpHost: string;
+  smtpPort: number;
+};
+
 export type Inbox = {
   id: string;
   addr: string;
@@ -50,6 +64,7 @@ export type Inbox = {
   degradeAt?: number;
   degradeTo?: 'watch' | 'burned';
   replaceRequestedAt?: number;
+  login?: InboxLogin;
 };
 
 export type Replacement = { id: string; oldAddr: string; newAddr?: string; requestedAt: number; doneAt?: number };

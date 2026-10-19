@@ -13,6 +13,7 @@ import { inboxesFor, planById, type PlanId } from '@/lib/plans';
 import { sequencerName } from '@/lib/sequencers';
 import { SETUP_STEPS } from '@/lib/sim';
 import { errorText, useStore } from '@/lib/store';
+import { readProviderFile } from '@/lib/providerCsv';
 import { getSupabase } from '@/lib/supabase';
 import type { InboxStatus, SetupStage } from '@/lib/types';
 
@@ -50,7 +51,7 @@ function useAdminData() {
       sb.from('subscriptions').select('*'),
       sb.from('businesses').select('*'),
       sb.from('domains').select('*').order('created_at'),
-      sb.from('inboxes').select('*').order('addr'),
+      sb.from('inboxes').select('*, inbox_logins(inbox_id)').order('addr'),
       sb.from('replacements').select('*').is('done_at', null).order('requested_at'),
     ]);
     const by = (rows: Row[] | null) => {
@@ -74,6 +75,7 @@ function useAdminData() {
           if (sub?.setup_stage === 'ready' && inboxes.length < target) needs.push('More inboxes');
           if (openReplacements.length) needs.push(`${openReplacements.length} replacement${openReplacements.length > 1 ? 's' : ''}`);
           if (inboxes.some(b => b.status === 'burned')) needs.push('Burned inbox');
+          if (inboxes.some(b => !b.inbox_logins && b.status !== 'burned')) needs.push('Missing logins');
           return {
             id: x.id,
             name: x.name,
@@ -98,6 +100,7 @@ function useAdminData() {
 
 function CustomerDetail({ c, reload, show }: { c: Customer; reload: () => Promise<void>; show: (m: string) => void }) {
   const [addrs, setAddrs] = useState('');
+  const [file, setFile] = useState('');
   const [newDomains, setNewDomains] = useState('');
   const [newAddr, setNewAddr] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -116,6 +119,17 @@ function CustomerDetail({ c, reload, show }: { c: Customer; reload: () => Promis
     } finally {
       setBusy(false);
     }
+  };
+
+  const importFile = async () => {
+    let rows;
+    try {
+      rows = readProviderFile(file);
+    } catch (err) {
+      show(errorText(err));
+      return;
+    }
+    if (await run('admin_import_inboxes', { p_user: c.id, p_rows: rows }, `${rows.length} inboxes imported with logins.`)) setFile('');
   };
 
   const plan = c.sub ? planById(c.sub.plan) : null;
@@ -182,8 +196,34 @@ function CustomerDetail({ c, reload, show }: { c: Customer; reload: () => Promis
                   {c.inboxes.length} / {c.target}
                 </span>
               </div>
+              <div className="ui-field">
+                <span className="ui-legend">Import from the provider&apos;s file (adds inboxes and their logins)</span>
+                <input
+                  type="file"
+                  accept=".csv,.tsv,.txt,text/csv"
+                  className="ui-small"
+                  aria-label="Provider file"
+                  onChange={async e => {
+                    const f = e.target.files?.[0];
+                    if (f) setFile(await f.text());
+                    e.target.value = '';
+                  }}
+                />
+                <textarea
+                  className="ui-input mono"
+                  rows={4}
+                  placeholder="Or paste the rows here, straight from the spreadsheet"
+                  value={file}
+                  onChange={e => setFile(e.target.value)}
+                />
+              </div>
+              <div>
+                <button type="button" className="ui-btn ui-btn--sm" disabled={busy || !file.trim()} onClick={importFile}>
+                  Import inboxes and logins
+                </button>
+              </div>
               <label className="ui-field">
-                <span className="ui-legend">Add inboxes, one address per line</span>
+                <span className="ui-legend">Or add addresses only, one per line (no logins yet)</span>
                 <textarea
                   className="ui-input mono"
                   rows={5}
@@ -211,6 +251,7 @@ function CustomerDetail({ c, reload, show }: { c: Customer; reload: () => Promis
                     <thead>
                       <tr>
                         <th scope="col">Inbox</th>
+                        <th scope="col">Login</th>
                         <th scope="col">Health</th>
                       </tr>
                     </thead>
@@ -220,6 +261,7 @@ function CustomerDetail({ c, reload, show }: { c: Customer; reload: () => Promis
                           <td className="mono" style={{ fontSize: 13, wordBreak: 'break-all' }}>
                             {b.addr}
                           </td>
+                          <td className="ui-small">{b.inbox_logins ? 'Saved' : <span className="ui-error">Missing</span>}</td>
                           <td>
                             <select
                               className="ui-select"

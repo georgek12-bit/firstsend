@@ -7,11 +7,25 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PlanId } from '../plans';
 import { getSupabase, siteUrl } from '../supabase';
 import { EMPTY, type Actions, type Ctx } from '../state';
-import type { Business, ClientCount, Inbox, LeadSource, SequencerId, SetupStage, State, UseCase } from '../types';
+import type { Business, ClientCount, Inbox, InboxLogin, LeadSource, SequencerId, SetupStage, State, UseCase } from '../types';
 
 const ms = (t: string | null | undefined) => (t ? new Date(t).getTime() : 0);
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+const toLogin = (l: any): InboxLogin | undefined =>
+  l && {
+    firstName: l.first_name,
+    lastName: l.last_name,
+    imapUsername: l.imap_username,
+    imapPassword: l.imap_password,
+    imapHost: l.imap_host,
+    imapPort: l.imap_port,
+    smtpUsername: l.smtp_username,
+    smtpPassword: l.smtp_password,
+    smtpHost: l.smtp_host,
+    smtpPort: l.smtp_port,
+  };
+
 function toState(uid: string, r: Record<string, any>): State {
   const p = r.profile;
   const s = r.subscription;
@@ -56,6 +70,7 @@ function toState(uid: string, r: Record<string, any>): State {
         createdAt: ms(i.created_at),
         readyAt: ms(i.ready_at),
         replaceRequestedAt: i.replace_requested_at ? ms(i.replace_requested_at) : undefined,
+        login: toLogin(r.logins.find((l: any) => l.inbox_id === i.id)),
       }),
     ),
     replacements: r.replacements.map((x: any) => ({
@@ -99,7 +114,7 @@ export function useLiveBackend(): Ctx {
       return;
     }
     // Filter by user: admins can read everyone's rows.
-    const [profile, subscription, business, domains, inboxes, replacements, connections, invoices] = await Promise.all([
+    const [profile, subscription, business, domains, inboxes, replacements, connections, invoices, logins] = await Promise.all([
       sb.from('profiles').select('*').eq('id', uid).maybeSingle(),
       sb.from('subscriptions').select('*').eq('user_id', uid).maybeSingle(),
       sb.from('businesses').select('*').eq('user_id', uid).maybeSingle(),
@@ -108,8 +123,9 @@ export function useLiveBackend(): Ctx {
       sb.from('replacements').select('*').eq('user_id', uid).order('requested_at', { ascending: false }),
       sb.from('connections').select('*').eq('user_id', uid),
       sb.from('invoices').select('*').eq('user_id', uid).order('at', { ascending: false }),
+      sb.from('inbox_logins').select('*').eq('user_id', uid),
     ]);
-    const failed = [profile, subscription, business, domains, inboxes, replacements, connections, invoices].find(x => x.error);
+    const failed = [profile, subscription, business, domains, inboxes, replacements, connections, invoices, logins].find(x => x.error);
     if (failed) {
       console.error(failed.error);
       setReady(true);
@@ -126,6 +142,7 @@ export function useLiveBackend(): Ctx {
         replacements: replacements.data,
         connections: connections.data,
         invoices: invoices.data,
+        logins: logins.data,
       }),
     );
     setReady(true);

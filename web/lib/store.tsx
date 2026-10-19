@@ -48,5 +48,7 @@ export function errorText(e: unknown) {
   const m = e instanceof Error ? e.message : String(e);
   if (/failed to fetch|networkerror|load failed/i.test(m)) return "Can't reach our servers. Check your connection and try again.";
   if (/rate limit/i.test(m)) return 'Too many emails sent just now. Wait a minute and try again.';
+  // Raised when the server rejects a personal or throwaway address (see blocked_email_domains).
+  if (/database error saving new user|work email|disposable/i.test(m)) return 'Use your work email, like you@youragency.com. Personal and throwaway addresses can\'t be used.';
   return m || 'Something went wrong. Try again.';
 }

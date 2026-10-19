@@ -68,3 +68,22 @@ Never put the `service_role` / secret key in the website or in GitHub variables.
 4. When a customer requests a replacement, it shows under **Replacements to do**. Enter the new
    address and click **Done**.
 5. After an upgrade, the customer shows "More inboxes": add domains and inboxes to reach their plan.
+
+## Order and status emails
+
+The `notify` Edge Function sends three emails through Resend, from `no-reply@firstsend.site`:
+
+- **New order needs setup**, to every admin, when a customer picks their domains.
+- **You're ready to send**, to the customer, when an admin sets their setup to Ready.
+- **Replacement requested**, to every admin, when a customer reports a burned inbox.
+
+Database triggers wake the function through `pg_net` (keep that extension enabled). Each email is
+recorded in a `*_notified_at` column, so it goes out once. If sending fails, it is retried the next
+time something happens. The function needs a `RESEND_API_KEY` secret (a Resend key with sending
+access) under Edge Functions → Secrets.
+
+## Work emails only
+
+Sign-ups and email changes from personal (Gmail, Yahoo, Outlook…) and throwaway domains are
+rejected by a trigger on `auth.users`. The list lives in `public.blocked_email_domains`; add a row
+to block another domain.

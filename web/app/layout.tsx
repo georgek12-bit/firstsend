@@ -26,7 +26,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: motionScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Cloudflare Web Analytics: cookie-free page views, including in-app navigation. */}
+        <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "c4652d126a6e47348c7e6439b2b931d4", "spa": true}' />
+      </body>
     </html>
   );
 }

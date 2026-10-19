@@ -1,20 +1,23 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FlowShell, Loading, useGuard } from '@/components/Flow';
 import { Choice, Field } from '@/components/ui';
 import { domainsFor, planById } from '@/lib/plans';
-import { DOMAIN_RE, hash, suggestDomains } from '@/lib/sim';
+import type { DomainStatus } from '@/lib/state';
+import { DOMAIN_RE, suggestDomains } from '@/lib/sim';
 import { errorText, useStore } from '@/lib/store';
 
 export default function Domains() {
   const ok = useGuard('/onboarding/domains');
   const router = useRouter();
-  const { state, chooseDomains } = useStore();
+  const { state, chooseDomains, checkDomains } = useStore();
   const [mode, setMode] = useState<'pick' | 'own'>('pick');
   const [picked, setPicked] = useState<string[]>([]);
-  const [extra, setExtra] = useState<{ name: string; taken: boolean }[]>([]);
+  const [extra, setExtra] = useState<string[]>([]);
+  const [status, setStatus] = useState<Record<string, DomainStatus>>({});
+  const [checking, setChecking] = useState(false);
   const [search, setSearch] = useState('');
   const [searchMsg, setSearchMsg] = useState<{ text: string; bad: boolean } | null>(null);
   const [own, setOwn] = useState<string[]>([]);
@@ -22,7 +25,20 @@ export default function Domains() {
   const [busy, setBusy] = useState(false);
 
   const company = state.business?.company ?? '';
-  const suggestions = useMemo(() => [...extra, ...suggestDomains(company)], [company, extra]);
+  const suggested = useMemo(() => suggestDomains(company).map(d => d.name), [company]);
+  const suggestions = useMemo(() => [...extra, ...suggested.filter(n => !extra.includes(n))], [extra, suggested]);
+
+  // Look up the suggested names in the domain registries.
+  useEffect(() => {
+    if (!ok || !company) return;
+    let stale = false;
+    checkDomains(suggested)
+      .then(r => !stale && setStatus(s => ({ ...s, ...r })))
+      .catch(() => !stale && setStatus(s => ({ ...s, ...Object.fromEntries(suggested.map(n => [n, 'unknown' as const])) })));
+    return () => {
+      stale = true;
+    };
+  }, [ok, company, suggested, checkDomains]);
 
   if (!ok) return <Loading />;
 
@@ -35,7 +51,7 @@ export default function Domains() {
     setPicked(p => (p.includes(name) ? p.filter(x => x !== name) : p.length < need ? [...p, name] : p));
   };
 
-  const check = (e: React.FormEvent) => {
+  const check = async (e: React.FormEvent) => {
     e.preventDefault();
     const name = search.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
     const full = name.includes('.') ? name : `${name}.com`;
@@ -43,24 +59,42 @@ export default function Domains() {
       setSearchMsg({ text: 'Use letters, numbers and hyphens, like getacme.com.', bad: true });
       return;
     }
-    if (suggestions.some(s => s.name === full)) {
+    if (suggestions.includes(full)) {
       setSearchMsg({ text: `${full} is already in the list.`, bad: false });
       return;
     }
-    const taken = hash(full) % 4 === 0;
-    setExtra(x => [{ name: full, taken }, ...x]);
-    setSearchMsg(
-      taken
-        ? { text: `${full} is taken. Try another.`, bad: true }
-        : { text: `${full} is available${picked.length < need ? ' and picked' : ''}.`, bad: false },
-    );
-    if (!taken && picked.length < need) setPicked(p => [...p, full]);
+    setChecking(true);
+    setSearchMsg({ text: `Checking ${full}…`, bad: false });
+    let result: DomainStatus = 'unknown';
+    try {
+      result = (await checkDomains([full]))[full] ?? 'unknown';
+    } catch {}
+    setChecking(false);
+    if (result === 'taken') {
+      setSearchMsg({ text: `${full} is taken. Try another.`, bad: true });
+      return;
+    }
+    setStatus(s => ({ ...s, [full]: result }));
+    setExtra(x => [full, ...x]);
+    const pick = picked.length < need;
+    setSearchMsg({
+      text:
+        result === 'available'
+          ? `${full} is available${pick ? ' and picked' : ''}.`
+          : `We couldn't confirm ${full} right now. ${pick ? "It's picked, and w" : 'W'}e'll check it before buying.`,
+      bad: false,
+    });
+    if (pick) setPicked(p => [...p, full]);
     setSearch('');
   };
 
   const submit = async () => {
     let names: string[];
     if (mode === 'pick') {
+      if (picked.some(n => status[n] === 'taken')) {
+        setError('One of your picks has been taken. Choose another.');
+        return;
+      }
       if (picked.length !== need) {
         setError(`Pick ${need} domains. You have ${picked.length}.`);
         return;
@@ -121,8 +155,8 @@ export default function Domains() {
             <label htmlFor="domain-search">Check a name</label>
             <div className="ui-row" style={{ flexWrap: 'nowrap' }}>
               <input id="domain-search" className="ui-input" placeholder="getacme.com" value={search} onChange={e => setSearch(e.target.value)} />
-              <button type="submit" className="ui-btn ui-btn--ghost">
-                Check
+              <button type="submit" className="ui-btn ui-btn--ghost" disabled={checking}>
+                {checking ? 'Checking…' : 'Check'}
               </button>
             </div>
             {searchMsg && (
@@ -142,19 +176,23 @@ export default function Domains() {
             )}
           </div>
           <div className="domain-list">
-            {suggestions.map(d => (
-              <Choice
-                key={d.name}
-                type="checkbox"
-                name="domain"
-                value={d.name}
-                checked={picked.includes(d.name)}
-                disabled={d.taken || (!picked.includes(d.name) && picked.length >= need)}
-                onChange={toggle}
-                title={d.name}
-                desc={d.taken ? 'Taken' : undefined}
-              />
-            ))}
+            {suggestions.map(name => {
+              const st = status[name];
+              const isPicked = picked.includes(name);
+              return (
+                <Choice
+                  key={name}
+                  type="checkbox"
+                  name="domain"
+                  value={name}
+                  checked={isPicked}
+                  disabled={!st || st === 'taken' || (!isPicked && picked.length >= need)}
+                  onChange={toggle}
+                  title={name}
+                  desc={!st ? 'Checking…' : st === 'taken' ? 'Taken' : st === 'unknown' ? "We'll confirm before buying" : undefined}
+                />
+              );
+            })}
           </div>
         </div>
       ) : (

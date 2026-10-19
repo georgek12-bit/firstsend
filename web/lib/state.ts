@@ -36,6 +36,8 @@ export function vet(b: Business): Vetting {
   return { result: 'approved' };
 }
 
+export type DomainStatus = 'available' | 'taken' | 'unknown';
+
 export type Actions = {
   /** Live: emails a sign-in link (sent: true). Demo: signs in straight away. */
   signup(a: { name: string; email: string; plan: PlanId }): Promise<{ sent: boolean }>;
@@ -49,6 +51,8 @@ export type Actions = {
   openBillingPortal(): Promise<void>;
   submitBusiness(b: Business): Promise<Vetting>;
   reopenOnboarding(): Promise<void>;
+  /** Whether each domain is free to register. Demo: a stable fake answer. */
+  checkDomains(names: string[]): Promise<Record<string, DomainStatus>>;
   chooseDomains(names: string[], byod: boolean): Promise<void>;
   requestReplacement(inboxId: string): Promise<void>;
   connect(sequencer: SequencerId): Promise<void>;

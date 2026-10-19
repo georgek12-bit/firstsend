@@ -159,7 +159,7 @@ export function useLiveBackend(): Ctx {
         } catch {}
         throw new Error(msg);
       }
-      return data as { url: string };
+      return data;
     };
     const rpc = async (fn: string, args?: Record<string, unknown>) => {
       const res = check(await sb.rpc(fn, args));
@@ -214,6 +214,7 @@ export function useLiveBackend(): Ctx {
         return result === 'approved' ? { result: 'approved' } : { result: 'declined', reason: '' };
       },
       reopenOnboarding: async () => void (await rpc('reopen_onboarding')),
+      checkDomains: async names => (await fn('check-domains', { domains: names })).results,
       chooseDomains: async (names, byod) => void (await rpc('choose_domains', { p_names: names, p_byod: byod })),
       requestReplacement: async id => void (await rpc('request_replacement', { p_inbox: id })),
       connect: async (seq: SequencerId) => {

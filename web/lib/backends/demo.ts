@@ -5,7 +5,7 @@
 // run on timers (see ../sim.ts).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { domainsFor, inboxesFor, planById } from '../plans';
-import { DAY, makeInboxes, reconcile, suggestDomains, uid } from '../sim';
+import { DAY, hash, makeInboxes, reconcile, suggestDomains, uid } from '../sim';
 import { EMPTY, vet, type Actions, type Ctx } from '../state';
 import type { State } from '../types';
 
@@ -100,6 +100,7 @@ export function useDemoBackend(): Ctx {
 
       reopenOnboarding: async () => update(s => ({ ...s, vetting: null })),
 
+      checkDomains: async names => Object.fromEntries(names.map(n => [n, hash(n) % 7 === 0 ? 'taken' : 'available'] as const)),
       chooseDomains: async (names, byod) => update((s, now) => ({ ...s, domains: { names, byod }, setupStartedAt: now })),
 
       requestReplacement: async id =>

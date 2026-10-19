@@ -40,6 +40,5 @@ Live at https://firstsend.site. Repo: georgek12-bit/firstsend (public), app in `
 2. **GitHub Pages**: tick Enforce HTTPS.
 3. **Inbox provider (the main gap)**: choose a reseller or run your own Microsoft 365 tenants, then automate fulfilment, which is currently manual through /admin. Domain availability checks on the sign-up page are still simulated.
 4. **Stripe live mode**: verify the business, recreate the prices with the same lookup keys (`firstsend_starter_monthly`, `firstsend_growth_monthly`), add the live webhook and swap the keys.
-5. **Legal**: add the company number and address in `lib/legal.ts`, and get a solicitor review.
-6. **Placeholder content**: the landing page stats, sample leads and "typical provider" comparison.
-7. **Later**: real warmup and health monitoring, sequencer API export (Instantly or Smartlead), analytics.
+5. **Placeholder content**: the landing page stats, sample leads and "typical provider" comparison.
+6. **Later**: real warmup and health monitoring, sequencer API export (Instantly or Smartlead), analytics.

@@ -33,6 +33,12 @@ Live at https://firstsend.site. Repo: georgek12-bit/firstsend (public), app in `
 - Domain picker checks real availability: `check-domains` Edge Function (RDAP via IANA bootstrap, DNS fallback for TLDs without RDAP such as .co and .io). Checking a name also regenerates suggestions around it.
 - Sequencer export is real: admins import the provider's inbox file in /admin (adds inboxes plus logins into `inbox_logins`), customers download an Instantly bulk-import CSV with logins. A replaced inbox's login is cleared automatically. Parser: `lib/providerCsv.ts`.
 
+- Support chat: `/app/support` for customers (tickets by category, optionally tied to an inbox; "Report a problem" on each inbox row), `/admin/support` for admins. Tables `support_tickets` and `support_messages`; new messages email the other side through `notify`.
+- Sequencer push by API key: `push-inboxes` Edge Function adds inboxes with logins to Instantly (v2 API, provider_code 1, then enables warmup) or Smartlead. The customer's key is used once and never stored. CSV download stays as the fallback and for other sequencers.
+- Cloudflare Web Analytics on every page (bookd Cloudflare account, site firstsend.site).
+- Live end to end test done 19 Oct: real card with a 100% off code, order email, webhook, then cancellation synced back. The test subscription on george@gskservices.net is cancelled.
+- Supabase is on the **free plan** by choice for now: it pauses after 7 days without activity (restore from the dashboard) and has no daily backups.
+
 ## Gotchas
 - The Supabase MCP `apply_migration` often times out after 60s, and a timed-out migration is usually not applied. Check with `list_migrations` and split big migrations into smaller ones.
 - Keep the `pg_net` extension enabled; the notify triggers depend on it.

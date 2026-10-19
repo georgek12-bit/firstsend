@@ -452,6 +452,9 @@ function Admin() {
           {!list.length && <span style={{ padding: 12, opacity: 0.7 }}>Nothing needs doing.</span>}
         </nav>
         <div className="side__foot">
+          <Link href="/admin/support" className="ui-btn ui-btn--ghost ui-btn--sm">
+            Support tickets
+          </Link>
           <Link href="/app" className="ui-btn ui-btn--ghost ui-btn--sm">
             Back to my app
           </Link>

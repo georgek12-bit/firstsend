@@ -56,6 +56,8 @@ export type Actions = {
   chooseDomains(names: string[], byod: boolean): Promise<void>;
   requestReplacement(inboxId: string): Promise<void>;
   connect(sequencer: SequencerId): Promise<void>;
+  /** Live: adds the inboxes to the customer's Instantly or Smartlead account with their API key (used once, not stored). */
+  pushInboxes(sequencer: 'instantly' | 'smartlead', apiKey: string): Promise<{ added: number; existing: number; failed: number; errors: string[] }>;
   disconnect(sequencer: SequencerId): Promise<void>;
   changePlan(plan: PlanId): Promise<'upgraded' | 'scheduled' | 'unchanged'>;
   cancel(): Promise<void>;

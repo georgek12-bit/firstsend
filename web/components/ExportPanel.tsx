@@ -5,7 +5,7 @@ import { SENDS_PER_INBOX } from '@/lib/plans';
 import { SEQUENCER_OPTIONS } from '@/lib/sequencers';
 import { errorText, useStore } from '@/lib/store';
 import type { SequencerId } from '@/lib/types';
-import { downloadCsv } from './ui';
+import { Field, downloadCsv } from './ui';
 
 // Where each sequencer's bulk upload lives.
 const STEPS: Record<SequencerId, string[]> = {
@@ -24,9 +24,17 @@ const HEADER = [
   'Daily Limit', 'Warmup Enabled', 'Warmup Limit', 'Warmup Increment',
 ];
 
-/** Pick a sequencer and download the inboxes with their logins, ready to bulk upload. */
+// Sequencers we can add inboxes to directly with the customer's API key.
+const API: Partial<Record<SequencerId, string>> = {
+  instantly: 'Settings, then Integrations, then API keys. Create a key that can create accounts.',
+  smartlead: 'Settings, then API key.',
+};
+
+/** Pick a sequencer, then send the inboxes straight in with an API key, or download them with their logins. */
 export default function ExportPanel({ onDone }: { onDone: (msg: string) => void }) {
-  const { state, connect } = useStore();
+  const { state, connect, pushInboxes } = useStore();
+  const [key, setKey] = useState('');
+  const [busy, setBusy] = useState(false);
   const pref = state.business?.sequencer;
   const [seq, setSeq] = useState<SequencerId>(pref && pref !== 'other' ? pref : 'instantly');
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +42,33 @@ export default function ExportPanel({ onDone }: { onDone: (msg: string) => void 
   const active = state.inboxes.filter(b => b.status !== 'replacing' && b.status !== 'burned');
   const sendable = active.filter(b => b.login);
   const pending = active.length - sendable.length;
+  const api = API[seq];
+
+  const push = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (key.trim().length < 8) {
+      setError(`Paste your ${name} API key.`);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await pushInboxes(seq as 'instantly' | 'smartlead', key);
+      setKey('');
+      if (r.failed && !r.added && !r.existing) {
+        setError(`${name} didn't accept the inboxes. ${r.errors[0] ?? ''} Download the CSV instead, or open a support ticket.`);
+        return;
+      }
+      const parts = [`${r.added} added to ${name}`];
+      if (r.existing) parts.push(`${r.existing} already there`);
+      if (r.failed) parts.push(`${r.failed} failed (use the CSV for those)`);
+      onDone(parts.join(', ') + '.');
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const download = () => {
     downloadCsv(`firstsend-inboxes-${seq}.csv`, [
@@ -55,7 +90,7 @@ export default function ExportPanel({ onDone }: { onDone: (msg: string) => void 
     <div className="ui-stack" style={{ '--gap': '18px' } as React.CSSProperties}>
       <div className="seq-grid" role="group" aria-label="Sequencer">
         {SEQUENCER_OPTIONS.map(s => (
-          <button key={s.id} type="button" className="seq-tile" aria-pressed={seq === s.id} onClick={() => (setSeq(s.id), setError(null))}>
+          <button key={s.id} type="button" className="seq-tile" aria-pressed={seq === s.id} onClick={() => (setSeq(s.id), setError(null), setKey(''))}>
             <span className="seq-tile__logo">
               <img src={s.logo.src} alt={s.logo.label ? '' : s.name} style={{ filter: s.logo.invert ? 'invert(1)' : undefined }} />
               {s.logo.label && <span>{s.logo.label}</span>}
@@ -64,21 +99,41 @@ export default function ExportPanel({ onDone }: { onDone: (msg: string) => void 
           </button>
         ))}
       </div>
+      {api && (
+        <form className="ui-stack" style={{ '--gap': '10px' } as React.CSSProperties} onSubmit={push} noValidate>
+          <Field id="api-key" label={`${name} API key`} error={error} hint={`Find it in ${name} under ${api} We use it once to add your inboxes and don't store it.`}>
+            <input
+              id="api-key"
+              className="ui-input mono"
+              type="password"
+              autoComplete="off"
+              value={key}
+              onChange={e => (setKey(e.target.value), setError(null))}
+              aria-invalid={!!error}
+            />
+          </Field>
+          <div>
+            <button type="submit" className="ui-btn ui-btn--orange" disabled={busy || !sendable.length}>
+              {busy ? `Adding to ${name}…` : `Add ${sendable.length} inboxes to ${name}`}
+            </button>
+          </div>
+        </form>
+      )}
       <div className="ui-stack" style={{ '--gap': '6px' } as React.CSSProperties}>
-        <span className="ui-label">Then in {name}</span>
+        <span className="ui-label">{api ? 'Or upload the file yourself' : `Then in ${name}`}</span>
         <ol className="ui-small" style={{ margin: 0, paddingLeft: 18 }}>
           {STEPS[seq].map(s => (
             <li key={s}>{s}</li>
           ))}
         </ol>
       </div>
-      {error && (
+      {error && !api && (
         <div className="ui-error" role="alert">
           {error}
         </div>
       )}
       <div className="ui-row">
-        <button type="button" className="ui-btn ui-btn--orange" onClick={download} disabled={!sendable.length}>
+        <button type="button" className={`ui-btn ${api ? 'ui-btn--ghost' : 'ui-btn--orange'}`} onClick={download} disabled={!sendable.length || busy}>
           Download {sendable.length} inboxes for {name}
         </button>
       </div>

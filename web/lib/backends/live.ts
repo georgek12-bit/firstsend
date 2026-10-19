@@ -234,6 +234,11 @@ export function useLiveBackend(): Ctx {
       checkDomains: async names => (await fn('check-domains', { domains: names })).results,
       chooseDomains: async (names, byod) => void (await rpc('choose_domains', { p_names: names, p_byod: byod })),
       requestReplacement: async id => void (await rpc('request_replacement', { p_inbox: id })),
+      pushInboxes: async (sequencer, apiKey) => {
+        const r = await fn('push-inboxes', { sequencer, apiKey });
+        await refresh();
+        return r;
+      },
       connect: async (seq: SequencerId) => {
         const uid = uidRef.current;
         check(

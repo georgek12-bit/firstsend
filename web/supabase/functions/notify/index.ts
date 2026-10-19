@@ -41,7 +41,7 @@ async function profile(id: string) {
 
 // Claims rows, sends one email per row, and releases the claim if sending fails so the next call retries.
 async function sweep(
-  table: 'subscriptions' | 'replacements',
+  table: 'subscriptions' | 'replacements' | 'support_messages',
   col: string,
   key: string,
   filter: (q: any) => any,
@@ -134,7 +134,42 @@ Deno.serve(async () => {
       },
     );
 
-    return Response.json({ order, ready, replacement: repl });
+    // Support: a customer message goes to the admins, an admin reply goes to the customer.
+    const support = await sweep(
+      'support_messages',
+      'notified_at',
+      'id',
+      q => q,
+      async m => {
+        const [p, t] = await Promise.all([
+          profile(m.user_id),
+          db.from('support_tickets').select('subject, category').eq('id', m.ticket_id).single(),
+        ]);
+        const subject = t.data?.subject ?? 'Support';
+        const quote = `<p style="white-space:pre-wrap;border-left:3px solid #e8552b;padding-left:12px">${esc(m.body)}</p>`;
+        if (m.from_admin) {
+          return {
+            to: [p!.email],
+            subject: `Re: ${subject}`,
+            html: page('Firstsend support replied', `${quote}<p>Reply from your dashboard to keep the conversation in one place.</p>`, {
+              href: `${SITE}/app/support/?t=${m.ticket_id}`,
+              label: 'View and reply',
+            }),
+          };
+        }
+        return {
+          to: await admins(),
+          subject: `Support (${t.data?.category ?? 'other'}): ${subject}`,
+          html: page(
+            'New support message',
+            `<p>${esc(p?.name ?? 'A customer')} &lt;${esc(p?.email ?? '')}&gt; wrote:</p>${quote}`,
+            { href: `${SITE}/admin/support/?t=${m.ticket_id}`, label: 'Reply in Admin' },
+          ),
+        };
+      },
+    );
+
+    return Response.json({ order, ready, replacement: repl, support });
   } catch (e) {
     console.error(e);
     return Response.json({ error: 'failed' }, { status: 500 });

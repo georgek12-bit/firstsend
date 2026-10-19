@@ -101,6 +101,15 @@ export function useDemoBackend(): Ctx {
       reopenOnboarding: async () => update(s => ({ ...s, vetting: null })),
 
       checkDomains: async names => Object.fromEntries(names.map(n => [n, hash(n) % 7 === 0 ? 'taken' : 'available'] as const)),
+      pushInboxes: async seq => {
+        let n = 0;
+        update((s, now) => {
+          n = s.inboxes.filter(b => b.status !== 'burned' && b.status !== 'replacing').length;
+          return { ...s, connections: [...s.connections.filter(c => c.sequencer !== seq), { sequencer: seq, at: now, inboxes: n }] };
+        });
+        await new Promise(r => setTimeout(r, 600));
+        return { added: n, existing: 0, failed: 0, errors: [] };
+      },
       chooseDomains: async (names, byod) => update((s, now) => ({ ...s, domains: { names, byod }, setupStartedAt: now })),
 
       requestReplacement: async id =>

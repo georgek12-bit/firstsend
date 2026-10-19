@@ -28,6 +28,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: '/app/kit', label: 'Launch kit' },
     { href: '/app/billing', label: 'Billing' },
     { href: '/app/settings', label: 'Settings' },
+    { href: '/app/support', label: 'Support' },
     ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
   ];
 

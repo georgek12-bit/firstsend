@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import ExportPanel from '@/components/ExportPanel';
@@ -110,7 +111,10 @@ function Inboxes() {
                         <button type="button" className={`ui-btn ui-btn--sm ${b.status === 'burned' ? 'ui-btn--danger' : 'ui-btn--ghost'}`} onClick={() => replace(b)}>
                           Replace free
                         </button>
-                      )}
+                      )}{' '}
+                      <Link href={`/app/support?new=1&inbox=${b.id}`} className="ui-link ui-small">
+                        Report a problem
+                      </Link>
                     </td>
                   </tr>
                 ))}

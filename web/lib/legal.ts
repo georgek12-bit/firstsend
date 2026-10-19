@@ -1,8 +1,9 @@
 // Business details used across the legal pages. Fill in the bracketed values before launch.
 export const LEGAL = {
   company: 'AHEADWITHAI',
-  companyNumber: '[COMPANY NUMBER]',
-  address: '[REGISTERED ADDRESS]',
+  // Add the company number and registered address here when ready; the Terms and Privacy pages show them if set.
+  companyNumber: '',
+  address: '',
   country: 'the United Kingdom',
   law: 'England and Wales',
   email: 'support@firstsend.site',

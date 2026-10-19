@@ -16,8 +16,9 @@ export default function Terms() {
     >
       <h2>1. Who we are</h2>
       <p>
-        {BRAND} is run by {LEGAL.company}, a company registered in {LEGAL.country} (company number {LEGAL.companyNumber}), registered
-        address {LEGAL.address}. In these terms, &ldquo;we&rdquo;, &ldquo;us&rdquo; and &ldquo;our&rdquo; mean {LEGAL.company}.
+        {BRAND} is run by {LEGAL.company}, a company registered in {LEGAL.country}
+        {LEGAL.companyNumber && ` (company number ${LEGAL.companyNumber})`}
+        {LEGAL.address && `, registered address ${LEGAL.address}`}. In these terms, &ldquo;we&rdquo;, &ldquo;us&rdquo; and &ldquo;our&rdquo; mean {LEGAL.company}.
         &ldquo;You&rdquo; means the business that creates the account. You can reach us at <Mail />.
       </p>
 

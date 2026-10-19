@@ -14,7 +14,8 @@ export default function Privacy() {
     >
       <h2>Who is responsible</h2>
       <p>
-        {LEGAL.company} ({LEGAL.address}) is the controller of the personal data described here. Contact us about privacy at <Mail />.
+        {LEGAL.company}
+        {LEGAL.address && ` (${LEGAL.address})`} is the controller of the personal data described here. Contact us about privacy at <Mail />.
       </p>
 
       <h2>What we collect</h2>

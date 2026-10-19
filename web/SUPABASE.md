@@ -21,8 +21,8 @@ Without Supabase settings the app runs as a browser-only demo. With them it uses
 
 **Authentication > URL Configuration**
 
-- Site URL: `https://georgek12-bit.github.io/firstsend/`
-- Redirect URLs: add `https://georgek12-bit.github.io/firstsend/**` (and `http://localhost:3000/**` for local work)
+- Site URL: `https://firstsend.site/`
+- Redirect URLs: add `https://firstsend.site/**` (and `http://localhost:3000/**` for local work)
 
 **Authentication > Sign In / Providers > Email**: keep Email enabled. Leave "Confirm email" on.
 

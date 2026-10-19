@@ -6,7 +6,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!);
 const PLANS = ['starter', 'growth'];
 // Where Stripe may send people back to. Add your own domain here when you have one.
-const ALLOWED_ORIGINS = ['https://georgek12-bit.github.io', 'http://localhost:3000'];
+const ALLOWED_ORIGINS = ['https://firstsend.site', 'https://www.firstsend.site', 'https://georgek12-bit.github.io', 'http://localhost:3000'];
 
 const cors = {
   'Access-Control-Allow-Origin': '*',

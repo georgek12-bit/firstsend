@@ -16,6 +16,8 @@ export default function Domains() {
   const [mode, setMode] = useState<'pick' | 'own'>('pick');
   const [picked, setPicked] = useState<string[]>([]);
   const [extra, setExtra] = useState<string[]>([]);
+  // The name the suggestions are built from: the company, or the last name checked.
+  const [base, setBase] = useState<string | null>(null);
   const [status, setStatus] = useState<Record<string, DomainStatus>>({});
   const [checking, setChecking] = useState(false);
   const [search, setSearch] = useState('');
@@ -25,12 +27,16 @@ export default function Domains() {
   const [busy, setBusy] = useState(false);
 
   const company = state.business?.company ?? '';
-  const suggested = useMemo(() => suggestDomains(company).map(d => d.name), [company]);
-  const suggestions = useMemo(() => [...extra, ...suggested.filter(n => !extra.includes(n))], [extra, suggested]);
+  const suggested = useMemo(() => suggestDomains(base ?? company).map(d => d.name), [base, company]);
+  // Checked names first, then picks from earlier suggestions so they stay visible, then the new ideas.
+  const suggestions = useMemo(
+    () => [...new Set([...extra, ...picked, ...suggested])],
+    [extra, picked, suggested],
+  );
 
   // Look up the suggested names in the domain registries.
   useEffect(() => {
-    if (!ok || !company) return;
+    if (!ok || !(base ?? company)) return;
     let stale = false;
     checkDomains(suggested)
       .then(r => !stale && setStatus(s => ({ ...s, ...r })))
@@ -38,7 +44,7 @@ export default function Domains() {
     return () => {
       stale = true;
     };
-  }, [ok, company, suggested, checkDomains]);
+  }, [ok, base, company, suggested, checkDomains]);
 
   if (!ok) return <Loading />;
 
@@ -59,8 +65,10 @@ export default function Domains() {
       setSearchMsg({ text: 'Use letters, numbers and hyphens, like getacme.com.', bad: true });
       return;
     }
+    setBase(full.split('.')[0]);
     if (suggestions.includes(full)) {
-      setSearchMsg({ text: `${full} is already in the list.`, bad: false });
+      setSearchMsg({ text: `${full} is already in the list. Ideas based on it are below.`, bad: false });
+      setSearch('');
       return;
     }
     setChecking(true);
@@ -71,7 +79,8 @@ export default function Domains() {
     } catch {}
     setChecking(false);
     if (result === 'taken') {
-      setSearchMsg({ text: `${full} is taken. Try another.`, bad: true });
+      setSearchMsg({ text: `${full} is taken. Here are some ideas based on it.`, bad: true });
+      setSearch('');
       return;
     }
     setStatus(s => ({ ...s, [full]: result }));

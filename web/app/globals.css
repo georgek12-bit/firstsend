@@ -1274,3 +1274,69 @@ ol {
 .pricing-compare tbody td:last-child {
   color: var(--text-3);
 }
+
+/* ---------- Legal pages ---------- */
+.legal {
+  padding: clamp(40px, 6cqi, 88px) var(--gutter) clamp(64px, 8cqi, 112px);
+  max-width: calc(720px + 2 * var(--gutter));
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.legal__head {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.legal__intro {
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--text-2);
+  text-wrap: pretty;
+}
+.legal__meta {
+  font: 400 13px var(--mono);
+  color: var(--text-3);
+}
+.legal__body {
+  font-size: 16px;
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.legal__body h2 {
+  font: 400 28px/1.15 var(--serif);
+  letter-spacing: -0.01em;
+  margin-top: 22px;
+}
+.legal__body ul {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.legal__body a {
+  color: var(--orange-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal__others {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.final--slim {
+  padding-block: 8px 40px;
+}
+.final--slim .footer {
+  border-top: 0;
+}
+.legal__others a {
+  color: var(--orange-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { FlowShell, Loading, useGuard } from '@/components/Flow';
 import { Choice, Field } from '@/components/ui';
 import { SEQUENCER_OPTIONS } from '@/lib/sequencers';
+import { asset } from '@/lib/asset';
 import { errorText, useStore } from '@/lib/store';
 import type { Business, ClientCount, LeadSource, UseCase } from '@/lib/types';
 
@@ -153,7 +154,14 @@ export default function Onboarding() {
               checked={agree}
               onChange={() => setAgree(a => !a)}
               title="I agree to the acceptable use policy"
-              desc="B2B outreach only. No purchased consumer data, phishing or misleading content. Breaking it means instant suspension."
+              desc={
+                <>
+                  B2B outreach only. No purchased consumer data, phishing or misleading content. Breaking it means instant suspension.{' '}
+                  <a href={asset('/acceptable-use/')} target="_blank" rel="noreferrer" className="ui-link">
+                    Read the policy
+                  </a>
+                </>
+              }
             />
           </div>
           {errors.agree && <span className="ui-error">{errors.agree}</span>}

@@ -7,6 +7,7 @@ import PlanSummary from '@/components/PlanSummary';
 import { CardFields, cardFrom, validateCard } from '@/components/CardFields';
 import { Choice, money } from '@/components/ui';
 import { PLANS, fmt, type PlanId } from '@/lib/plans';
+import { asset } from '@/lib/asset';
 import { errorText, useStore } from '@/lib/store';
 
 function Checkout() {
@@ -104,7 +105,14 @@ function Checkout() {
           <button type="submit" className="ui-btn ui-btn--orange" disabled={paying}>
             {paying ? (live ? 'Opening Stripe…' : 'Processing…') : live ? `Continue to payment, ${money(price)}/mo` : `Pay ${money(price)} and continue`}
           </button>
-          <span className="ui-small ui-muted">{live ? 'Payments are handled by Stripe.' : 'Demo checkout. No real charge.'}</span>
+          <span className="ui-small ui-muted">
+            {live ? 'Payments are handled by Stripe. ' : 'Demo checkout. No real charge. '}
+            Renews monthly until you cancel. Payments aren&apos;t refundable;{' '}
+            <a href={asset('/refunds/')} target="_blank" rel="noreferrer" className="ui-link">
+              see our refund policy
+            </a>
+            .
+          </span>
         </div>
       </form>
     </FlowShell>

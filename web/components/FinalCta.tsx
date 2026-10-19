@@ -1,8 +1,7 @@
 import Link from 'next/link';
-import { BRAND, footerLinks } from '@/lib/content';
 import { LOWEST_PRICE } from '@/lib/plans';
 import { reveal } from '@/lib/reveal';
-import LogoMark from './LogoMark';
+import Footer from './Footer';
 
 export default function FinalCta() {
   return (
@@ -16,18 +15,7 @@ export default function FinalCta() {
         </Link>
         <span className="final__note">From ${LOWEST_PRICE}/mo · Cancel anytime · No call needed</span>
       </div>
-      <footer className="footer">
-        <span className="footer__brand">
-          <LogoMark size="sm" tone="cream" />© {new Date().getFullYear()} {BRAND}
-        </span>
-        <div className="footer__links">
-          {footerLinks.map(l => (
-            <a key={l} href="#">
-              {l}
-            </a>
-          ))}
-        </div>
-      </footer>
+      <Footer />
     </section>
   );
 }

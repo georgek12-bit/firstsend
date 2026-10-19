@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { FlowShell } from '@/components/Flow';
 import PlanSummary from '@/components/PlanSummary';
+import { BRAND } from '@/lib/content';
 import { Choice, Field, money } from '@/components/ui';
 import { PLANS, fmt, type PlanId } from '@/lib/plans';
 import { checkSignupEmail, errorText, nextRoute, useStore } from '@/lib/store';
@@ -126,6 +127,21 @@ function Signup() {
           />
         </Field>
 
+        <p className="ui-small ui-muted">
+          By continuing you agree to our{' '}
+          <Link href="/terms" className="ui-link" target="_blank">
+            Terms
+          </Link>
+          ,{' '}
+          <Link href="/acceptable-use" className="ui-link" target="_blank">
+            Acceptable Use Policy
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="ui-link" target="_blank">
+            Privacy Policy
+          </Link>
+          . {BRAND} is for businesses only.
+        </p>
         <div className="flow__actions">
           <button type="submit" className="ui-btn ui-btn--orange" disabled={busy}>
             {busy ? 'Sending…' : 'Continue to payment'} {!busy && <span className="mono">→</span>}

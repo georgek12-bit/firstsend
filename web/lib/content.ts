@@ -135,4 +135,3 @@ export const faqs = [
   { q: 'Which sequencers do you work with?', a: 'Instantly, Smartlead, EmailBison, lemlist and Apollo, all with one-click export. Anything else works with a CSV.' },
 ];
 
-export const footerLinks = ['Domain generator', 'DNS checker', 'Affiliates', 'Acceptable use'];

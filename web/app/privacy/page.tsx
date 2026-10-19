@@ -69,7 +69,7 @@ export default function Privacy() {
           <strong>GitHub</strong> (hosts the website).
         </li>
         <li>
-          <strong>Our email provider</strong> (sends sign-in links and account emails).
+          <strong>Resend</strong> (sends sign-in links and account emails).
         </li>
         <li>
           <strong>Microsoft and domain registrars</strong> (to create your inboxes and domains).

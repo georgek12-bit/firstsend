@@ -374,7 +374,7 @@ begin
   where id = p_inbox;
 end $$;
 
--- Finish a replacement: the old inbox is removed and the new one starts warming.
+-- Finish a replacement: the inbox row takes the new address and starts warming.
 create function public.admin_complete_replacement(p_replacement uuid, p_new_addr text) returns void
 language plpgsql security definer set search_path = '' as $$
 declare r public.replacements; d text;
@@ -387,9 +387,10 @@ begin
   if not exists (select 1 from public.domains where user_id = r.user_id and name = d) then
     raise exception '% is not one of this customer''s domains', d;
   end if;
-  delete from public.inboxes where id = r.inbox_id;
-  insert into public.inboxes (user_id, addr, domain) values (r.user_id, p_new_addr, d);
-  update public.replacements set new_addr = p_new_addr, done_at = now(), inbox_id = null where id = r.id;
+  update public.inboxes
+  set addr = p_new_addr, domain = d, status = 'warming', created_at = now(), ready_at = null, replace_requested_at = null
+  where id = r.inbox_id;
+  update public.replacements set new_addr = p_new_addr, done_at = now() where id = r.id;
 end $$;
 
 -- ---------- Grants ----------
@@ -399,3 +400,13 @@ revoke execute on all functions in schema public from public, anon;
 grant execute on all functions in schema public to authenticated;
 -- RLS policies call is_admin(), so signed-out requests need it too (it returns false for them).
 grant execute on function public.is_admin() to anon;
+
+-- ---------- Hardening (from Supabase's security advisor) ----------
+alter function public.plan_price(public.plan_id) set search_path = '';
+alter function public.plan_per_day(public.plan_id) set search_path = '';
+alter function public.plan_domains(public.plan_id) set search_path = '';
+alter function public.require_user() set search_path = '';
+-- Internal helpers: only triggers and other functions call these.
+revoke execute on function public.handle_new_user() from authenticated;
+revoke execute on function public.handle_user_email_change() from authenticated;
+revoke execute on function public.require_admin() from authenticated;

@@ -1,5 +1,8 @@
 # Connecting Firstsend to Supabase
 
+> **Status:** done for project `vmnjfswqxxmykfnhecbm` (eu-west-1). Tables, security rules and keys are
+> set up and the deploy workflow uses them. Still to do by hand: step 3 (sign-in URLs) and step 5 (admin).
+
 Without Supabase settings the app runs as a browser-only demo. With them it uses real accounts
 (email sign-in links) and a real database. Payments are still a placeholder until Stripe is added.
 

@@ -7,7 +7,7 @@ Live at https://firstsend.site. Repo: georgek12-bit/firstsend (public), app in `
 ## Stack
 - **Next.js 16 + React 19 + TypeScript**, static export, deployed to GitHub Pages by `.github/workflows/pages.yml` on push to `main`.
 - **Supabase** (project `vmnjfswqxxmykfnhecbm`, EU): auth by email link, Postgres with RLS. Every write goes through RPC functions; admin RPCs are `admin_*`, gated by `is_admin()`.
-- **Stripe (test mode)**: Checkout subscriptions, customer portal, webhook. Edge Functions `create-checkout`, `billing-portal`, `stripe-webhook`.
+- **Stripe (live mode)**: Checkout subscriptions, customer portal, webhook. Edge Functions `create-checkout`, `billing-portal`, `stripe-webhook`.
 - **Resend**: sign-in emails over SMTP, plus the `notify` Edge Function for order and status emails. Sender `no-reply@firstsend.site`.
 - **DNS** on Cloudflare (moved from Namecheap; the domain is still registered at Namecheap).
 
@@ -28,6 +28,10 @@ Live at https://firstsend.site. Repo: georgek12-bit/firstsend (public), app in `
 - Custom domain firstsend.site; Resend domain verified; branded sign-in email.
 - Order and status emails: "New order needs setup" (to admins), "You're ready to send" (to the customer) and "Replacement requested" (to admins). Database triggers call `notify` through pg_net, and each email is claimed with a `*_notified_at` column so it goes out once. Tested; `RESEND_API_KEY` is set.
 - Server-side block on personal and throwaway sign-up emails: a trigger on `auth.users` checks `public.blocked_email_domains`. Tested.
+- Stripe **live mode** (19 Oct): live products and prices (same lookup keys), billing portal, webhook `we_1USGJRBL9tgKU9A3DyGeTAAu`; live keys set in Supabase secrets. Tested end to end with a real card and a 100% off code. The live secret key and webhook secret are also kept locally in `~/.config/bookd/stripe-live.env` (never commit).
+- Cloudflare: support@firstsend.site forwards to george@gskservices.net (Email Routing); old Namecheap eforward MX removed; site records are DNS only. GitHub Pages enforces HTTPS.
+- Domain picker checks real availability: `check-domains` Edge Function (RDAP via IANA bootstrap, DNS fallback for TLDs without RDAP such as .co and .io). Checking a name also regenerates suggestions around it.
+- Sequencer export is real: admins import the provider's inbox file in /admin (adds inboxes plus logins into `inbox_logins`), customers download an Instantly bulk-import CSV with logins. A replaced inbox's login is cleared automatically. Parser: `lib/providerCsv.ts`.
 
 ## Gotchas
 - The Supabase MCP `apply_migration` often times out after 60s, and a timed-out migration is usually not applied. Check with `list_migrations` and split big migrations into smaller ones.
@@ -36,9 +40,6 @@ Live at https://firstsend.site. Repo: georgek12-bit/firstsend (public), app in `
 - Edge Function return URLs are checked against `ALLOWED_ORIGINS` in create-checkout and billing-portal.
 
 ## To do
-1. **Cloudflare**: forward support@firstsend.site with Email Routing and remove the old Namecheap eforward MX/TXT records. Set the `firstsend.site` and `www` records to DNS only (grey cloud).
-2. **GitHub Pages**: tick Enforce HTTPS.
-3. **Inbox provider (the main gap)**: choose a reseller or run your own Microsoft 365 tenants, then automate fulfilment, which is currently manual through /admin. Domain availability checks on the sign-up page are still simulated.
-4. **Stripe live mode**: verify the business, recreate the prices with the same lookup keys (`firstsend_starter_monthly`, `firstsend_growth_monthly`), add the live webhook and swap the keys.
-5. **Placeholder content**: the landing page stats, sample leads and "typical provider" comparison.
-6. **Later**: real warmup and health monitoring, sequencer API export (Instantly or Smartlead), analytics.
+1. **Inbox provider (the main gap)**: choose a reseller or run your own Microsoft 365 tenants, then automate fulfilment, which is currently manual through /admin (import the provider file per customer).
+2. **FAQ claims**: "setup runs automatically / same day" and "health checks" are not true yet; reword or make them true.
+3. **Later**: real warmup and health monitoring, direct sequencer API push (Instantly or Smartlead), analytics.

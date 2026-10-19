@@ -7,14 +7,127 @@ import { PLANS, fmt, planById } from '@/lib/plans';
 import { errorText } from '@/lib/store';
 import { useView } from '@/lib/view';
 
+/** Live mode: Stripe holds the card and the subscription; changes happen in its billing portal. */
+function LiveBilling() {
+  const { state, sub, plan, openBillingPortal } = useView();
+  const [toast, show] = useToast();
+  const [busy, setBusy] = useState(false);
+  const open = () => {
+    setBusy(true);
+    openBillingPortal().catch(err => {
+      show(errorText(err));
+      setBusy(false);
+    });
+  };
+  const button = (
+    <button type="button" className="ui-btn ui-btn--orange" onClick={open} disabled={busy}>
+      {busy ? 'Opening…' : 'Manage billing'}
+    </button>
+  );
+
+  return (
+    <>
+      <div className="page-head">
+        <div className="page-head__text">
+          <span className="ui-label">Billing</span>
+          <h1 className="ui-h1">Plan and billing</h1>
+          <p className="ui-sub">Change plan, update your card, download receipts or cancel. Billing is handled securely by Stripe.</p>
+        </div>
+        {button}
+      </div>
+
+      {sub.status === 'canceled' && (
+        <div className="ui-banner ui-banner--warn">
+          <span>Your plan ends on {date(sub.renewsAt)}. After that your inboxes stop sending.</span>
+          <button type="button" className="ui-btn ui-btn--sm" onClick={open} disabled={busy}>
+            Keep my plan
+          </button>
+        </div>
+      )}
+
+      <div className="cols">
+        <section className="ui-stack" aria-labelledby="inv-h">
+          <h2 id="inv-h" className="ui-h2">
+            Invoices
+          </h2>
+          <div className="ui-table-wrap">
+            <table className="ui-table">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Description</th>
+                  <th scope="col" className="num">
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {state.invoices.map(i => (
+                  <tr key={i.id}>
+                    <td className="ui-num">{date(i.at)}</td>
+                    <td>
+                      {i.url ? (
+                        <a href={i.url} target="_blank" rel="noreferrer" className="ui-link">
+                          {i.label}
+                        </a>
+                      ) : (
+                        i.label
+                      )}
+                    </td>
+                    <td className="num">{money(i.amount)}</td>
+                  </tr>
+                ))}
+                {!state.invoices.length && (
+                  <tr>
+                    <td colSpan={3} className="ui-muted" style={{ padding: 24, textAlign: 'center' }}>
+                      Your first receipt shows here once payment goes through.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div className="ui-stack">
+          <section className="ui-card ui-card--shadow ui-stack" aria-labelledby="plan-h" style={{ '--gap': '12px' } as React.CSSProperties}>
+            <div className="ui-between">
+              <h2 id="plan-h" className="ui-label">
+                Your plan
+              </h2>
+              <span className="ui-tag ui-tag--orange">{plan.name}</span>
+            </div>
+            <div className="plan-card__price ui-num">
+              {money(plan.price)}
+              <small>/mo</small>
+            </div>
+            <div>{fmt(plan.perDay)} emails a day</div>
+            <p className="ui-small ui-muted">
+              {sub.status === 'active' ? `Next payment ${date(sub.renewsAt)}.` : `Ends ${date(sub.renewsAt)}.`}
+              {sub.card.last4 !== '••••' && ` ${sub.card.brand} ending ${sub.card.last4}.`}
+            </p>
+          </section>
+          <p className="ui-small ui-muted">
+            Upgrading starts right away and we add the extra inboxes for you. Downgrades and cancellations take effect at the end of
+            the month you&apos;ve paid for.
+          </p>
+        </div>
+      </div>
+      {toast}
+    </>
+  );
+}
+
 export default function Billing() {
-  const { state, sub, plan, changePlan, cancel, resume, updateCard } = useView();
+  const { state, sub, plan, changePlan, cancel, resume, updateCard, live } = useView();
   const [toast, show] = useToast();
   const [cardOpen, setCardOpen] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [card, setCard] = useState({ number: '', exp: '', cvc: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const pending = sub.pendingPlan ? planById(sub.pendingPlan) : null;
+
+  if (live) return <LiveBilling />;
 
   const pick = async (id: (typeof PLANS)[number]['id']) => {
     let res;

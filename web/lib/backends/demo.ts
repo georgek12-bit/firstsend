@@ -87,6 +87,11 @@ export function useDemoBackend(): Ctx {
           };
         }),
 
+      startCheckout: async () => {
+        throw new Error('Stripe checkout is only available when connected to Supabase.');
+      },
+      openBillingPortal: async () => {},
+
       submitBusiness: async b => {
         const v = vet(b);
         update(s => ({ ...s, business: b, vetting: v }));

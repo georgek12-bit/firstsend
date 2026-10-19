@@ -41,7 +41,12 @@ export type Actions = {
   signup(a: { name: string; email: string; plan: PlanId }): Promise<{ sent: boolean }>;
   login(email: string): Promise<'ok' | 'sent' | 'not_found'>;
   logout(): Promise<void>;
+  /** Demo only: records a plan straight away from the card form. */
   checkout(plan: PlanId, card: Card): Promise<void>;
+  /** Live only: sends the browser to Stripe Checkout. */
+  startCheckout(plan: PlanId): Promise<void>;
+  /** Live only: sends the browser to Stripe's billing portal. */
+  openBillingPortal(): Promise<void>;
   submitBusiness(b: Business): Promise<Vetting>;
   reopenOnboarding(): Promise<void>;
   chooseDomains(names: string[], byod: boolean): Promise<void>;

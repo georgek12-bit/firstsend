@@ -54,7 +54,7 @@ export type Inbox = {
 
 export type Replacement = { id: string; oldAddr: string; newAddr?: string; requestedAt: number; doneAt?: number };
 
-export type Invoice = { id: string; at: number; amount: number; label: string };
+export type Invoice = { id: string; at: number; amount: number; label: string; url?: string };
 
 export type SetupStage = 'queued' | 'domains' | 'dns' | 'inboxes' | 'warmup' | 'ready';
 

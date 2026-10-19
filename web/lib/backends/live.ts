@@ -66,7 +66,7 @@ function toState(uid: string, r: Record<string, any>): State {
       doneAt: x.done_at ? ms(x.done_at) : undefined,
     })),
     connections: r.connections.map((c: any) => ({ sequencer: c.sequencer, at: ms(c.at), inboxes: c.inboxes })),
-    invoices: r.invoices.map((v: any) => ({ id: v.id, at: ms(v.at), amount: v.amount, label: v.label })),
+    invoices: r.invoices.map((v: any) => ({ id: v.id, at: ms(v.at), amount: v.amount, label: v.label, url: v.url ?? undefined })),
   };
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -149,6 +149,18 @@ export function useLiveBackend(): Ctx {
   }, [sb, refresh]);
 
   const actions = useMemo<Actions>(() => {
+    // Calls a Supabase Edge Function and returns its JSON, surfacing its { error } message.
+    const fn = async (name: string, body: Record<string, unknown>) => {
+      const { data, error } = await sb.functions.invoke(name, { body });
+      if (error) {
+        let msg = error.message;
+        try {
+          msg = (await (error as { context?: Response }).context?.json())?.error ?? msg;
+        } catch {}
+        throw new Error(msg);
+      }
+      return data as { url: string };
+    };
     const rpc = async (fn: string, args?: Record<string, unknown>) => {
       const res = check(await sb.rpc(fn, args));
       await refresh();
@@ -181,6 +193,14 @@ export function useLiveBackend(): Ctx {
       },
       checkout: async (plan: PlanId, card) => {
         await rpc('start_subscription', { p_plan: plan, p_brand: card.brand, p_last4: card.last4, p_exp: card.exp });
+      },
+      startCheckout: async (plan: PlanId) => {
+        const { url } = await fn('create-checkout', { plan, returnUrl: siteUrl('') });
+        window.location.assign(url);
+      },
+      openBillingPortal: async () => {
+        const { url } = await fn('billing-portal', { returnUrl: siteUrl('/app/billing/') });
+        window.location.assign(url);
       },
       submitBusiness: async (b: Business) => {
         const result = await rpc('submit_business', {

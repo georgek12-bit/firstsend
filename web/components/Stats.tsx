@@ -4,7 +4,10 @@ import { reveal } from '@/lib/reveal';
 export default function Stats() {
   return (
     <section className="stats" data-stats="1" {...reveal()}>
-      <div className="kicker">05 / By the numbers</div>
+      <div className="shead">
+        <div className="badge">By the numbers</div>
+        <h2 className="h2">Built for your first campaign.</h2>
+      </div>
       <div className="stats__grid">
         {stats.map(s => (
           <div key={s.label} className="stat">

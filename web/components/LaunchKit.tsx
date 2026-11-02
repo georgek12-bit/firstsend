@@ -28,14 +28,12 @@ function Tile({
 export default function LaunchKit() {
   return (
     <section id="kit" className="kit">
-      <div className="kit__head" {...reveal()}>
-        <div className="stack-16 kit__heading">
-          <div className="kicker">03 / Launch kit</div>
-          <h2 className="h2">
-            Everything for campaign one. <span className="accent-italic">In the box.</span>
-          </h2>
-        </div>
-        <p className="kit__lede">Inboxes alone don&apos;t get replies. So we bundle the rest.</p>
+      <div className="shead" {...reveal()}>
+        <div className="badge">Launch kit</div>
+        <h2 className="h2">
+          Everything for campaign one. <span className="accent">In the box.</span>
+        </h2>
+        <p className="lede">Inboxes alone don&apos;t get replies. So we bundle the rest.</p>
       </div>
 
       <div className="kit__grid">

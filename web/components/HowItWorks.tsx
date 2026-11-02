@@ -4,19 +4,19 @@ import { reveal } from '@/lib/reveal';
 export default function HowItWorks() {
   return (
     <section id="how" className="how">
-      <div className="how__head" {...reveal()}>
-        <div className="stack-16">
-          <div className="kicker">02 / How it works</div>
-          <h2 className="h2">Buy it, set it, send it.</h2>
-        </div>
-        <span className="how__aside">All in one day.</span>
+      <div className="shead" {...reveal()}>
+        <div className="badge">How it works</div>
+        <h2 className="h2">
+          Buy it, set it, <span className="accent">send it.</span>
+        </h2>
+        <p className="lede">Three steps, all in one day.</p>
       </div>
       <ol className="how__list">
-        {steps.map(s => (
-          <li key={s.n} className="step" {...reveal()}>
-            <span className="step__n">{s.n}</span>
-            <span className="step__title">{s.title}</span>
-            <span className="step__body">{s.body}</span>
+        {steps.map((s, i) => (
+          <li key={s.n} className="step" {...reveal('24px', i * 80)}>
+            <span className="step__n">0{s.n}</span>
+            <h3 className="step__title">{s.title}</h3>
+            <p className="step__body">{s.body}</p>
           </li>
         ))}
       </ol>

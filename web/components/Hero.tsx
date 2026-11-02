@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { dashInboxes, dashStats } from '@/lib/content';
 import { reveal } from '@/lib/reveal';
 import LogoMark from './LogoMark';
@@ -5,29 +6,25 @@ import LogoMark from './LogoMark';
 export default function Hero() {
   return (
     <section className="hero">
-      <div className="eyebrow hero__eyebrow" {...reveal('12px')}>
+      <div className="badge hero__eyebrow" {...reveal('12px')}>
         Cold email infrastructure for new agencies
       </div>
-      <h1 className="hero__title">
-        <span className="hero__line">
-          <span {...reveal('105%', 80)}>Start small.</span>
-        </span>
-        <span className="hero__line hero__line--2">
-          <span className="accent-italic" {...reveal('105%', 200)}>
-            Send today.
-          </span>
-        </span>
+      <h1 className="hero__title" {...reveal('24px', 80)}>
+        Start small. <span className="accent">Send today.</span>
       </h1>
-      <div className="hero__row">
-        <p className="hero__sub" {...reveal('16px', 340)}>
-          Pick how many emails a day you want to send. We set up the inboxes, domains and warmup. You send the same day.
-        </p>
-        <div className="hero__cta" {...reveal('16px', 420)}>
-          <a href="#volume" className="btn btn--orange btn--lg">
-            Start sending <span className="mono">→</span>
+      <p className="hero__sub" {...reveal('16px', 200)}>
+        Pick how many emails a day you want to send. We set up the inboxes, domains and warmup. You send the same day.
+      </p>
+      <div className="hero__cta" {...reveal('16px', 280)}>
+        <div className="hero__buttons">
+          <Link href="/signup" className="btn btn--orange btn--lg">
+            Start sending <span aria-hidden="true">→</span>
+          </Link>
+          <a href="#volume" className="btn btn--ghost btn--lg">
+            See pricing
           </a>
-          <span className="hero__note">No sales call · No 400-inbox minimum</span>
         </div>
+        <span className="hero__note">No sales call · No 400-inbox minimum · Cancel anytime</span>
       </div>
 
       <div className="hero__stage">

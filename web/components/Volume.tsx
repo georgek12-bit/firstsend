@@ -43,9 +43,9 @@ export default function Volume() {
 
   return (
     <section id="volume" className="volume">
-      <div className="volume__intro" {...reveal()}>
-        <div className="kicker">01 / Pricing</div>
-        <h2 className="h2 h2--xl">How many emails a day?</h2>
+      <div className="shead" {...reveal()}>
+        <div className="badge">Simple pricing</div>
+        <h2 className="h2">How many emails a day?</h2>
         <p className="lede">Start where you are. Move up when you land the next client. No 400-inbox minimum.</p>
       </div>
 

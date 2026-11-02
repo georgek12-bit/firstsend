@@ -9,9 +9,9 @@ export default function Faq() {
 
   return (
     <section id="faq" className="faq">
-      <div className="faq__head" {...reveal()}>
-        <div className="kicker">06 / FAQ</div>
-        <h2 className="h2 h2--faq">Fair questions.</h2>
+      <div className="shead" {...reveal()}>
+        <div className="badge">FAQ</div>
+        <h2 className="h2">Fair questions.</h2>
       </div>
       <div className="faq__list" {...reveal('24px', 80)}>
         {faqs.map((f, i) => {

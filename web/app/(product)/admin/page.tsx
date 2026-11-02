@@ -455,6 +455,9 @@ function Admin() {
           <Link href="/admin/support" className="ui-btn ui-btn--ghost ui-btn--sm">
             Support tickets
           </Link>
+          <Link href="/admin/infra" className="ui-btn ui-btn--ghost ui-btn--sm">
+            Infrastructure
+          </Link>
           <Link href="/app" className="ui-btn ui-btn--ghost ui-btn--sm">
             Back to my app
           </Link>

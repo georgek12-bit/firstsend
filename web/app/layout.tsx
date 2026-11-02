@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from 'next/font/google';
 import { BRAND } from '@/lib/content';
 import './globals.css';
 import './theme.css';
+import './landing.css';
 
 const serif = Instrument_Serif({ weight: '400', style: ['normal', 'italic'], subsets: ['latin'], variable: '--font-serif' });
 const sans = Geist({ weight: ['400', '500', '600'], subsets: ['latin'], variable: '--font-sans' });
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#ffffff',
+  themeColor: '#f6f7f9',
 };
 
 // Runs before first paint so reveal elements start hidden instead of flashing in.

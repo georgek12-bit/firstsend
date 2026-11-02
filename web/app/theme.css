@@ -529,3 +529,36 @@
 .product .seq-tile[aria-pressed='true'] {
   box-shadow: 0 0 0 2px var(--orange);
 }
+
+/* ---------- Admin: infrastructure ---------- */
+.product .infra-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+@container (max-width: 760px) {
+  .product .infra-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.product .infra-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.product .infra-num {
+  font: 600 32px / 1 var(--sans);
+  letter-spacing: -0.03em;
+}
+.product .kpis {
+  gap: 12px;
+  background: none;
+  border: 0;
+}
+.product .kpi {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}

@@ -48,6 +48,20 @@ Replies --MX--> mx.firstsend.site --> IMAP --> Instantly
 - `~/.config/bookd/stalwart.env`: Stalwart admin login.
 - `~/.ssh/firstsend_hetzner`: SSH key for root on the server.
 
+## Adding a sending domain (automated)
+```
+python3 infra/provision_domain.py <domain> --person "First Last" --count 5
+```
+Needs the domain bought in the bookd Cloudflare account and `~/.azure-cli/bin/az login` done.
+It adds the domain to ACS, writes TXT/SPF/DKIM CNAMEs, MX -> mx.firstsend.site and DMARC p=reject
+to Cloudflare, waits for ACS verification, links the domain to `firstsend-comms`, creates one ACS
+sender username and one Stalwart account per inbox (Stalwart DKIM off: ACS signs), and writes an
+Instantly CSV with the logins to `~/.config/bookd/inboxes/<domain>.csv` (private, never commit).
+Safe to re-run; existing inboxes keep their passwords.
+
+Tested on the server: domain + account creation, re-runs, and IMAP 993 / SMTP 587 / SMTP 465 logins
+from outside. Not yet run against a real domain (ACS and DNS steps).
+
 ## Per test domain (to do once it's bought)
 1. Add it to `firstsend-email` as a custom domain; put the TXT verification, SPF
    (`include:spf.protection.outlook.com -all`) and the two DKIM CNAMEs in Cloudflare; verify; connect to `firstsend-comms`.

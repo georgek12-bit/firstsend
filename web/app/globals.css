@@ -728,27 +728,30 @@ ol {
   padding: 0;
 }
 .step {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  display: grid;
+  grid-template-columns: clamp(64px, 10cqi, 150px) minmax(0, 1fr) minmax(0, 420px);
+  align-items: center;
   gap: 12px clamp(20px, 4cqi, 64px);
   padding: clamp(22px, 3cqi, 36px) 0;
   border-top: 1px solid var(--ink);
 }
+@container (max-width: 760px) {
+  .step {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .step__body {
+    grid-column: 1 / -1;
+  }
+}
 .step__n {
-  flex: 0 0 auto;
-  width: clamp(64px, 10cqi, 150px);
   font: italic 400 clamp(56px, 7cqi, 104px) / 0.8 var(--serif);
   color: var(--orange);
 }
 .step__title {
-  flex: 1 1 260px;
   font: 400 clamp(30px, 3.6cqi, 48px) / 1 var(--serif);
   letter-spacing: -0.01em;
 }
 .step__body {
-  flex: 1 1 300px;
-  max-width: 420px;
   font-size: 17px;
   line-height: 1.5;
   color: var(--text-2);
@@ -780,8 +783,19 @@ ol {
 }
 .kit__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  /* Six tiles: 3 + 3 on wide screens, 2 + 2 + 2 in the middle, one column on phones. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+@container (max-width: 980px) {
+  .kit__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container (max-width: 600px) {
+  .kit__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .tile {
   padding: 24px;

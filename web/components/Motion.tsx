@@ -36,15 +36,29 @@ export default function Motion() {
     };
 
     const targets = new Map<Element, HTMLElement[]>();
-    const io = new IntersectionObserver(
-      entries =>
-        entries.forEach(e => {
-          if (!e.isIntersecting) return;
-          io.unobserve(e.target);
-          targets.get(e.target)?.forEach(show);
-        }),
-      { threshold: 0.12 },
-    );
+    const fire = (t: Element) => {
+      io.unobserve(t);
+      targets.get(t)?.forEach(show);
+      targets.delete(t);
+    };
+    // Start a little before an element scrolls into view.
+    const io = new IntersectionObserver(entries => entries.forEach(e => e.isIntersecting && fire(e.target)), {
+      rootMargin: '0px 0px 10% 0px',
+      threshold: 0.05,
+    });
+    // A fast flick can jump an element from below the screen to above it between frames,
+    // so the observer never sees it. Reveal anything that is already in view or scrolled past.
+    let raf = 0;
+    const sweep = () => {
+      raf = 0;
+      const bottom = window.innerHeight * 1.1;
+      targets.forEach((_, t) => t.getBoundingClientRect().top < bottom && fire(t));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(sweep);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
 
     document.querySelectorAll<HTMLElement>('[data-reveal]').forEach(el => {
       const masked = (el.dataset.reveal || '').endsWith('%');
@@ -55,6 +69,9 @@ export default function Motion() {
     });
 
     return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      cancelAnimationFrame(raf);
       io.disconnect();
       rafs.forEach(cancelAnimationFrame);
     };

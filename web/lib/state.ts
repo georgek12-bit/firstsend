@@ -21,9 +21,14 @@ export const EMPTY: State = {
 const FREE_MAIL = ['gmail.com', 'googlemail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'live.com', 'icloud.com', 'aol.com', 'proton.me', 'protonmail.com', 'gmx.com'];
 const DISPOSABLE = ['mailinator.com', 'guerrillamail.com', '10minutemail.com', 'tempmail.com', 'yopmail.com', 'trashmail.com', 'sharklasers.com'];
 
+// Allowed despite a blocked domain, e.g. a personal address used for testing.
+// Keep in sync with public.signup_email_exceptions, which the server checks.
+const EMAIL_EXCEPTIONS = ['georgekane172@gmail.com'];
+
 export function checkSignupEmail(email: string): string | null {
   const m = /^[^\s@]+@([^\s@]+\.[^\s@]+)$/.exec(email.trim().toLowerCase());
   if (!m) return 'Enter a valid email address.';
+  if (EMAIL_EXCEPTIONS.includes(email.trim().toLowerCase())) return null;
   if (DISPOSABLE.includes(m[1])) return "Disposable email addresses can't be used. Use your work email.";
   if (FREE_MAIL.includes(m[1])) return 'Use your work email, like you@youragency.com. It helps us keep spammers out.';
   return null;

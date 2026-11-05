@@ -1,6 +1,6 @@
 'use client';
 
-import { captureOffer, clearOffer } from '@/lib/offer';
+import { OFFER, captureOffer, clearOffer } from '@/lib/offer';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { FlowShell, Loading, useGuard } from '@/components/Flow';
@@ -75,6 +75,7 @@ function Checkout() {
       aside={
         <PlanSummary
           planId={plan}
+          offer={!!offer}
           note={
             offer && live
               ? 'Your private offer is applied on the Stripe page. Your card is saved today and billed when the free month ends.'
@@ -97,15 +98,15 @@ function Checkout() {
             Plan
           </legend>
           <div className="ui-choices">
-            {PLANS.map(p => (
+            {PLANS.filter(p => !offer || p.id === OFFER.plan).map(p => (
               <Choice
                 key={p.id}
                 name="plan"
                 value={p.id}
                 checked={plan === p.id}
                 onChange={v => setPlan(v as PlanId)}
-                title={`${p.name} · ${money(p.price)}/mo`}
-                desc={`${fmt(p.perDay)} emails a day`}
+                title={offer ? `${p.name} · ${money(OFFER.price)}/mo` : `${p.name} · ${money(p.price)}/mo`}
+                desc={offer ? `${fmt(p.perDay)} emails a day · first month free` : `${fmt(p.perDay)} emails a day`}
               />
             ))}
           </div>
@@ -118,7 +119,15 @@ function Checkout() {
         )}
         <div className="flow__actions">
           <button type="submit" className="ui-btn ui-btn--orange" disabled={paying}>
-            {paying ? (live ? 'Opening Stripe…' : 'Processing…') : live ? `Continue to payment, ${money(price)}/mo` : `Pay ${money(price)} and continue`}
+            {paying
+              ? live
+                ? 'Opening Stripe…'
+                : 'Processing…'
+              : live
+                ? offer
+                  ? 'Start your free month'
+                  : `Continue to payment, ${money(price)}/mo`
+                : `Pay ${money(price)} and continue`}
           </button>
           <span className="ui-small ui-muted">
             {live ? 'Payments are handled by Stripe. ' : 'Demo checkout. No real charge. '}

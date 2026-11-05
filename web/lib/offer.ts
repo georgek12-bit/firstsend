@@ -18,3 +18,6 @@ export function clearOffer() {
     localStorage.removeItem(KEY);
   } catch {}
 }
+
+/** What a valid private offer gives. The server holds the real price; this is for display. */
+export const OFFER = { plan: 'growth' as const, price: 200, freeDays: 30, label: 'Bookd existing client rate' };

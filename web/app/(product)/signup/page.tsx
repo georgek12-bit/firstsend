@@ -1,6 +1,6 @@
 'use client';
 
-import { captureOffer } from '@/lib/offer';
+import { OFFER, captureOffer } from '@/lib/offer';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -8,7 +8,7 @@ import { FlowShell } from '@/components/Flow';
 import PlanSummary from '@/components/PlanSummary';
 import { BRAND } from '@/lib/content';
 import { Choice, Field, money } from '@/components/ui';
-import { PLANS, fmt, type PlanId } from '@/lib/plans';
+import { PLANS, fmt, planById, type PlanId } from '@/lib/plans';
 import { checkSignupEmail, errorText, nextRoute, useStore } from '@/lib/store';
 
 function Signup() {
@@ -49,7 +49,7 @@ function Signup() {
 
   if (sentTo) {
     return (
-      <FlowShell step={0} aside={<PlanSummary planId={plan} />}>
+      <FlowShell step={0} aside={<PlanSummary planId={plan} offer={!!offer} />}>
         <div className="ui-stack" style={{ '--gap': '14px' } as React.CSSProperties}>
           <h1 className="ui-h1">Check your email</h1>
           <p className="ui-sub">
@@ -68,10 +68,14 @@ function Signup() {
   }
 
   return (
-    <FlowShell step={0} aside={<PlanSummary planId={plan} />}>
+    <FlowShell step={0} aside={<PlanSummary planId={plan} offer={!!offer} />}>
       <div className="ui-stack" style={{ '--gap': '14px' } as React.CSSProperties}>
-        <h1 className="ui-h1">Start sending today.</h1>
-        <p className="ui-sub">Create your account, pay with a card, and we start setting up right away. No call needed.</p>
+        <h1 className="ui-h1">{offer ? 'Welcome to Firstsend.' : 'Start sending today.'}</h1>
+        <p className="ui-sub">
+          {offer
+            ? `Your ${OFFER.label} is applied: your first month is free, then ${money(OFFER.price)}/mo instead of ${money(planById('growth').price)}. Create your account and add a card; nothing is charged today.`
+            : 'Create your account, pay with a card, and we start setting up right away. No call needed.'}
+        </p>
       </div>
 
       {signedIn && (
@@ -91,7 +95,7 @@ function Signup() {
             How many emails a day?
           </legend>
           <div className="ui-choices">
-            {PLANS.map(p => (
+            {PLANS.filter(p => !offer || p.id === OFFER.plan).map(p => (
               <Choice
                 key={p.id}
                 name="plan"
@@ -99,7 +103,7 @@ function Signup() {
                 checked={plan === p.id}
                 onChange={v => setPlan(v as PlanId)}
                 title={`${fmt(p.perDay)} a day`}
-                desc={`${p.name} · ${money(p.price)}/mo`}
+                desc={offer ? `${p.name} · ${money(OFFER.price)}/mo, first month free` : `${p.name} · ${money(p.price)}/mo`}
               />
             ))}
           </div>

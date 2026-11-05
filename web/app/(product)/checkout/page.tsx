@@ -1,5 +1,6 @@
 'use client';
 
+import { captureOffer, clearOffer } from '@/lib/offer';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { FlowShell, Loading, useGuard } from '@/components/Flow';
@@ -16,7 +17,8 @@ function Checkout() {
   const router = useRouter();
   const { checkout, startCheckout, live, refresh } = useStore();
   const returning = params.get('status') === 'success';
-  const [plan, setPlan] = useState<PlanId>(PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id);
+  const [offer] = useState(() => captureOffer(params));
+  const [plan, setPlan] = useState<PlanId>(offer ? 'growth' : (PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id));
   const [card, setCard] = useState({ number: '', exp: '', cvc: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paying, setPaying] = useState(false);
@@ -25,6 +27,7 @@ function Checkout() {
   // people on to onboarding as soon as the subscription shows up.
   useEffect(() => {
     if (!live || !returning) return;
+    clearOffer();
     const t = setInterval(refresh, 2000);
     return () => clearInterval(t);
   }, [live, returning, refresh]);
@@ -48,7 +51,7 @@ function Checkout() {
     e.preventDefault();
     if (live) {
       setPaying(true);
-      startCheckout(plan).catch(err => {
+      startCheckout(plan, offer).catch(err => {
         setErrors({ form: errorText(err) });
         setPaying(false);
       });
@@ -67,7 +70,19 @@ function Checkout() {
   };
 
   return (
-    <FlowShell step={1} aside={<PlanSummary planId={plan} note="You'll be charged today, then every 30 days. Cancel anytime from Billing." />}>
+    <FlowShell
+      step={1}
+      aside={
+        <PlanSummary
+          planId={plan}
+          note={
+            offer && live
+              ? 'Your private offer is applied on the Stripe page. Your card is saved today and billed when the free month ends.'
+              : "You'll be charged today, then every 30 days. Cancel anytime from Billing."
+          }
+        />
+      }
+    >
       <div className="ui-stack" style={{ '--gap': '14px' } as React.CSSProperties}>
         <h1 className="ui-h1">Payment</h1>
         <p className="ui-sub">

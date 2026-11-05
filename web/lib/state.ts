@@ -40,13 +40,13 @@ export type DomainStatus = 'available' | 'taken' | 'unknown';
 
 export type Actions = {
   /** Live: emails a sign-in link (sent: true). Demo: signs in straight away. */
-  signup(a: { name: string; email: string; plan: PlanId }): Promise<{ sent: boolean }>;
+  signup(a: { name: string; email: string; plan: PlanId; offer?: string | null }): Promise<{ sent: boolean }>;
   login(email: string): Promise<'ok' | 'sent' | 'not_found'>;
   logout(): Promise<void>;
   /** Demo only: records a plan straight away from the card form. */
   checkout(plan: PlanId, card: Card): Promise<void>;
   /** Live only: sends the browser to Stripe Checkout. */
-  startCheckout(plan: PlanId): Promise<void>;
+  startCheckout(plan: PlanId, offer?: string | null): Promise<void>;
   /** Live only: sends the browser to Stripe's billing portal. */
   openBillingPortal(): Promise<void>;
   submitBusiness(b: Business): Promise<Vetting>;

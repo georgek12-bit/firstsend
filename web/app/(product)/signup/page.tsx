@@ -1,5 +1,6 @@
 'use client';
 
+import { captureOffer } from '@/lib/offer';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -14,7 +15,9 @@ function Signup() {
   const params = useSearchParams();
   const router = useRouter();
   const { state, ready, signup } = useStore();
-  const initial = PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id;
+  const [offer] = useState(() => captureOffer(params));
+  // The founding rate is a Growth plan.
+  const initial = offer ? 'growth' : (PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id);
   const [plan, setPlan] = useState<PlanId>(initial);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -34,9 +37,9 @@ function Signup() {
     if (next.name || next.email) return;
     setBusy(true);
     try {
-      const { sent } = await signup({ name, email, plan });
+      const { sent } = await signup({ name, email, plan, offer });
       if (sent) setSentTo(email.trim());
-      else router.push(`/checkout?plan=${plan}`);
+      else router.push(`/checkout?plan=${plan}${offer ? `&offer=${encodeURIComponent(offer)}` : ''}`);
     } catch (err) {
       setErrors({ form: errorText(err) });
     } finally {

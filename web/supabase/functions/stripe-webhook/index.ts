@@ -11,6 +11,8 @@ const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SE
 const PLAN_BY_LOOKUP: Record<string, string> = {
   firstsend_starter_monthly: 'starter',
   firstsend_growth_monthly: 'growth',
+  // Private founding client rate ($200/mo), sold through create-checkout's offer code.
+  firstsend_growth_founding_monthly: 'growth',
 };
 
 async function userIdFor(customer: string, metadataUser?: string) {

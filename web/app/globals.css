@@ -1142,6 +1142,9 @@ ol {
   align-items: center;
   gap: 10px;
 }
+.footer__partner {
+  color: inherit;
+}
 .footer__links {
   display: flex;
   flex-wrap: wrap;

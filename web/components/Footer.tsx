@@ -9,6 +9,9 @@ export default function Footer() {
       <span className="footer__brand">
         <LogoMark size="sm" tone="cream" />© {new Date().getFullYear()} {BRAND}
       </span>
+      <a className="footer__partner" href="https://bookd.site">
+        Want it done for you? Cold email campaigns by bookd
+      </a>
       <nav className="footer__links" aria-label="Legal">
         {legalLinks.map(l => (
           <Link key={l.href} href={l.href}>

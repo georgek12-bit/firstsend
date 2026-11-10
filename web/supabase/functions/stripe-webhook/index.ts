@@ -8,10 +8,15 @@ const secret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!;
 const crypto = Stripe.createSubtleCryptoProvider();
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 
+// Promo codes made from this coupon (100% off, once) give a free first month on Growth,
+// then move the customer to the private $200 price for every month after.
+const EXISTING_CLIENT_COUPON = 'bookd-existing-client';
+const EXISTING_CLIENT_PRICE = 'firstsend_growth_founding_monthly';
+
 const PLAN_BY_LOOKUP: Record<string, string> = {
   firstsend_starter_monthly: 'starter',
   firstsend_growth_monthly: 'growth',
-  // Private founding client rate ($200/mo), sold through create-checkout's offer code.
+  // Private existing client rate ($200/mo), applied by applyExistingClientRate below.
   firstsend_growth_founding_monthly: 'growth',
 };
 
@@ -23,8 +28,34 @@ async function userIdFor(customer: string, metadataUser?: string) {
 
 const iso = (s?: number | null) => (s ? new Date(s * 1000).toISOString() : null);
 
+// If the Growth subscription used an existing client code, swap it to the $200 price.
+// No proration: the free first month stands and the next invoice is $200. Runs once; the
+// update fires another event, which finds the price already swapped.
+async function applyExistingClientRate(sub: Stripe.Subscription): Promise<Stripe.Subscription> {
+  // Older API versions put the coupon on discount.coupon, newer ones on discount.source.coupon.
+  // deno-lint-ignore no-explicit-any
+  const couponId = (d: any) => d?.coupon?.id ?? (typeof d?.source?.coupon === 'string' ? d.source.coupon : d?.source?.coupon?.id);
+  // A once-only coupon drops off the subscription after the first invoice, so also read it there.
+  // deno-lint-ignore no-explicit-any
+  const invoiceDiscounts = ((sub.latest_invoice as any)?.discounts ?? []) as any[];
+  // deno-lint-ignore no-explicit-any
+  const coupons = [...((sub.discounts ?? []) as any[]), ...invoiceDiscounts, (sub as any).discount].map(couponId);
+  const item = sub.items.data[0];
+  if (!['active', 'trialing'].includes(sub.status)) return sub;
+  if (!coupons.includes(EXISTING_CLIENT_COUPON) || item.price.lookup_key !== 'firstsend_growth_monthly') return sub;
+  const prices = await stripe.prices.list({ lookup_keys: [EXISTING_CLIENT_PRICE], active: true });
+  if (!prices.data.length) throw new Error('Existing client price is missing');
+  await stripe.subscriptions.update(sub.id, {
+    items: [{ id: item.id, price: prices.data[0].id }],
+    proration_behavior: 'none',
+    metadata: { ...sub.metadata, rate: 'bookd-existing-client' },
+  });
+  return stripe.subscriptions.retrieve(sub.id, { expand: ['default_payment_method', 'items.data.price', 'discounts', 'latest_invoice.discounts'] });
+}
+
 async function syncSubscription(subId: string) {
-  const sub = await stripe.subscriptions.retrieve(subId, { expand: ['default_payment_method', 'items.data.price'] });
+  let sub = await stripe.subscriptions.retrieve(subId, { expand: ['default_payment_method', 'items.data.price', 'discounts', 'latest_invoice.discounts'] });
+  sub = await applyExistingClientRate(sub);
   const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
   const userId = await userIdFor(customer, sub.metadata?.user_id);
   if (!userId) throw new Error(`No user for customer ${customer}`);

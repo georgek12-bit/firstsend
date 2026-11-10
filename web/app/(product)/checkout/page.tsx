@@ -1,6 +1,5 @@
 'use client';
 
-import { OFFER, captureOffer, clearOffer } from '@/lib/offer';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { FlowShell, Loading, useGuard } from '@/components/Flow';
@@ -17,8 +16,7 @@ function Checkout() {
   const router = useRouter();
   const { checkout, startCheckout, live, refresh } = useStore();
   const returning = params.get('status') === 'success';
-  const [offer] = useState(() => captureOffer(params));
-  const [plan, setPlan] = useState<PlanId>(offer ? 'growth' : (PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id));
+  const [plan, setPlan] = useState<PlanId>(PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id);
   const [card, setCard] = useState({ number: '', exp: '', cvc: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paying, setPaying] = useState(false);
@@ -27,7 +25,6 @@ function Checkout() {
   // people on to onboarding as soon as the subscription shows up.
   useEffect(() => {
     if (!live || !returning) return;
-    clearOffer();
     const t = setInterval(refresh, 2000);
     return () => clearInterval(t);
   }, [live, returning, refresh]);
@@ -51,7 +48,7 @@ function Checkout() {
     e.preventDefault();
     if (live) {
       setPaying(true);
-      startCheckout(plan, offer).catch(err => {
+      startCheckout(plan).catch(err => {
         setErrors({ form: errorText(err) });
         setPaying(false);
       });
@@ -70,20 +67,7 @@ function Checkout() {
   };
 
   return (
-    <FlowShell
-      step={1}
-      aside={
-        <PlanSummary
-          planId={plan}
-          offer={!!offer}
-          note={
-            offer && live
-              ? 'Your private offer is applied on the Stripe page. Your card is saved today and billed when the free month ends.'
-              : "You'll be charged today, then every 30 days. Cancel anytime from Billing."
-          }
-        />
-      }
-    >
+    <FlowShell step={1} aside={<PlanSummary planId={plan} note="You'll be charged today, then every 30 days. Cancel anytime from Billing." />}>
       <div className="ui-stack" style={{ '--gap': '14px' } as React.CSSProperties}>
         <h1 className="ui-h1">Payment</h1>
         <p className="ui-sub">
@@ -98,15 +82,15 @@ function Checkout() {
             Plan
           </legend>
           <div className="ui-choices">
-            {PLANS.filter(p => !offer || p.id === OFFER.plan).map(p => (
+            {PLANS.map(p => (
               <Choice
                 key={p.id}
                 name="plan"
                 value={p.id}
                 checked={plan === p.id}
                 onChange={v => setPlan(v as PlanId)}
-                title={offer ? `${p.name} · ${money(OFFER.price)}/mo` : `${p.name} · ${money(p.price)}/mo`}
-                desc={offer ? `${fmt(p.perDay)} emails a day · first month free` : `${fmt(p.perDay)} emails a day`}
+                title={`${p.name} · ${money(p.price)}/mo`}
+                desc={`${fmt(p.perDay)} emails a day`}
               />
             ))}
           </div>
@@ -119,15 +103,7 @@ function Checkout() {
         )}
         <div className="flow__actions">
           <button type="submit" className="ui-btn ui-btn--orange" disabled={paying}>
-            {paying
-              ? live
-                ? 'Opening Stripe…'
-                : 'Processing…'
-              : live
-                ? offer
-                  ? 'Start your free month'
-                  : `Continue to payment, ${money(price)}/mo`
-                : `Pay ${money(price)} and continue`}
+            {paying ? (live ? 'Opening Stripe…' : 'Processing…') : live ? `Continue to payment, ${money(price)}/mo` : `Pay ${money(price)} and continue`}
           </button>
           <span className="ui-small ui-muted">
             {live ? 'Payments are handled by Stripe. ' : 'Demo checkout. No real charge. '}

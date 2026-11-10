@@ -1,4 +1,3 @@
-import { OFFER } from '@/lib/offer';
 import { fmt, planById, type PlanId } from '@/lib/plans';
 import { money } from './ui';
 
@@ -11,33 +10,22 @@ const INCLUDED = [
   'Burned inbox guarantee',
 ];
 
-export default function PlanSummary({ planId, note, offer }: { planId: PlanId; note?: React.ReactNode; offer?: boolean }) {
+export default function PlanSummary({ planId, note }: { planId: PlanId; note?: React.ReactNode }) {
   const plan = planById(planId);
-  const price = offer ? OFFER.price : plan.price;
   return (
     <div className="ui-card ui-card--shadow ui-stack" style={{ '--gap': '18px' } as React.CSSProperties}>
       <div className="ui-between">
         <span className="ui-label">Your plan</span>
-        <span className="ui-tag ui-tag--orange">{offer ? 'Existing client rate' : plan.name}</span>
+        <span className="ui-tag ui-tag--orange">{plan.name}</span>
       </div>
       <div>
         <div className="plan-card__price ui-num">
-          {money(price)}
+          {money(plan.price)}
           <small>/mo</small>
-          {offer && (
-            <s className="ui-muted" style={{ fontSize: '0.45em', marginLeft: 10, fontWeight: 400 }}>
-              {money(plan.price)}
-            </s>
-          )}
         </div>
         <div className="ui-muted" style={{ marginTop: 6 }}>
-          {plan.name} · {fmt(plan.perDay)} emails a day
+          {fmt(plan.perDay)} emails a day
         </div>
-        {offer && (
-          <div className="ui-banner ui-banner--good" style={{ marginTop: 12 }}>
-            First month free, then {money(OFFER.price)}/mo, locked in for as long as you&apos;re with us.
-          </div>
-        )}
       </div>
       <ul className="ui-stack" style={{ '--gap': '8px', listStyle: 'none', margin: 0, padding: 0 } as React.CSSProperties}>
         {INCLUDED.map(i => (
@@ -50,7 +38,7 @@ export default function PlanSummary({ planId, note, offer }: { planId: PlanId; n
         ))}
       </ul>
       <div className="ui-small ui-muted" style={{ borderTop: '1px solid var(--line)', paddingTop: 14 }}>
-        {note ?? (offer ? `Free for ${OFFER.freeDays} days, then billed monthly. Cancel anytime.` : 'Billed monthly. Cancel anytime. No sales call.')}
+        {note ?? 'Billed monthly. Cancel anytime. No sales call.'}
       </div>
     </div>
   );

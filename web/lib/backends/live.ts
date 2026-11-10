@@ -184,12 +184,11 @@ export function useLiveBackend(): Ctx {
       return res.data;
     };
     return {
-      signup: async ({ name, email, plan, offer }) => {
-        const next = `/checkout/?plan=${plan}${offer ? `&offer=${encodeURIComponent(offer)}` : ''}`;
+      signup: async ({ name, email, plan }) => {
         check(
           await sb.auth.signInWithOtp({
             email: email.trim().toLowerCase(),
-            options: { data: { name: name.trim() }, emailRedirectTo: siteUrl(next) },
+            options: { data: { name: name.trim() }, emailRedirectTo: siteUrl(`/checkout/?plan=${plan}`) },
           }),
         );
         return { sent: true };
@@ -212,8 +211,8 @@ export function useLiveBackend(): Ctx {
       checkout: async (plan: PlanId, card) => {
         await rpc('start_subscription', { p_plan: plan, p_brand: card.brand, p_last4: card.last4, p_exp: card.exp });
       },
-      startCheckout: async (plan: PlanId, offer) => {
-        const { url } = await fn('create-checkout', { plan, offer: offer || undefined, returnUrl: siteUrl('') });
+      startCheckout: async (plan: PlanId) => {
+        const { url } = await fn('create-checkout', { plan, returnUrl: siteUrl('') });
         window.location.assign(url);
       },
       openBillingPortal: async () => {

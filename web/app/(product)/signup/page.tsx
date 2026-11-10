@@ -1,6 +1,5 @@
 'use client';
 
-import { OFFER, captureOffer } from '@/lib/offer';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -8,16 +7,14 @@ import { FlowShell } from '@/components/Flow';
 import PlanSummary from '@/components/PlanSummary';
 import { BRAND } from '@/lib/content';
 import { Choice, Field, money } from '@/components/ui';
-import { PLANS, fmt, planById, type PlanId } from '@/lib/plans';
+import { PLANS, fmt, type PlanId } from '@/lib/plans';
 import { checkSignupEmail, errorText, nextRoute, useStore } from '@/lib/store';
 
 function Signup() {
   const params = useSearchParams();
   const router = useRouter();
   const { state, ready, signup } = useStore();
-  const [offer] = useState(() => captureOffer(params));
-  // The founding rate is a Growth plan.
-  const initial = offer ? 'growth' : (PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id);
+  const initial = PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id;
   const [plan, setPlan] = useState<PlanId>(initial);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,9 +34,9 @@ function Signup() {
     if (next.name || next.email) return;
     setBusy(true);
     try {
-      const { sent } = await signup({ name, email, plan, offer });
+      const { sent } = await signup({ name, email, plan });
       if (sent) setSentTo(email.trim());
-      else router.push(`/checkout?plan=${plan}${offer ? `&offer=${encodeURIComponent(offer)}` : ''}`);
+      else router.push(`/checkout?plan=${plan}`);
     } catch (err) {
       setErrors({ form: errorText(err) });
     } finally {
@@ -49,7 +46,7 @@ function Signup() {
 
   if (sentTo) {
     return (
-      <FlowShell step={0} aside={<PlanSummary planId={plan} offer={!!offer} />}>
+      <FlowShell step={0} aside={<PlanSummary planId={plan} />}>
         <div className="ui-stack" style={{ '--gap': '14px' } as React.CSSProperties}>
           <h1 className="ui-h1">Check your email</h1>
           <p className="ui-sub">
@@ -68,14 +65,10 @@ function Signup() {
   }
 
   return (
-    <FlowShell step={0} aside={<PlanSummary planId={plan} offer={!!offer} />}>
+    <FlowShell step={0} aside={<PlanSummary planId={plan} />}>
       <div className="ui-stack" style={{ '--gap': '14px' } as React.CSSProperties}>
-        <h1 className="ui-h1">{offer ? 'Welcome to Firstsend.' : 'Start sending today.'}</h1>
-        <p className="ui-sub">
-          {offer
-            ? `Your ${OFFER.label} is applied: your first month is free, then ${money(OFFER.price)}/mo instead of ${money(planById('growth').price)}. Create your account and add a card; nothing is charged today.`
-            : 'Create your account, pay with a card, and we start setting up right away. No call needed.'}
-        </p>
+        <h1 className="ui-h1">Start sending today.</h1>
+        <p className="ui-sub">Create your account, pay with a card, and we start setting up right away. No call needed.</p>
       </div>
 
       {signedIn && (
@@ -95,7 +88,7 @@ function Signup() {
             How many emails a day?
           </legend>
           <div className="ui-choices">
-            {PLANS.filter(p => !offer || p.id === OFFER.plan).map(p => (
+            {PLANS.map(p => (
               <Choice
                 key={p.id}
                 name="plan"
@@ -103,7 +96,7 @@ function Signup() {
                 checked={plan === p.id}
                 onChange={v => setPlan(v as PlanId)}
                 title={`${fmt(p.perDay)} a day`}
-                desc={offer ? `${p.name} · ${money(OFFER.price)}/mo, first month free` : `${p.name} · ${money(p.price)}/mo`}
+                desc={`${p.name} · ${money(p.price)}/mo`}
               />
             ))}
           </div>

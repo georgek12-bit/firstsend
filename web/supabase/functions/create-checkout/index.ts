@@ -1,5 +1,6 @@
 // Starts a Stripe Checkout session for the signed-in customer and returns its URL.
-// Body: { plan: 'starter' | 'growth', returnUrl: string, offer?: string }  (returnUrl = the site's base URL)
+// Body: { plan: 'starter' | 'growth', returnUrl: string }  (returnUrl = the site's base URL)
+// Discounts are Stripe promotion codes entered on the Checkout page; there is no other way to change the price.
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 
@@ -15,15 +16,6 @@ const cors = {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
 
-// Constant-time string compare, so the offer code can't be guessed by timing.
-function safeEqual(a: string, b: string) {
-  const x = new TextEncoder().encode(a);
-  const y = new TextEncoder().encode(b);
-  let diff = x.length ^ y.length;
-  for (let i = 0; i < Math.max(x.length, y.length); i++) diff |= (x[i] ?? 0) ^ (y[i] ?? 0);
-  return diff === 0;
-}
-
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   try {
@@ -35,18 +27,9 @@ Deno.serve(async req => {
     } = await authed.auth.getUser();
     if (!user) return json({ error: 'Sign in first.' }, 401);
 
-    const { plan, returnUrl, offer } = await req.json();
+    const { plan, returnUrl } = await req.json();
     if (!PLANS.includes(plan)) return json({ error: 'Unknown plan.' }, 400);
 
-    // Private founding client rate: Growth at $200/mo with a free first month, only with the
-    // code from FOUNDING_OFFER_CODE. A wrong code is refused rather than charged at full price.
-    const founding = offer != null && offer !== '';
-    if (founding) {
-      const code = Deno.env.get('FOUNDING_OFFER_CODE') ?? '';
-      if (!code || !safeEqual(String(offer), code) || plan !== 'growth') {
-        return json({ error: "This offer link isn't valid any more. Reply to the email it came in and we'll sort it." }, 400);
-      }
-    }
     const base = String(returnUrl ?? '').replace(/\/+$/, '');
     if (!ALLOWED_ORIGINS.some(o => base === o || base.startsWith(o + '/'))) return json({ error: 'Bad return URL.' }, 400);
 
@@ -62,8 +45,7 @@ Deno.serve(async req => {
       await admin.from('profiles').update({ stripe_customer_id: customer }).eq('id', user.id);
     }
 
-    const lookup = founding ? 'firstsend_growth_founding_monthly' : `firstsend_${plan}_monthly`;
-    const prices = await stripe.prices.list({ lookup_keys: [lookup], active: true });
+    const prices = await stripe.prices.list({ lookup_keys: [`firstsend_${plan}_monthly`], active: true });
     if (!prices.data.length) return json({ error: 'This plan is not available right now.' }, 500);
 
     const session = await stripe.checkout.sessions.create({
@@ -71,13 +53,11 @@ Deno.serve(async req => {
       customer,
       client_reference_id: user.id,
       line_items: [{ price: prices.data[0].id, quantity: 1 }],
-      subscription_data: founding
-        ? { metadata: { user_id: user.id, offer: 'founding' }, trial_period_days: 30 }
-        : { metadata: { user_id: user.id } },
+      subscription_data: { metadata: { user_id: user.id } },
       metadata: { user_id: user.id },
-      // Take the card even during the free month so billing starts on its own.
+      // Always take a card, including when a 100%-off promo code makes the first invoice $0.
       payment_method_collection: 'always',
-      ...(founding ? {} : { allow_promotion_codes: true }),
+      allow_promotion_codes: true,
       success_url: `${base}/checkout/?status=success`,
       cancel_url: `${base}/checkout/?plan=${plan}`,
     });

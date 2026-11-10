@@ -2,43 +2,63 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { FlowShell } from '@/components/Flow';
 import PlanSummary from '@/components/PlanSummary';
+import SocialAuth from '@/components/SocialAuth';
 import { BRAND } from '@/lib/content';
 import { Choice, Field, money } from '@/components/ui';
 import { PLANS, fmt, type PlanId } from '@/lib/plans';
+import { MIN_PASSWORD } from '@/lib/state';
+import { authErrorFromUrl } from '@/lib/supabase';
 import { checkSignupEmail, errorText, nextRoute, useStore } from '@/lib/store';
 
 function Signup() {
   const params = useSearchParams();
   const router = useRouter();
-  const { state, ready, signup } = useStore();
+  const { state, ready, signup, live } = useStore();
   const initial = PLANS.find(p => p.id === params.get('plan'))?.id ?? PLANS[0].id;
   const [plan, setPlan] = useState<PlanId>(initial);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [errors, setErrors] = useState<{ name?: string; email?: string; form?: string }>({});
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; form?: string }>({});
   const [busy, setBusy] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
 
   const signedIn = ready && state.account?.loggedIn;
+  const viaOauth = params.get('via') === 'oauth';
+
+  // Coming back from Google/Microsoft/Apple: show what went wrong, or go straight to payment.
+  useEffect(() => {
+    if (!live || !viaOauth) return;
+    const msg = authErrorFromUrl();
+    if (msg) setErrors({ form: errorText(new Error(msg)) });
+  }, [live, viaOauth]);
+  useEffect(() => {
+    if (viaOauth && signedIn) router.replace(state.subscription ? nextRoute(state) : `/checkout?plan=${plan}`);
+  }, [viaOauth, signedIn, state, plan, router]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next = {
       name: name.trim() ? undefined : 'Enter your name.',
       email: checkSignupEmail(email) ?? undefined,
+      password: password.length >= MIN_PASSWORD ? undefined : `Use at least ${MIN_PASSWORD} characters.`,
     };
     setErrors(next);
-    if (next.name || next.email) return;
+    if (next.name || next.email || next.password) return;
     setBusy(true);
     try {
-      const { sent } = await signup({ name, email, plan });
+      const { sent } = await signup({ name, email, password, plan });
       if (sent) setSentTo(email.trim());
       else router.push(`/checkout?plan=${plan}`);
     } catch (err) {
-      setErrors({ form: errorText(err) });
+      if (err instanceof Error && err.message === 'already_registered') {
+        setErrors({ email: 'There is already an account with this email. Log in instead.' });
+      } else {
+        setErrors({ form: errorText(err) });
+      }
     } finally {
       setBusy(false);
     }
@@ -50,7 +70,7 @@ function Signup() {
         <div className="ui-stack" style={{ '--gap': '14px' } as React.CSSProperties}>
           <h1 className="ui-h1">Check your email</h1>
           <p className="ui-sub">
-            We sent a sign-in link to <b>{sentTo}</b>. Click it to confirm your email and go straight to payment. You can close this tab.
+            We sent a confirmation link to <b>{sentTo}</b>. Click it to confirm your email and go straight to payment. You can close this tab.
           </p>
         </div>
         <p className="ui-small ui-muted">
@@ -102,6 +122,8 @@ function Signup() {
           </div>
         </fieldset>
 
+        <SocialAuth returnTo={`/signup/?plan=${plan}&via=oauth`} onError={msg => setErrors({ form: msg })} />
+
         <Field id="name" label="Your name" error={errors.name}>
           <input
             id="name"
@@ -127,6 +149,19 @@ function Signup() {
           />
         </Field>
 
+        <Field id="password" label="Password" hint={`At least ${MIN_PASSWORD} characters.`} error={errors.password}>
+          <input
+            id="password"
+            className="ui-input"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? 'password-error' : undefined}
+          />
+        </Field>
+
         <p className="ui-small ui-muted">
           By continuing you agree to our{' '}
           <Link href="/terms" className="ui-link" target="_blank">
@@ -144,7 +179,7 @@ function Signup() {
         </p>
         <div className="flow__actions">
           <button type="submit" className="ui-btn ui-btn--orange" disabled={busy}>
-            {busy ? 'Sending…' : 'Continue to payment'} {!busy && <span className="mono">→</span>}
+            {busy ? 'Creating account…' : 'Continue to payment'} {!busy && <span className="mono">→</span>}
           </button>
           <span className="ui-small ui-muted">
             Have an account? <Link href="/login" className="ui-link">Log in</Link>

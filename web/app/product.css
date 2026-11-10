@@ -1036,3 +1036,30 @@ fieldset.ui-fieldset {
   color: var(--cream);
   border-color: var(--ink);
 }
+
+/* Google / Microsoft / Apple sign-in */
+.social {
+  display: grid;
+  gap: 20px;
+}
+.social__buttons {
+  display: grid;
+  gap: 10px;
+}
+.social__btn {
+  width: 100%;
+}
+.social__or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-3);
+  font-size: 13px;
+}
+.social__or::before,
+.social__or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}

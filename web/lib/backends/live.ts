@@ -184,25 +184,42 @@ export function useLiveBackend(): Ctx {
       return res.data;
     };
     return {
-      signup: async ({ name, email, plan }) => {
-        check(
-          await sb.auth.signInWithOtp({
+      signup: async ({ name, email, password, plan }) => {
+        const { data } = check(
+          await sb.auth.signUp({
             email: email.trim().toLowerCase(),
+            password,
             options: { data: { name: name.trim() }, emailRedirectTo: siteUrl(`/checkout/?plan=${plan}`) },
           }),
         );
-        return { sent: true };
+        // Supabase answers an already-registered email with a user that has no identities.
+        if (data.user && !data.user.identities?.length) throw new Error('already_registered');
+        if (data.session) await refresh();
+        return { sent: !data.session };
       },
-      login: async email => {
-        const { error } = await sb.auth.signInWithOtp({
-          email: email.trim().toLowerCase(),
-          options: { shouldCreateUser: false, emailRedirectTo: siteUrl('/app/') },
-        });
+      login: async (email, password) => {
+        const { error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
         if (error) {
-          if (/signups not allowed|not found/i.test(error.message)) return 'not_found';
+          if (/invalid login credentials/i.test(error.message)) return 'invalid';
           throw new Error(error.message);
         }
-        return 'sent';
+        await refresh();
+        return 'ok';
+      },
+      oauth: async (provider, returnTo) => {
+        check(
+          await sb.auth.signInWithOAuth({
+            provider,
+            options: { redirectTo: siteUrl(returnTo), scopes: provider === 'azure' ? 'email' : undefined },
+          }),
+        );
+      },
+      resetPassword: async email => {
+        check(await sb.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: siteUrl('/reset/') }));
+      },
+      setPassword: async password => {
+        check(await sb.auth.updateUser({ password }));
+        await refresh();
       },
       logout: async () => {
         await sb.auth.signOut();

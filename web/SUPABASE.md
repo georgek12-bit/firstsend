@@ -4,7 +4,7 @@
 > set up and the deploy workflow uses them. Still to do by hand: step 3 (sign-in URLs) and step 5 (admin).
 
 Without Supabase settings the app runs as a browser-only demo. With them it uses real accounts
-(email sign-in links) and a real database. Payments are still a placeholder until Stripe is added.
+(email + password, or Google / Microsoft / Apple) and a real database. Payments are still a placeholder until Stripe is added.
 
 ## 1. Create the project
 
@@ -25,6 +25,26 @@ Without Supabase settings the app runs as a browser-only demo. With them it uses
 - Redirect URLs: add `https://firstsend.site/**` (and `http://localhost:3000/**` for local work)
 
 **Authentication > Sign In / Providers > Email**: keep Email enabled. Leave "Confirm email" on.
+
+**Turn "Confirm email" off** (Authentication > Sign In / Providers > Email). Sign-up uses a password
+now, and with it off people go straight to payment instead of waiting for a link. Personal and
+throwaway addresses are still blocked by the database.
+
+**Google, Microsoft and Apple sign-in.** Each button appears on the site as soon as its provider is
+switched on in Authentication > Sign In / Providers. The callback URL for every provider is
+`https://vmnjfswqxxmykfnhecbm.supabase.co/auth/v1/callback`.
+
+- **Google:** Google Cloud Console > APIs & Services > Credentials > Create OAuth client ID (Web).
+  Add the callback URL above as an authorised redirect URI. Paste the client ID and secret into
+  Supabase > Google.
+- **Microsoft (shows as "Azure"):** portal.azure.com > App registrations > New registration. Supported
+  account types: "any organizational directory and personal Microsoft accounts". Redirect URI (Web):
+  the callback URL. Create a client secret under Certificates & secrets. Paste the Application
+  (client) ID and secret value into Supabase > Azure. Leave the tenant URL blank.
+- **Apple:** needs a paid Apple Developer account. Create a Services ID with Sign in with Apple,
+  set the domain to `vmnjfswqxxmykfnhecbm.supabase.co` and the return URL to the callback URL, then
+  create a Sign in with Apple key. Supabase > Apple walks through turning the key into a secret.
+  Apple secrets expire every 6 months.
 
 Supabase's built-in email sender only allows a few emails an hour. Before launch, add your own sender
 under **Authentication > Emails > SMTP Settings** (Resend or Postmark both work).

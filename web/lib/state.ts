@@ -43,10 +43,20 @@ export function vet(b: Business): Vetting {
 
 export type DomainStatus = 'available' | 'taken' | 'unknown';
 
+export type OAuthProvider = 'google' | 'azure' | 'apple';
+
+export const MIN_PASSWORD = 8;
+
 export type Actions = {
-  /** Live: emails a sign-in link (sent: true). Demo: signs in straight away. */
-  signup(a: { name: string; email: string; plan: PlanId }): Promise<{ sent: boolean }>;
-  login(email: string): Promise<'ok' | 'sent' | 'not_found'>;
+  /** Creates an account with a password. sent: true only if Supabase still asks the person to confirm their email. */
+  signup(a: { name: string; email: string; password: string; plan: PlanId }): Promise<{ sent: boolean }>;
+  login(email: string, password: string): Promise<'ok' | 'invalid'>;
+  /** Live only: sends the browser to Google, Microsoft or Apple. Comes back to `returnTo`. */
+  oauth(provider: OAuthProvider, returnTo: string): Promise<void>;
+  /** Emails a link to set a new password. */
+  resetPassword(email: string): Promise<void>;
+  /** Sets a password for the signed-in person (after a reset link). */
+  setPassword(password: string): Promise<void>;
   logout(): Promise<void>;
   /** Demo only: records a plan straight away from the card form. */
   checkout(plan: PlanId, card: Card): Promise<void>;

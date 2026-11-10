@@ -50,5 +50,9 @@ export function errorText(e: unknown) {
   if (/rate limit/i.test(m)) return 'Too many emails sent just now. Wait a minute and try again.';
   // Raised when the server rejects a personal or throwaway address (see blocked_email_domains).
   if (/database error saving new user|work email|disposable/i.test(m)) return 'Use your work email, like you@youragency.com. Personal and throwaway addresses can\'t be used.';
+  if (/password should be at least|weak password/i.test(m)) return 'Pick a longer password, at least 8 characters.';
+  if (/email not confirmed/i.test(m)) return 'Confirm your email first. Check your inbox for the link we sent.';
+  if (/provider is not enabled|unsupported provider/i.test(m)) return "That sign-in option isn't switched on yet. Use your email and a password.";
+  if (/user already registered/i.test(m)) return 'There is already an account with this email. Log in instead.';
   return m || 'Something went wrong. Try again.';
 }

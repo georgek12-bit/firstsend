@@ -70,10 +70,18 @@ export function useDemoBackend(): Ctx {
 
       login: async email => {
         const s = stateRef.current;
-        if (!s.account || s.account.email !== email.trim().toLowerCase()) return 'not_found';
+        if (!s.account || s.account.email !== email.trim().toLowerCase()) return 'invalid';
         update(cur => ({ ...cur, account: cur.account && { ...cur.account, loggedIn: true } }));
         return 'ok';
       },
+
+      oauth: async () => {
+        throw new Error('Google, Microsoft and Apple sign-in only work in the live product.');
+      },
+
+      resetPassword: async () => {},
+
+      setPassword: async () => {},
 
       logout: async () => update(s => ({ ...s, account: s.account && { ...s.account, loggedIn: false } })),
 

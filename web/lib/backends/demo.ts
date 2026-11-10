@@ -79,6 +79,10 @@ export function useDemoBackend(): Ctx {
         throw new Error('Google, Microsoft and Apple sign-in only work in the live product.');
       },
 
+      googleIdToken: async () => {
+        throw new Error('Google sign-in only works in the live product.');
+      },
+
       resetPassword: async () => {},
 
       setPassword: async () => {},

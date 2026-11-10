@@ -214,6 +214,10 @@ export function useLiveBackend(): Ctx {
           }),
         );
       },
+      googleIdToken: async (token, nonce) => {
+        check(await sb.auth.signInWithIdToken({ provider: 'google', token, nonce }));
+        await refresh();
+      },
       resetPassword: async email => {
         check(await sb.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: siteUrl('/reset/') }));
       },

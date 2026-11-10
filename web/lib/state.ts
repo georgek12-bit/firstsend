@@ -53,6 +53,8 @@ export type Actions = {
   login(email: string, password: string): Promise<'ok' | 'invalid'>;
   /** Live only: sends the browser to Google, Microsoft or Apple. Comes back to `returnTo`. */
   oauth(provider: OAuthProvider, returnTo: string): Promise<void>;
+  /** Live only: signs in with the ID token from Google's own button, so Google shows firstsend.site, not supabase.co. */
+  googleIdToken(token: string, nonce: string): Promise<void>;
   /** Emails a link to set a new password. */
   resetPassword(email: string): Promise<void>;
   /** Sets a password for the signed-in person (after a reset link). */

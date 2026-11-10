@@ -16,6 +16,9 @@ export function getSupabase(): SupabaseClient {
   return client;
 }
 
+/** Public OAuth client ID for Google's own sign-in button. */
+export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+
 /** Absolute URL for a page on this site, used for sign-in email links. */
 export const siteUrl = (path: string) => window.location.origin + (process.env.NEXT_PUBLIC_BASE_PATH || '') + path;
 

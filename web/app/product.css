@@ -1063,3 +1063,9 @@ fieldset.ui-fieldset {
   height: 1px;
   background: var(--line);
 }
+
+.social__google {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}

@@ -122,7 +122,11 @@ function Signup() {
           </div>
         </fieldset>
 
-        <SocialAuth returnTo={`/signup/?plan=${plan}&via=oauth`} onError={msg => setErrors({ form: msg })} />
+        <SocialAuth
+          returnTo={`/signup/?plan=${plan}&via=oauth`}
+          onError={msg => setErrors({ form: msg })}
+          onSignedIn={() => router.replace(`/signup/?plan=${plan}&via=oauth`)}
+        />
 
         <Field id="name" label="Your name" error={errors.name}>
           <input

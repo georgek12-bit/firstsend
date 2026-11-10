@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { enabledProviders } from '@/lib/supabase';
+import GoogleButton from './GoogleButton';
+import { GOOGLE_CLIENT_ID, enabledProviders } from '@/lib/supabase';
 import type { OAuthProvider } from '@/lib/state';
 import { errorText, useStore } from '@/lib/store';
 
@@ -45,7 +46,16 @@ const PROVIDERS: { id: OAuthProvider; label: string; icon: React.ReactNode }[] =
 ];
 
 /** "Continue with Google / Microsoft / Apple" buttons. Renders nothing until a provider is enabled. */
-export default function SocialAuth({ returnTo, onError }: { returnTo: string; onError: (msg: string) => void }) {
+export default function SocialAuth({
+  returnTo,
+  onError,
+  onSignedIn,
+}: {
+  returnTo: string;
+  onError: (msg: string) => void;
+  /** Called after Google's pop-up signs the person in without leaving the page. */
+  onSignedIn: () => void;
+}) {
   const { oauth } = useStore();
   const [enabled, setEnabled] = useState<Record<string, boolean> | null>(null);
   const [busy, setBusy] = useState<OAuthProvider | null>(null);
@@ -70,12 +80,16 @@ export default function SocialAuth({ returnTo, onError }: { returnTo: string; on
   return (
     <div className="social">
       <div className="social__buttons">
-        {shown.map(p => (
+        {shown.map(p =>
+          p.id === 'google' && GOOGLE_CLIENT_ID ? (
+            <GoogleButton key={p.id} onDone={onSignedIn} onError={onError} />
+          ) : (
           <button key={p.id} type="button" className="ui-btn ui-btn--ghost social__btn" disabled={busy !== null} onClick={() => go(p.id)}>
             {p.icon}
             <span>{busy === p.id ? 'Opening…' : `Continue with ${p.label}`}</span>
           </button>
-        ))}
+          ),
+        )}
       </div>
       <div className="social__or">
         <span>or use your email</span>

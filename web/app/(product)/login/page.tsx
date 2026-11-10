@@ -73,7 +73,8 @@ export default function Login() {
         </div>
       ) : (
         <div className="ui-stack" style={{ '--gap': '20px' } as React.CSSProperties}>
-          <SocialAuth returnTo="/login/" onError={setError} />
+          {/* Once signed in, the effect above moves them on. */}
+          <SocialAuth returnTo="/login/" onError={setError} onSignedIn={() => {}} />
           <form className="ui-stack" style={{ '--gap': '20px' } as React.CSSProperties} onSubmit={submit} noValidate>
             <Field id="email" label="Work email">
               <input

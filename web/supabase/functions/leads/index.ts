@@ -6,16 +6,15 @@
 //   count   { filters }     → { total }
 //   create  { filters, n }  → { request }       (runs the search, saves a CSV, returns the row)
 //   download { id }         → { url }           (signed link, valid 1 hour)
-//   usage                   → { used, limit }
 //
 // Every search only returns contacts with a verified (VALID) work email, at most 3 per company,
 // and never an email this customer has been given before.
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 
 const API = 'https://app.getleads.io/api/v1';
-const DAILY_LIMIT = 2000; // Leads per customer per rolling 24 hours. Keep in sync with web/lib/leads.ts.
-const PAGE = 2000;
-const MAX_PAGES = 6; // Stop paging after this many if most matches are repeats.
+const MAX_PER_REQUEST = 5000; // No daily cap: customers can run as many lists as they like. Keep in sync with web/lib/leads.ts.
+const PAGE = 5000; // GetLeads' largest page.
+const MAX_PAGES = 4; // Stop paging after this many if most matches are repeats.
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -54,6 +53,7 @@ type Filters = {
   industries?: string[];
   countries?: string[];
   company_size?: string[];
+  keywords?: string[];
 };
 
 const SENIORITY = ['c-level', 'vp', 'director', 'manager', 'senior', 'junior'];
@@ -75,17 +75,23 @@ function clean(raw: unknown) {
     industries: list(f.industries),
     countries: list(f.countries),
     company_size: list(f.company_size).filter(s => SIZES.includes(s)),
+    keywords: list(f.keywords, 20),
   };
   for (const k of Object.keys(out) as (keyof Filters)[]) if (!out[k]!.length) delete out[k];
-  if (!out.job_titles && !out.seniority && !out.industries)
-    throw new UserError('Add a job title, seniority or industry so the list is about your buyers.');
-  return { mine: out, query: { ...out, require_email: true, email_status: ['VALID'] } };
+  if (!out.job_titles && !out.seniority && !out.industries && !out.keywords)
+    throw new UserError('Add a job title, seniority, industry or keyword so the list is about your buyers.');
+  // GetLeads takes company keywords as one comma-separated string (any of them matches).
+  const { keywords, ...rest } = out;
+  const query: Record<string, unknown> = { ...rest, require_email: true, email_status: ['VALID'] };
+  if (keywords) query.company_description = keywords.join(', ');
+  return { mine: out, query };
 }
 
 function summary(f: Filters) {
   const parts = [
     f.job_titles?.join(', ') ?? f.seniority?.join(', '),
     f.industries && (f.industries.length > 2 ? `${f.industries.length} industries` : f.industries.join(', ')),
+    f.keywords && `“${f.keywords.slice(0, 3).join(', ')}”`,
     f.company_size && `${f.company_size.join(', ')} staff`,
     f.countries && (f.countries.length > 2 ? `${f.countries.length} countries` : f.countries.join(', ')),
   ];
@@ -158,23 +164,9 @@ Deno.serve(async req => {
 
     const body = await req.json();
 
-    const used = async () => {
-      const since = new Date(Date.now() - 24 * 3600_000).toISOString();
-      const { data, error } = await admin
-        .from('lead_requests')
-        .select('rows, requested, status')
-        .eq('user_id', user.id)
-        .gte('created_at', since);
-      if (error) throw error;
-      return (data ?? []).reduce((n, r) => n + (r.status === 'running' ? r.requested : r.rows), 0);
-    };
-
     switch (body.action) {
       case 'options':
         return json(await options());
-
-      case 'usage':
-        return json({ used: await used(), limit: DAILY_LIMIT });
 
       case 'count': {
         const { query } = clean(body.filters);
@@ -197,9 +189,7 @@ Deno.serve(async req => {
 
       case 'create': {
         const { mine, query } = clean(body.filters);
-        const left = DAILY_LIMIT - (await used());
-        const n = Math.min(Math.floor(Number(body.n) || 0), left);
-        if (left <= 0) throw new UserError(`You've had your ${DAILY_LIMIT.toLocaleString('en-US')} leads for today. More unlock tomorrow.`);
+        const n = Math.min(Math.floor(Number(body.n) || 0), MAX_PER_REQUEST);
         if (n < 1) throw new UserError('Pick how many leads you want.');
 
         const { data: request, error: insErr } = await admin

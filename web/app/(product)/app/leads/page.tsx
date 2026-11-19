@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Field, ago, useToast } from '@/components/ui';
-import { LEAD_AMOUNTS, LEAD_DAILY_LIMIT, LEAD_SENIORITY, LEAD_SIZES, type LeadFilters, type LeadRequest } from '@/lib/leads';
+import { LEAD_AMOUNTS, LEAD_SENIORITY, LEAD_SIZES, type LeadFilters, type LeadRequest } from '@/lib/leads';
 import { LIVE, getSupabase } from '@/lib/supabase';
 import { useView } from '@/lib/view';
 
@@ -107,7 +107,7 @@ function Toggles({ values, options, onChange, label }: { values: string[]; optio
   );
 }
 
-const EMPTY: LeadFilters = { job_titles: [], exclude_job_titles: [], seniority: [], industries: [], countries: [], company_size: [] };
+const EMPTY: LeadFilters = { job_titles: [], exclude_job_titles: [], seniority: [], industries: [], countries: [], company_size: [], keywords: [] };
 
 export default function Leads() {
   const { now } = useView();
@@ -120,19 +120,14 @@ export default function Leads() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [history, setHistory] = useState<LeadRequest[]>([]);
-  const [usage, setUsage] = useState({ used: 0, limit: LEAD_DAILY_LIMIT });
 
   const set = <K extends keyof LeadFilters>(k: K, v: LeadFilters[K]) => setF(p => ({ ...p, [k]: v }));
-  const enough = !!(f.job_titles.length || f.seniority.length || f.industries.length);
-  const left = Math.max(0, usage.limit - usage.used);
+  const enough = !!(f.job_titles.length || f.seniority.length || f.industries.length || f.keywords.length);
   const key = useMemo(() => JSON.stringify(f), [f]);
 
   const load = useCallback(async () => {
     const { data } = await getSupabase().from('lead_requests').select('*').order('created_at', { ascending: false }).limit(25);
     setHistory((data ?? []) as LeadRequest[]);
-    try {
-      setUsage(await call('usage'));
-    } catch {}
   }, []);
 
   useEffect(() => {
@@ -164,11 +159,11 @@ export default function Leads() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!enough) return setErr('Add a job title, seniority or industry first.');
+    if (!enough) return setErr('Add a job title, seniority, industry or keyword first.');
     setBusy(true);
     setErr(null);
     try {
-      const { request } = await call<{ request: LeadRequest }>('create', { filters: f, n: Math.min(amount, left) });
+      const { request } = await call<{ request: LeadRequest }>('create', { filters: f, n: amount });
       await load();
       if (request.rows) {
         show(`${n(request.rows)} leads ready.`);
@@ -221,12 +216,16 @@ export default function Leads() {
               <Tags id="industries" values={f.industries} options={opts.industries} onChange={v => set('industries', v)} placeholder="e.g. Software Development" />
             </Field>
 
+            <Field id="keywords" label="Keywords" hint="Words in the company’s description, like “implants” or “Shopify”. Any of them can match.">
+              <Tags id="keywords" values={f.keywords} onChange={v => set('keywords', v)} placeholder="e.g. Invisalign, cosmetic dentistry" />
+            </Field>
+
             <fieldset className="ui-fieldset">
               <legend className="ui-legend">Company size (staff)</legend>
               <Toggles label="Company size" values={f.company_size} options={LEAD_SIZES.map(s => ({ v: s, l: s.replace(' to ', '–') }))} onChange={v => set('company_size', v)} />
             </fieldset>
 
-            <Field id="countries" label="Where they live" hint="Leave empty for anywhere.">
+            <Field id="countries" label="Location" hint="Countries. Leave empty for anywhere.">
               <Tags id="countries" values={f.countries} options={opts.countries} onChange={v => set('countries', v)} placeholder="e.g. United Kingdom" />
             </Field>
 
@@ -238,7 +237,7 @@ export default function Leads() {
               <legend className="ui-legend">How many</legend>
               <div className="filters" role="group" aria-label="How many leads">
                 {LEAD_AMOUNTS.map(a => (
-                  <button key={a} type="button" aria-pressed={amount === a} disabled={a > left && left > 0 && a !== LEAD_AMOUNTS[0]} onClick={() => setAmount(a)}>
+                  <button key={a} type="button" aria-pressed={amount === a} onClick={() => setAmount(a)}>
                     {n(a)}
                   </button>
                 ))}
@@ -247,7 +246,7 @@ export default function Leads() {
 
             <div className="leads-count" aria-live="polite">
               {!enough ? (
-                <span className="ui-muted">Add a title, seniority or industry to see how many match.</span>
+                <span className="ui-muted">Add a title, seniority, industry or keyword to see how many match.</span>
               ) : counting ? (
                 <span className="ui-muted">Counting…</span>
               ) : count ? (
@@ -267,20 +266,15 @@ export default function Leads() {
               </p>
             )}
 
-            <button type="submit" className="ui-btn ui-btn--orange" disabled={busy || !enough || left === 0 || count?.total === 0}>
-              {busy ? 'Building your list… (up to a minute)' : left === 0 ? 'Daily limit reached' : `Get ${n(Math.min(amount, left))} leads`}
+            <button type="submit" className="ui-btn ui-btn--orange" disabled={busy || !enough || count?.total === 0}>
+              {busy ? 'Building your list… (up to a minute)' : `Get ${n(count ? Math.min(amount, count.total) : amount)} leads`}
             </button>
           </form>
 
           <div className="ui-stack" style={{ '--gap': '20px' } as React.CSSProperties}>
-            <div className="ui-card ui-card--soft ui-stack" style={{ '--gap': '10px' } as React.CSSProperties}>
-              <span className="ui-label">Today</span>
-              <p style={{ fontSize: 18 }}>
-                {n(usage.used)} of {n(usage.limit)} leads used. {left ? `${n(left)} left.` : 'More unlock tomorrow.'}
-              </p>
-              <div className="ui-progress" aria-hidden="true">
-                <span style={{ width: `${Math.min(100, (usage.used / usage.limit) * 100)}%` }} />
-              </div>
+            <div className="ui-card ui-card--soft ui-stack" style={{ '--gap': '8px' } as React.CSSProperties}>
+              <span className="ui-label">Unlimited</span>
+              <p>Build as many lists as you like, up to 5,000 leads each.</p>
               <p className="ui-small ui-muted">
                 Every lead has a verified work email, at most 3 per company. You never get the same person twice.
               </p>

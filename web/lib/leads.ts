@@ -1,8 +1,8 @@
 // Free leads (GetLeads). The search itself runs in supabase/functions/leads.
 
-/** Leads per customer per rolling 24 hours. Keep in sync with DAILY_LIMIT in supabase/functions/leads. */
-export const LEAD_DAILY_LIMIT = 2000;
-export const LEAD_AMOUNTS = [100, 250, 500, 1000, 2000];
+/** Most leads in one list. No daily cap. Keep in sync with MAX_PER_REQUEST in supabase/functions/leads. */
+export const LEAD_MAX = 5000;
+export const LEAD_AMOUNTS = [100, 500, 1000, 2500, 5000];
 
 export const LEAD_SENIORITY = [
   { v: 'c-level', l: 'C-level / Owner' },
@@ -22,6 +22,7 @@ export type LeadFilters = {
   industries: string[];
   countries: string[];
   company_size: string[];
+  keywords: string[];
 };
 
 export type LeadRequest = {

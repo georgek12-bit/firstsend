@@ -69,3 +69,7 @@ from outside. Not yet run against a real domain (ACS and DNS steps).
 3. MX -> `mx.firstsend.site`; DMARC `p=reject`.
 4. In Stalwart: add the domain and one account per sender address (same addresses as ACS), with passwords.
 5. Connect to Instantly with custom IMAP/SMTP, test send, reply detection, warmup; seed tests vs Lunatro.
+
+## API domain (api.firstsend.site)
+- Cloudflare Worker `firstsend-api` (bookd account), code in `infra/api-worker/`. Forwards `/v1/...` to the Supabase Edge Function `api`, passing only `x-api-token`, `x-workspace-id`, `content-type`, `accept`, `idempotency-key`, `user-agent` (plus `x-client-ip`).
+- Deploy: `cd infra/api-worker && set -a && . ~/.config/bookd/cloudflare.env && set +a && npx wrangler@4 deploy`.

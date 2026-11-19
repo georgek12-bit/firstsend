@@ -1,0 +1,11 @@
+# api.firstsend.site → Supabase Edge Function `api`. bookd Cloudflare account.
+# Deploy: cd infra/api-worker && set -a && . ~/.config/bookd/cloudflare.env && set +a && npx wrangler@4 deploy
+name = "firstsend-api"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+account_id = "9eb079f4f63c9c2e2e7fe0cd9f0081e1"
+workers_dev = false
+
+routes = [
+  { pattern = "api.firstsend.site", custom_domain = true }
+]

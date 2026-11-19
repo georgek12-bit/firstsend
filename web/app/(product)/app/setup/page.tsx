@@ -91,10 +91,10 @@ export default function Setup() {
             <span className="ui-label" style={{ color: 'inherit', opacity: 0.7 }}>
               While you wait
             </span>
-            <p>Your launch kit is already unlocked: copy templates, a warmup guide and a starter lead list for {plan.name}.</p>
+            <p>While you wait, write your first sequence. Answer 9 quick questions and get cold emails ready to send.</p>
             <div>
               <Link href="/app/kit" className="ui-btn ui-btn--orange ui-btn--sm">
-                Open launch kit
+                Write my copy
               </Link>
             </div>
           </div>

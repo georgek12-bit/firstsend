@@ -126,7 +126,7 @@ export default function Onboarding() {
             ))}
           </div>
           {v.leadSource === 'bought' && (
-            <span className="ui-hint">That&apos;s fine. Verify bought lists before sending. We include a guide in your launch kit.</span>
+            <span className="ui-hint">That&apos;s fine. Verify bought lists before sending, or use the free verified leads in your dashboard.</span>
           )}
           {errors.leadSource && <span className="ui-error">{errors.leadSource}</span>}
         </fieldset>

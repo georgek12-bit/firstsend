@@ -21,7 +21,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const nav: { href: string; label: string; count?: number; also?: string[] }[] = [
     { href: '/app', label: 'Dashboard', also: ['/app/inboxes', '/app/setup'] },
     { href: '/app/leads', label: 'Leads' },
-    { href: '/app/kit', label: 'Launch kit' },
+    { href: '/app/kit', label: 'Copy writing' },
     { href: '/app/settings', label: 'Settings', also: ['/app/billing'] },
     { href: '/app/support', label: 'Support' },
     ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),

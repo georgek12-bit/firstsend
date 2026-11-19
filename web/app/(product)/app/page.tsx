@@ -54,7 +54,7 @@ export default function Dashboard() {
           </p>
         </div>
         <Link href="/app/kit" className="ui-btn ui-btn--ghost">
-          Open launch kit
+          Write my copy
         </Link>
       </div>
 

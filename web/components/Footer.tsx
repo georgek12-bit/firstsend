@@ -13,6 +13,7 @@ export default function Footer() {
         Want it done for you? Cold email campaigns by bookd
       </a>
       <nav className="footer__links" aria-label="Legal">
+        <Link href="/docs/api">API docs</Link>
         {legalLinks.map(l => (
           <Link key={l.href} href={l.href}>
             {l.label}

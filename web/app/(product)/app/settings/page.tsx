@@ -1,5 +1,6 @@
 'use client';
 
+import SettingsTabs from '@/components/SettingsTabs';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Field, useToast } from '@/components/ui';
@@ -56,6 +57,8 @@ export default function Settings() {
           <h1 className="ui-h1">Settings</h1>
         </div>
       </div>
+
+      <SettingsTabs />
 
       <div className="cols">
         <div className="ui-stack" style={{ '--gap': '20px' } as React.CSSProperties}>

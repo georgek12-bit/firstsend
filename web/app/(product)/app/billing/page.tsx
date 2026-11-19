@@ -1,5 +1,6 @@
 'use client';
 
+import SettingsTabs from '@/components/SettingsTabs';
 import { useState } from 'react';
 import { CardFields, cardFrom, validateCard } from '@/components/CardFields';
 import { Modal, date, money, useToast } from '@/components/ui';
@@ -29,12 +30,14 @@ function LiveBilling() {
     <>
       <div className="page-head">
         <div className="page-head__text">
-          <span className="ui-label">Billing</span>
+          <span className="ui-label">Settings</span>
           <h1 className="ui-h1">Plan and billing</h1>
           <p className="ui-sub">Change plan, update your card, download receipts or cancel. Billing is handled securely by Stripe.</p>
         </div>
         {button}
       </div>
+
+      <SettingsTabs />
 
       {sub.status === 'canceled' && (
         <div className="ui-banner ui-banner--warn">
@@ -163,11 +166,13 @@ export default function Billing() {
     <>
       <div className="page-head">
         <div className="page-head__text">
-          <span className="ui-label">Billing</span>
+          <span className="ui-label">Settings</span>
           <h1 className="ui-h1">Plan and billing</h1>
           <p className="ui-sub">Monthly billing. Move up any time, move down at renewal, cancel whenever you like.</p>
         </div>
       </div>
+
+      <SettingsTabs />
 
       {sub.status === 'canceled' && (
         <div className="ui-banner ui-banner--warn">

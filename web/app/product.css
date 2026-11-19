@@ -1132,3 +1132,20 @@ fieldset.ui-fieldset {
 .leads-history li:first-child {
   border-top: 0;
 }
+
+/* Settings / Billing switcher */
+.filters__link {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  padding: 7px 14px;
+  min-height: 36px;
+  font: 400 14px var(--sans);
+  color: var(--ink);
+  text-decoration: none;
+}
+.filters__link[aria-current='page'] {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}

@@ -6,7 +6,6 @@ import { Loading, useGuard } from '@/components/Flow';
 import LogoMark from '@/components/LogoMark';
 import { BRAND } from '@/lib/content';
 import { fmt, planById } from '@/lib/plans';
-import { setupComplete } from '@/lib/sim';
 import { useStore } from '@/lib/store';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -18,17 +17,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (!ok) return <Loading />;
 
   const plan = planById(state.subscription!.plan);
-  const setupDone = setupComplete(state);
   const attention = state.inboxes.filter(b => b.status === 'burned').length;
 
-  const nav = [
+  const nav: { href: string; label: string; count?: number; also?: string[] }[] = [
     { href: '/app', label: 'Dashboard' },
-    ...(setupDone ? [] : [{ href: '/app/setup', label: 'Setup' }]),
     { href: '/app/inboxes', label: 'Inboxes', count: attention },
     { href: '/app/leads', label: 'Leads' },
     { href: '/app/kit', label: 'Launch kit' },
-    { href: '/app/billing', label: 'Billing' },
-    { href: '/app/settings', label: 'Settings' },
+    { href: '/app/settings', label: 'Settings', also: ['/app/billing'] },
     { href: '/app/support', label: 'Support' },
     ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
   ];
@@ -54,7 +50,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="side__nav" aria-label="App">
           {nav.map(n => (
-            <Link key={n.href} href={n.href} aria-current={path === n.href ? 'page' : undefined}>
+            <Link key={n.href} href={n.href} aria-current={path === n.href || n.also?.includes(path) ? 'page' : undefined}>
               {n.label}
               {!!n.count && (
                 <span className="side__count" aria-label={`${n.count} need attention`}>

@@ -150,8 +150,11 @@ Deno.serve(async req => {
     if (!user) return json({ error: 'Sign in first.' }, 401);
 
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-    const { data: sub } = await admin.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle();
-    if (sub?.status !== 'active') return json({ error: 'Leads come with an active plan.' }, 403);
+    const [{ data: sub }, { data: prof }] = await Promise.all([
+      admin.from('subscriptions').select('status').eq('user_id', user.id).maybeSingle(),
+      admin.from('profiles').select('is_admin').eq('id', user.id).maybeSingle(),
+    ]);
+    if (sub?.status !== 'active' && !prof?.is_admin) return json({ error: 'Leads come with an active plan.' }, 403);
 
     const body = await req.json();
 

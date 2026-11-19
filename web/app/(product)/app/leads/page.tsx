@@ -138,7 +138,7 @@ export default function Leads() {
   useEffect(() => {
     if (!LIVE) return;
     load();
-    call<typeof opts>('options').then(setOpts, () => {});
+    call<typeof opts>('options').then(setOpts, e => setErr((e as Error).message));
   }, [load]);
 
   // Live match count, a moment after the filters stop changing. Counting is free.

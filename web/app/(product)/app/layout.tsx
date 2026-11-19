@@ -25,6 +25,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: '/app', label: 'Dashboard' },
     ...(setupDone ? [] : [{ href: '/app/setup', label: 'Setup' }]),
     { href: '/app/inboxes', label: 'Inboxes', count: attention },
+    { href: '/app/leads', label: 'Leads' },
     { href: '/app/kit', label: 'Launch kit' },
     { href: '/app/billing', label: 'Billing' },
     { href: '/app/settings', label: 'Settings' },

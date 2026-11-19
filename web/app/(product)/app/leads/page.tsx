@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Field, ago, useToast } from '@/components/ui';
-import { LEAD_AMOUNTS, LEAD_SENIORITY, LEAD_SIZES, type LeadFilters, type LeadRequest } from '@/lib/leads';
+import { LEAD_AMOUNTS, LEAD_EXCLUDE_TITLES, LEAD_KEYWORDS, LEAD_SENIORITY, LEAD_SIZES, LEAD_TITLES, type LeadFilters, type LeadRequest } from '@/lib/leads';
 import { LIVE, getSupabase } from '@/lib/supabase';
 import { useView } from '@/lib/view';
 
@@ -20,31 +20,59 @@ async function call<T>(action: string, body: Record<string, unknown> = {}): Prom
   return data as T;
 }
 
-/** Chips plus a text box. With `options`, only values from the list can be added. */
+/**
+ * Chips plus a text box with our own dropdown (the browser's built-in one barely shows in Safari).
+ * `strict`: only values from `options` can be added. Otherwise options are suggestions and anything
+ * typed can be added with Enter.
+ */
 function Tags({
   id,
   values,
   onChange,
-  options,
+  options = [],
+  strict = false,
   placeholder,
 }: {
   id: string;
   values: string[];
   onChange: (v: string[]) => void;
   options?: string[];
+  strict?: boolean;
   placeholder: string;
 }) {
   const [text, setText] = useState('');
+  const [open, setOpen] = useState(false);
+  const [hi, setHi] = useState(0);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const has = (v: string) => values.some(x => x.toLowerCase() === v.toLowerCase());
+  const q = text.trim().toLowerCase();
+  const matches = useMemo(() => {
+    const pool = options.filter(o => !has(o));
+    if (!q) return pool.slice(0, 60);
+    const starts = pool.filter(o => o.toLowerCase().startsWith(q));
+    const contains = pool.filter(o => !o.toLowerCase().startsWith(q) && o.toLowerCase().includes(q));
+    return [...starts, ...contains].slice(0, 60);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options, q, values]);
+  const custom = !strict && q && !has(text.trim()) && !matches.some(m => m.toLowerCase() === q);
+  const items = custom ? [text.trim(), ...matches] : matches;
+
   const add = (raw: string) => {
-    const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
     const next = [...values];
-    for (const p of parts) {
-      const v = options ? options.find(o => o.toLowerCase() === p.toLowerCase()) : p;
+    for (const p of raw.split(',').map(x => x.trim()).filter(Boolean)) {
+      const v = strict ? options.find(o => o.toLowerCase() === p.toLowerCase()) : options.find(o => o.toLowerCase() === p.toLowerCase()) ?? p;
       if (v && !next.some(x => x.toLowerCase() === v.toLowerCase())) next.push(v);
     }
     if (next.length !== values.length) onChange(next);
     setText('');
+    setHi(0);
   };
+
+  useEffect(() => {
+    listRef.current?.children[hi]?.scrollIntoView({ block: 'nearest' });
+  }, [hi]);
+
   return (
     <div className="tags">
       {!!values.length && (
@@ -59,35 +87,73 @@ function Tags({
           ))}
         </ul>
       )}
-      <input
-        id={id}
-        className="ui-input"
-        value={text}
-        placeholder={placeholder}
-        list={options ? `${id}-list` : undefined}
-        autoComplete="off"
-        onChange={e => {
-          const v = e.target.value;
-          // Picking from the dropdown fills the box with an exact option: add it straight away.
-          if (options?.includes(v)) add(v);
-          else if (!options && v.endsWith(',')) add(v);
-          else setText(v);
-        }}
-        onKeyDown={e => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            add(text);
-          } else if (e.key === 'Backspace' && !text && values.length) onChange(values.slice(0, -1));
-        }}
-        onBlur={() => !options && text && add(text)}
-      />
-      {options && (
-        <datalist id={`${id}-list`}>
-          {options.map(o => (
-            <option key={o} value={o} />
-          ))}
-        </datalist>
-      )}
+      <div className="combo">
+        <input
+          id={id}
+          className="ui-input"
+          value={text}
+          placeholder={placeholder}
+          autoComplete="off"
+          role="combobox"
+          aria-expanded={open && items.length > 0}
+          aria-controls={`${id}-list`}
+          aria-autocomplete="list"
+          onFocus={() => setOpen(true)}
+          onBlur={() => {
+            setOpen(false);
+            if (!strict && text.trim()) add(text);
+          }}
+          onChange={e => {
+            const v = e.target.value;
+            if (!strict && v.endsWith(',')) add(v);
+            else {
+              setText(v);
+              setHi(0);
+              setOpen(true);
+            }
+          }}
+          onKeyDown={e => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              setOpen(true);
+              setHi(h => Math.min(h + 1, items.length - 1));
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              setHi(h => Math.max(h - 1, 0));
+            } else if (e.key === 'Enter') {
+              e.preventDefault();
+              if (open && items[hi]) add(items[hi]);
+              else if (!strict) add(text);
+            } else if (e.key === 'Escape') setOpen(false);
+            else if (e.key === 'Backspace' && !text && values.length) onChange(values.slice(0, -1));
+          }}
+        />
+        {open && items.length > 0 && (
+          <ul className="combo__list" id={`${id}-list`} role="listbox" ref={listRef}>
+            {items.map((o, i) => (
+              <li
+                key={o}
+                role="option"
+                aria-selected={i === hi}
+                className={i === hi ? 'is-hi' : undefined}
+                onMouseDown={e => {
+                  e.preventDefault(); // keep focus in the box
+                  add(o);
+                }}
+                onMouseEnter={() => setHi(i)}
+              >
+                {custom && i === 0 ? (
+                  <>
+                    Add “{o}”
+                  </>
+                ) : (
+                  o
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -203,8 +269,8 @@ export default function Leads() {
       ) : (
         <div className="cols">
           <form className="ui-card ui-stack" style={{ '--gap': '20px' } as React.CSSProperties} onSubmit={submit} noValidate>
-            <Field id="titles" label="Job titles" hint="Press Enter after each one. Whole words match, so Founder finds Co-Founder too.">
-              <Tags id="titles" values={f.job_titles} onChange={v => set('job_titles', v)} placeholder="e.g. Founder, Head of Sales" />
+            <Field id="titles" label="Job titles" hint="Pick from the list or type your own and press Enter. Whole words match, so Founder finds Co-Founder too.">
+              <Tags id="titles" values={f.job_titles} options={LEAD_TITLES} onChange={v => set('job_titles', v)} placeholder="e.g. Founder, Head of Sales" />
             </Field>
 
             <fieldset className="ui-fieldset">
@@ -212,12 +278,12 @@ export default function Leads() {
               <Toggles label="Seniority" values={f.seniority} options={LEAD_SENIORITY} onChange={v => set('seniority', v)} />
             </fieldset>
 
-            <Field id="industries" label="Industries" hint={opts.industries.length ? 'Start typing and pick from the list.' : 'Loading the list…'}>
-              <Tags id="industries" values={f.industries} options={opts.industries} onChange={v => set('industries', v)} placeholder="e.g. Software Development" />
+            <Field id="industries" label="Industries" hint={opts.industries.length ? 'Click to see all industries, or type to search.' : 'Loading the list…'}>
+              <Tags id="industries" values={f.industries} options={opts.industries} strict onChange={v => set('industries', v)} placeholder="e.g. Software Development" />
             </Field>
 
-            <Field id="keywords" label="Keywords" hint="Words in the company’s description, like “implants” or “Shopify”. Any of them can match.">
-              <Tags id="keywords" values={f.keywords} onChange={v => set('keywords', v)} placeholder="e.g. Invisalign, cosmetic dentistry" />
+            <Field id="keywords" label="Keywords" hint="Words in the company’s description. Pick a suggestion or type your own and press Enter. Any of them can match.">
+              <Tags id="keywords" values={f.keywords} options={LEAD_KEYWORDS} onChange={v => set('keywords', v)} placeholder="e.g. Invisalign, cosmetic dentistry" />
             </Field>
 
             <fieldset className="ui-fieldset">
@@ -225,12 +291,12 @@ export default function Leads() {
               <Toggles label="Company size" values={f.company_size} options={LEAD_SIZES.map(s => ({ v: s, l: s.replace(' to ', '–') }))} onChange={v => set('company_size', v)} />
             </fieldset>
 
-            <Field id="countries" label="Location" hint="Countries. Leave empty for anywhere.">
-              <Tags id="countries" values={f.countries} options={opts.countries} onChange={v => set('countries', v)} placeholder="e.g. United Kingdom" />
+            <Field id="countries" label="Location" hint="Click to see all countries, or type to search. Leave empty for anywhere.">
+              <Tags id="countries" values={f.countries} options={opts.countries} strict onChange={v => set('countries', v)} placeholder="e.g. United Kingdom" />
             </Field>
 
             <Field id="exclude" label="Leave out titles (optional)">
-              <Tags id="exclude" values={f.exclude_job_titles} onChange={v => set('exclude_job_titles', v)} placeholder="e.g. Intern, Assistant" />
+              <Tags id="exclude" values={f.exclude_job_titles} options={LEAD_EXCLUDE_TITLES} onChange={v => set('exclude_job_titles', v)} placeholder="e.g. Intern, Assistant" />
             </Field>
 
             <fieldset className="ui-fieldset">

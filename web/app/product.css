@@ -1181,3 +1181,30 @@ legend.brief__q {
   flex-wrap: wrap;
   gap: 8px;
 }
+.combo {
+  position: relative;
+}
+.combo__list {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+.combo__list li {
+  padding: 9px 14px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.combo__list li.is-hi {
+  background: var(--ink);
+  color: var(--cream);
+}

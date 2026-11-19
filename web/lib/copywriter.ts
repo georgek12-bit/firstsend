@@ -149,11 +149,3 @@ export function writeSequence(b: Brief): Email[] {
     },
   ];
 }
-
-export const SENDING_TIPS = [
-  'Run versions A, B and C side by side and give each 1,000 sends before picking a winner.',
-  'No links, no images, and turn open tracking off. Write any website as “brand (dot) com”.',
-  'Leave the follow-up subjects blank so they sit in the same thread as email 1.',
-  'Check your CSV: first names only, and company names without “Ltd”, “Inc.” or “LLC”.',
-  'Judge it on positive replies and meetings, not opens.',
-];

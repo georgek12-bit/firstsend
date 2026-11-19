@@ -1176,3 +1176,8 @@ legend.brief__q {
 .brief__line .ui-input {
   flex: 1 1 260px;
 }
+.seq-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

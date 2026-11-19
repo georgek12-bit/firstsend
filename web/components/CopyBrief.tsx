@@ -2,24 +2,32 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { copyText } from '@/components/ui';
-import { CTAS, EMPTY_BRIEF, QUESTIONS, SENDING_TIPS, writeSequence, type Brief, type Email } from '@/lib/copywriter';
+import { CTAS, EMPTY_BRIEF, QUESTIONS, writeSequence, type Brief, type Email } from '@/lib/copywriter';
 
-const STORE = 'firstsend.copyBrief.v2';
+// Sequences are kept in this browser only (no account storage needed for templates).
+const STORE = 'firstsend.copySequences';
+const OLD_STORE = 'firstsend.copyBrief.v2';
 const STEPS = QUESTIONS.length + 1; // + the CTA choice
 
-function load(): Brief | null {
+type Saved = { id: string; brief: Brief; at: number };
+
+function loadAll(): Saved[] {
   try {
     const v = localStorage.getItem(STORE);
-    return v ? { ...EMPTY_BRIEF, ...JSON.parse(v) } : null;
-  } catch {
-    return null;
-  }
+    if (v) return (JSON.parse(v) as Saved[]).map(s => ({ ...s, brief: { ...EMPTY_BRIEF, ...s.brief } }));
+    // Carry over a sequence made before multiple sequences existed.
+    const old = localStorage.getItem(OLD_STORE);
+    if (old) return [{ id: String(Date.now()), brief: { ...EMPTY_BRIEF, ...JSON.parse(old) }, at: Date.now() }];
+  } catch {}
+  return [];
 }
-function save(b: Brief) {
+function saveAll(list: Saved[]) {
   try {
-    localStorage.setItem(STORE, JSON.stringify(b));
+    localStorage.setItem(STORE, JSON.stringify(list));
+    localStorage.removeItem(OLD_STORE);
   } catch {}
 }
+const nameOf = (b: Brief) => b.audience.trim() || 'Untitled sequence';
 
 function EmailCard({ e, onCopy }: { e: Email; onCopy: (ok: boolean) => void }) {
   const ref = useRef<HTMLPreElement>(null);
@@ -44,23 +52,26 @@ function EmailCard({ e, onCopy }: { e: Email; onCopy: (ok: boolean) => void }) {
 }
 
 export default function CopyBrief({ onToast }: { onToast: (m: string) => void }) {
+  const [list, setList] = useState<Saved[]>([]);
+  const [current, setCurrent] = useState<string | null>(null); // sequence being viewed or edited
   const [brief, setBrief] = useState<Brief>(EMPTY_BRIEF);
   const [step, setStep] = useState(0);
-  const [done, setDone] = useState(false);
+  const [editing, setEditing] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Come back to your copy: answers are kept in this browser.
   useEffect(() => {
-    const b = load();
-    if (b && b.audience && b.result && b.offer) {
-      setBrief(b);
-      setDone(true);
+    const all = loadAll();
+    setList(all);
+    if (all.length) {
+      setCurrent(all[0].id);
+      setBrief(all[0].brief);
+      setEditing(false);
     }
   }, []);
 
   useEffect(() => {
-    if (!done) inputRef.current?.focus();
-  }, [step, done]);
+    if (editing) inputRef.current?.focus();
+  }, [step, editing]);
 
   const isCta = step === QUESTIONS.length;
   const q = QUESTIONS[step];
@@ -68,45 +79,87 @@ export default function CopyBrief({ onToast }: { onToast: (m: string) => void })
   const canNext = isCta || q.optional || value.trim().length > 1;
   const copied = (ok: boolean) => onToast(ok ? 'Copied to clipboard.' : 'Selected. Press Ctrl+C or Cmd+C to copy.');
 
+  const persist = (next: Saved[]) => {
+    setList(next);
+    saveAll(next);
+  };
+
+  const open = (s: Saved) => {
+    setCurrent(s.id);
+    setBrief(s.brief);
+    setEditing(false);
+  };
+
+  const startNew = () => {
+    setCurrent(null);
+    setBrief(EMPTY_BRIEF);
+    setStep(0);
+    setEditing(true);
+  };
+
+  const edit = () => {
+    setStep(0);
+    setEditing(true);
+  };
+
+  const remove = () => {
+    const s = list.find(x => x.id === current);
+    if (!s || !window.confirm(`Delete the sequence for ${nameOf(s.brief)}? This can't be undone.`)) return;
+    const rest = list.filter(x => x.id !== current);
+    persist(rest);
+    onToast('Sequence deleted.');
+    if (rest.length) open(rest[0]);
+    else startNew();
+  };
+
+  const cancel = () => {
+    const s = list.find(x => x.id === current) ?? list[0];
+    if (s) open(s);
+  };
+
   const next = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canNext) return;
-    if (isCta) {
-      save(brief);
-      setDone(true);
-      onToast('Your sequence is ready.');
-    } else setStep(step + 1);
+    if (!isCta) return setStep(step + 1);
+    const id = current ?? String(Date.now());
+    const saved: Saved = { id, brief, at: Date.now() };
+    persist(current ? list.map(x => (x.id === id ? saved : x)) : [saved, ...list]);
+    setCurrent(id);
+    setEditing(false);
+    onToast(current ? 'Sequence updated.' : 'Your sequence is ready.');
   };
 
-  if (done) {
+  if (!editing && current) {
     const emails = writeSequence(brief);
     return (
       <div className="ui-stack" style={{ '--gap': '20px' } as React.CSSProperties}>
+        {list.length > 1 && (
+          <div className="filters" role="group" aria-label="Your sequences">
+            {list.map(s => (
+              <button key={s.id} type="button" aria-pressed={s.id === current} onClick={() => open(s)}>
+                {nameOf(s.brief)}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="ui-between">
           <p className="ui-muted ui-small">Built from your answers. Edit anything after you paste it into your sequencer.</p>
-          <button
-            type="button"
-            className="ui-btn ui-btn--ghost ui-btn--sm"
-            onClick={() => {
-              setStep(0);
-              setDone(false);
-            }}
-          >
-            Edit answers
-          </button>
+          <div className="seq-actions">
+            <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm" onClick={edit}>
+              Edit answers
+            </button>
+            <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm" onClick={remove}>
+              Delete
+            </button>
+            <button type="button" className="ui-btn ui-btn--sm" onClick={startNew}>
+              New sequence
+            </button>
+          </div>
         </div>
         <div className="kit-grid">
           {emails.map(e => (
             <EmailCard key={e.label} e={e} onCopy={copied} />
           ))}
-        </div>
-        <div className="ui-card ui-card--soft ui-stack" style={{ '--gap': '8px' } as React.CSSProperties}>
-          <span className="ui-label">Before you send</span>
-          <ul className="ui-stack" style={{ '--gap': '6px', paddingLeft: 18, margin: 0 } as React.CSSProperties}>
-            {SENDING_TIPS.map(t => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
         </div>
       </div>
     );
@@ -114,10 +167,17 @@ export default function CopyBrief({ onToast }: { onToast: (m: string) => void })
 
   return (
     <form className="ui-card ui-stack brief" style={{ '--gap': '18px' } as React.CSSProperties} onSubmit={next} noValidate>
-      <span className="ui-label">
-        Question {step + 1} of {STEPS}
-        {q?.optional ? ' · optional' : ''}
-      </span>
+      <div className="ui-between">
+        <span className="ui-label">
+          Question {step + 1} of {STEPS}
+          {q?.optional ? ' · optional' : ''}
+        </span>
+        {!!list.length && (
+          <button type="button" className="ui-link ui-small" onClick={cancel}>
+            Cancel
+          </button>
+        )}
+      </div>
       <div className="ui-progress" aria-hidden="true">
         <span style={{ width: `${((step + 1) / STEPS) * 100}%` }} />
       </div>
@@ -170,7 +230,7 @@ export default function CopyBrief({ onToast }: { onToast: (m: string) => void })
           Back
         </button>
         <button type="submit" className={`ui-btn${isCta ? ' ui-btn--orange' : ''}`} disabled={!canNext}>
-          {isCta ? 'Write my sequence' : q.optional && !value.trim() ? 'Skip' : 'Next'}
+          {isCta ? (current ? 'Update my sequence' : 'Write my sequence') : q.optional && !value.trim() ? 'Skip' : 'Next'}
         </button>
       </div>
     </form>

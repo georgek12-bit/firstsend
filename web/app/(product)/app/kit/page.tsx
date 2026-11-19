@@ -1,11 +1,12 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import CopyBrief from '@/components/CopyBrief';
 import { copyText, downloadCsv, useToast } from '@/components/ui';
 import { LEADS, TEMPLATES, WARMUP_GUIDE } from '@/lib/kit';
 import { useView } from '@/lib/view';
 
-type Tab = 'templates' | 'warmup' | 'leads';
+type Tab = 'copy' | 'templates' | 'warmup' | 'leads';
 
 function Template({ t, onCopy }: { t: (typeof TEMPLATES)[number]; onCopy: (ok: boolean) => void }) {
   const ref = useRef<HTMLPreElement>(null);
@@ -32,11 +33,12 @@ function Template({ t, onCopy }: { t: (typeof TEMPLATES)[number]; onCopy: (ok: b
 
 export default function Kit() {
   const { counts, total } = useView();
-  const [tab, setTab] = useState<Tab>('templates');
+  const [tab, setTab] = useState<Tab>('copy');
   const [toast, show] = useToast();
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'templates', label: 'Copy templates' },
+    { id: 'copy', label: 'Your copy' },
+    { id: 'templates', label: 'Example templates' },
     { id: 'warmup', label: 'Warmup guide' },
     { id: 'leads', label: 'Starter lead list' },
   ];
@@ -47,7 +49,7 @@ export default function Kit() {
         <div className="page-head__text">
           <span className="ui-label">Launch kit</span>
           <h1 className="ui-h1">Everything for campaign one.</h1>
-          <p className="ui-sub">Copy that works for first campaigns, a plain-English warmup guide, and leads to run your first test.</p>
+          <p className="ui-sub">Answer 9 quick questions and get your first sequence, written the way that books meetings. Plus a plain-English warmup guide.</p>
         </div>
       </div>
 
@@ -60,6 +62,8 @@ export default function Kit() {
       </div>
 
       <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
+        {tab === 'copy' && <CopyBrief onToast={show} />}
+
         {tab === 'templates' && (
           <div className="ui-stack">
             <p className="ui-muted ui-small">

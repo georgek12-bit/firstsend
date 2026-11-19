@@ -17,11 +17,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (!ok) return <Loading />;
 
   const plan = planById(state.subscription!.plan);
-  const attention = state.inboxes.filter(b => b.status === 'burned').length;
 
   const nav: { href: string; label: string; count?: number; also?: string[] }[] = [
-    { href: '/app', label: 'Dashboard' },
-    { href: '/app/inboxes', label: 'Inboxes', count: attention },
+    { href: '/app', label: 'Dashboard', also: ['/app/inboxes', '/app/setup'] },
     { href: '/app/leads', label: 'Leads' },
     { href: '/app/kit', label: 'Launch kit' },
     { href: '/app/settings', label: 'Settings', also: ['/app/billing'] },

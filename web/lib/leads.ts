@@ -59,19 +59,19 @@ export const LEAD_EXCLUDE_TITLES = ['Intern', 'Assistant', 'Student', 'Freelance
  */
 export const LEAD_KEYWORDS = [
   // Software and tech
-  'SaaS', 'B2B', 'B2C', 'software', 'platform', 'AI', 'machine learning', 'automation', 'API', 'cloud', 'cybersecurity', 'data', 'analytics',
-  'fintech', 'proptech', 'healthtech', 'edtech', 'martech', 'insurtech', 'legaltech', 'HR tech', 'logistics software', 'CRM', 'ERP', 'IT support', 'managed services', 'MSP',
+  'SaaS', 'B2B', 'B2C', 'Software', 'Platform', 'AI', 'Machine learning', 'Automation', 'API', 'Cloud', 'Cybersecurity', 'Data', 'Analytics',
+  'Fintech', 'Proptech', 'Healthtech', 'Edtech', 'Martech', 'Insurtech', 'Legaltech', 'HR tech', 'Logistics software', 'CRM', 'ERP', 'IT support', 'Managed services', 'MSP',
   // Commerce
-  'e-commerce', 'ecommerce', 'Shopify', 'WooCommerce', 'Amazon', 'DTC', 'subscription', 'marketplace', 'retail', 'wholesale', 'manufacturing', 'distribution',
+  'E-commerce', 'Ecommerce', 'Shopify', 'WooCommerce', 'Amazon', 'DTC', 'Subscription', 'Marketplace', 'Retail', 'Wholesale', 'Manufacturing', 'Distribution',
   // Agencies and services
-  'agency', 'marketing agency', 'digital agency', 'creative agency', 'SEO', 'PPC', 'paid social', 'Google Ads', 'Facebook ads', 'lead generation', 'outbound', 'cold email',
-  'web design', 'branding', 'content marketing', 'social media', 'PR', 'video production', 'consultancy', 'consulting', 'coaching', 'training', 'outsourcing',
-  'recruitment', 'staffing', 'executive search', 'accounting', 'bookkeeping', 'tax', 'law firm', 'legal services', 'financial advice', 'wealth management', 'insurance broker', 'mortgage',
+  'Agency', 'Marketing agency', 'Digital agency', 'Creative agency', 'SEO', 'PPC', 'Paid social', 'Google Ads', 'Facebook ads', 'Lead generation', 'Outbound', 'Cold email',
+  'Web design', 'Branding', 'Content marketing', 'Social media', 'PR', 'Video production', 'Consultancy', 'Consulting', 'Coaching', 'Training', 'Outsourcing',
+  'Recruitment', 'Staffing', 'Executive search', 'Accounting', 'Bookkeeping', 'Tax', 'Law firm', 'Legal services', 'Financial advice', 'Wealth management', 'Insurance broker', 'Mortgage',
   // Local and trades
-  'dental', 'dentist', 'Invisalign', 'implants', 'cosmetic', 'aesthetics', 'clinic', 'physiotherapy', 'veterinary', 'healthcare', 'care home', 'pharmacy',
-  'real estate', 'estate agent', 'property management', 'construction', 'roofing', 'solar', 'HVAC', 'plumbing', 'electrical', 'landscaping', 'cleaning', 'security',
-  'restaurant', 'hospitality', 'hotel', 'gym', 'fitness', 'wellness', 'salon', 'events', 'travel', 'education', 'school', 'nonprofit', 'charity',
-  'logistics', 'freight', 'transport', 'automotive', 'energy', 'renewables', 'engineering', 'architecture', 'interior design', 'printing', 'packaging',
+  'Dental', 'Dentist', 'Invisalign', 'Implants', 'Cosmetic', 'Aesthetics', 'Clinic', 'Physiotherapy', 'Veterinary', 'Healthcare', 'Care home', 'Pharmacy',
+  'Real estate', 'Estate agent', 'Property management', 'Construction', 'Roofing', 'Solar', 'HVAC', 'Plumbing', 'Electrical', 'Landscaping', 'Cleaning', 'Security',
+  'Restaurant', 'Hospitality', 'Hotel', 'Gym', 'Fitness', 'Wellness', 'Salon', 'Events', 'Travel', 'Education', 'School', 'Nonprofit', 'Charity',
+  'Logistics', 'Freight', 'Transport', 'Automotive', 'Energy', 'Renewables', 'Engineering', 'Architecture', 'Interior design', 'Printing', 'Packaging',
   // Stage
-  'startup', 'scale-up', 'venture-backed', 'family-owned', 'franchise', 'enterprise', 'SME', 'small business',
+  'Startup', 'Scale-up', 'Venture-backed', 'Family-owned', 'Franchise', 'Enterprise', 'SME', 'Small business',
 ];

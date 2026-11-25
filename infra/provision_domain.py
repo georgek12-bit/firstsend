@@ -3,7 +3,8 @@
 Set up one sending domain end to end, Lunatro style:
   Azure Communication Services sends, our Stalwart server holds the inboxes.
 
-  python3 infra/provision_domain.py getacme.com --person "Sacha Maccow" --count 5
+  python3 infra/provision_domain.py getacme.com --count 100                # realistic generated names
+  python3 infra/provision_domain.py getacme.com --people "Sam Davies" "Jo Reed" --count 20
 
 Steps (each is safe to re-run):
   1. Add the domain to the ACS email service (customer managed) and read its DNS records.
@@ -29,6 +30,7 @@ import string
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 import urllib.error
 import urllib.request
 
@@ -42,7 +44,9 @@ SSH_KEY = os.path.expanduser('~/.ssh/firstsend_hetzner')
 OUT_DIR = os.path.expanduser('~/.config/bookd/inboxes')
 # This Mac's python.org build has no CA bundle of its own; use the system one.
 SSL = ssl.create_default_context(cafile='/etc/ssl/cert.pem' if os.path.exists('/etc/ssl/cert.pem') else None)
-DAILY_LIMIT = 20  # Keep in sync with SENDS_PER_INBOX in web/lib/plans.ts.
+DAILY_LIMIT = 4  # Lunatro style: 100 inboxes per domain, a few sends each. Override with --daily-limit.
+WARMUP_LIMIT = 2  # Keep warmup inside the Azure sending limit until it is raised.
+PARALLEL = 8  # Azure CLI calls at once when creating sender addresses.
 
 
 def env(name):
@@ -98,6 +102,14 @@ def acs_verify(domain):
             say('Azure verified Domain, SPF, DKIM and DKIM2')
             return
         for k, s in states.items():
+            # Azure sometimes leaves a check "in progress" forever even when DNS is right; restarting it
+            # usually verifies straight away.
+            if s == 'VerificationInProgress' and attempt and attempt % 9 == 0:
+                az('communication', 'email', 'domain', 'cancel-verification', '-g', RG,
+                   '--email-service-name', EMAIL_SERVICE, '--domain-name', domain, '--verification-type', k,
+                   parse=False, check=False)
+                started.discard(k)
+                s = 'NotStarted'
             if s in (None, 'NotStarted', 'VerificationFailed') and (k not in started or s == 'VerificationFailed'):
                 az('communication', 'email', 'domain', 'initiate-verification', '-g', RG,
                    '--email-service-name', EMAIL_SERVICE, '--domain-name', domain, '--verification-type', k,
@@ -191,20 +203,91 @@ def stalwart_apply(lines):
 
 # ---------- Inbox names ----------
 
-def local_parts(person, count):
-    first, *rest = person.lower().split()
-    last = rest[-1] if rest else ''
-    f, l = re.sub(r'[^a-z]', '', first), re.sub(r'[^a-z]', '', last)
-    forms = [f, f'{f}.{l}', f'{f}{l}', f'{f[0]}.{l}', f'{f}{l[:1]}', f'{f[0]}{l}', f'{l}.{f}', f'{f}_{l}',
-             f'{f}-{l}', f'{f}.{l[:1]}', f'{l}{f[0]}', f'{f[0]}-{l}'] if l else [f, f'{f}1', f'{f}.hq', f'hello.{f}']
+# Common, ordinary names for generated senders. Picked per domain from a seed, so re-runs match.
+FIRST = ['James', 'Oliver', 'Jack', 'Harry', 'George', 'Thomas', 'Daniel', 'Samuel', 'Joseph', 'Matthew',
+         'Ryan', 'Adam', 'Luke', 'Michael', 'David', 'Chris', 'Ben', 'Tom', 'Alex', 'Nathan', 'Jake', 'Ethan',
+         'Emma', 'Olivia', 'Sophie', 'Emily', 'Grace', 'Chloe', 'Lucy', 'Hannah', 'Jessica', 'Laura', 'Amy',
+         'Rachel', 'Sarah', 'Katie', 'Ellie', 'Megan', 'Holly', 'Charlotte', 'Rebecca', 'Anna', 'Lauren', 'Zoe']
+LAST = ['Smith', 'Jones', 'Taylor', 'Brown', 'Williams', 'Wilson', 'Johnson', 'Davies', 'Robinson', 'Wright',
+        'Thompson', 'Evans', 'Walker', 'White', 'Roberts', 'Green', 'Hall', 'Wood', 'Jackson', 'Clarke',
+        'Harris', 'Lewis', 'Clark', 'Turner', 'Hill', 'Scott', 'Cooper', 'Morris', 'Ward', 'Moore', 'King',
+        'Watson', 'Baker', 'Harrison', 'Morgan', 'Patel', 'Young', 'Allen', 'Mitchell', 'James', 'Anderson',
+        'Phillips', 'Lee', 'Bell', 'Parker', 'Bennett', 'Carter', 'Hughes', 'Price', 'Shaw', 'Mason', 'Reed']
+
+# Address styles, most natural first. Each person gets up to FORMS_PER_PERSON of them.
+FORMS_PER_PERSON = 4
+
+
+def forms(first, last):
+    f, l = re.sub(r'[^a-z]', '', first.lower()), re.sub(r'[^a-z]', '', last.lower())
+    if not l:
+        return [f, f'{f}.hq', f'hello.{f}', f'{f}.team']
+    return [f'{f}.{l}', f'{f}', f'{f[0]}.{l}', f'{f}{l}', f'{f}{l[:1]}', f'{f[0]}{l}', f'{l}.{f}', f'{f}_{l}']
+
+
+def variations(first, last):
+    """Up to ~130 addresses for one person, in the style inbox providers use
+    (thornton.david.a@, davidathornton@, thornton_d@, t.david@, dt@ ...)."""
+    f, l = re.sub(r'[^a-z]', '', first.lower()), re.sub(r'[^a-z]', '', last.lower())
+    fi, li = f[0], l[0]
+    base = [
+        f'{l}.{f}', f'{l}{f}', f'{l}_{f}', f'{l}-{f}', f'{l}', f'{l}.{fi}', f'{l}{fi}', f'{l}_{fi}', f'{l}-{fi}',
+        f'{f}{l}', f'{f}.{l}', f'{f}_{l}', f'{f}-{l}', f'{fi}{l}', f'{fi}.{l}', f'{f}{li}', f'{f}.{li}',
+        f'{li}.{f}', f'{li}{f}', f'{li}_{f}', f'{li}-{f}', f'{li}.{fi}', f'{li}_{fi}', f'{li}-{fi}', f'{li}{fi}',
+        f'{fi}{li}', f'{f}', f'{fi}_{l}', f'{fi}-{l}',
+    ]
+    letters = 'abcdefghijklmnopqrstuvwxyz'
+    middle = [f'{l}.{f}.{x}' for x in letters] + [f'{f}{x}{l}' for x in letters] + [f'{f}.{x}.{l}' for x in letters]
     out = []
-    for x in forms:
-        x = x.strip('.-_')
-        if x and x not in out:
+    for x in base + middle:
+        if x not in out:
             out.append(x)
-    if count > len(out):
-        sys.exit(f'Only {len(out)} address styles for {person}; add more people or lower --count.')
-    return out[:count]
+    return out
+
+
+def generated_people(domain, n):
+    """n distinct realistic names, the same every time for this domain."""
+    import random
+    rnd = random.Random(domain)
+    combos = [(fn, ln) for fn in FIRST for ln in LAST]
+    rnd.shuffle(combos)
+    seen_first, out = {}, []
+    for fn, ln in combos:
+        if seen_first.get(fn, 0) >= 2:  # keep the mix varied
+            continue
+        seen_first[fn] = seen_first.get(fn, 0) + 1
+        out.append(f'{fn} {ln}')
+        if len(out) == n:
+            return out
+    sys.exit('Not enough generated names; lower --count.')
+
+
+def plan_inboxes(domain, people, count):
+    """[(local_part, first, last)] for `count` inboxes, spread across people.
+    With one person, every inbox is a variation of their name."""
+    if len(people) == 1:
+        first, *rest = people[0].split()
+        if not rest:
+            sys.exit('Give a first and last name, e.g. --people "Christian Collins".')
+        lps = variations(first, rest[-1])
+        if count > len(lps):
+            sys.exit(f'Only {len(lps)} variations of {people[0]}; lower --count.')
+        return [(lp, first, ' '.join(rest)) for lp in lps[:count]]
+    per = FORMS_PER_PERSON if len(people) * FORMS_PER_PERSON >= count else 8
+    out, used = [], set()
+    for person in people:
+        first, *rest = person.split()
+        last = rest[-1] if rest else ''
+        n = 0
+        for lp in forms(first, last):
+            lp = lp.strip('.-_')
+            if lp and lp not in used and n < per:
+                used.add(lp)
+                out.append((lp, first, ' '.join(rest)))
+                n += 1
+        if len(out) >= count:
+            return out[:count]
+    sys.exit(f'Only {len(out)} unique addresses from {len(people)} people; add more people or lower --count.')
 
 
 def password():
@@ -215,12 +298,28 @@ def password():
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('domain')
-    ap.add_argument('--person', required=True, help='Sender name, e.g. "Sacha Maccow"')
-    ap.add_argument('--count', type=int, default=5, help='Inboxes to create (default 5)')
+    ap.add_argument('--people', nargs='+', help='Sender names, e.g. "Sam Davies" "Jo Reed". Omit to generate realistic names.')
+    ap.add_argument('--person', help=argparse.SUPPRESS)  # old single-name flag
+    ap.add_argument('--count', type=int, default=100, help='Inboxes to create (default 100, the Azure maximum per domain)')
+    ap.add_argument('--daily-limit', type=int, default=DAILY_LIMIT, help=f'Sends per inbox per day (default {DAILY_LIMIT})')
+    ap.add_argument('--warmup-limit', type=int, default=WARMUP_LIMIT, help=f'Warmup emails per inbox per day (default {WARMUP_LIMIT})')
     a = ap.parse_args()
     domain = a.domain.lower().strip()
-    first, *rest = a.person.split()
-    last = ' '.join(rest)
+    if a.count > 100:
+        sys.exit('Azure allows at most 100 sender addresses per domain.')
+
+    # Re-runs keep the same addresses, names and passwords.
+    out_path = os.path.join(OUT_DIR, f'{domain}.csv')
+    known = {}
+    if os.path.exists(out_path):
+        with open(out_path) as f:
+            known = {row['Email']: row for row in csv.DictReader(f)}
+    if len(known) >= a.count:
+        inboxes = [(e.split('@')[0], r['First Name'], r['Last Name']) for e, r in list(known.items())[:a.count]]
+        say(f'Using the {a.count} inboxes already planned in {out_path}')
+    else:
+        people = a.people or ([a.person] if a.person else generated_people(domain, -(-a.count // FORMS_PER_PERSON)))
+        inboxes = plan_inboxes(domain, people, a.count)
 
     # 1-2. ACS domain + DNS
     d = acs_domain(domain)
@@ -229,7 +328,9 @@ def main():
     changed = 0
     for r in acs_records(d):
         prefix = 'v=spf1' if r['kind'] == 'SPF' else None
-        changed += cf.upsert(zone, r['type'], r['name'], r['content'], replace_prefix=prefix)
+        # Azure gives some names short ("selector1-..._domainkey"); Cloudflare lookups need the full name.
+        name = r['name'] if r['name'] == domain or r['name'].endswith('.' + domain) else f"{r['name']}.{domain}"
+        changed += cf.upsert(zone, r['type'], name, r['content'], replace_prefix=prefix)
     changed += cf.upsert(zone, 'MX', domain, MX_HOST, priority=10)
     changed += cf.upsert(zone, 'TXT', f'_dmarc.{domain}', 'v=DMARC1; p=reject; pct=100; adkim=r; aspf=r',
                          replace_prefix='v=dmarc1')
@@ -239,33 +340,27 @@ def main():
     acs_verify(domain)
     acs_link(d['id'])
 
-    # 5. Senders on ACS
-    locals_ = local_parts(a.person, a.count)
-    for lp in locals_:
-        acs_sender(domain, lp, a.person)
-    say(f'{len(locals_)} sender addresses on Azure')
+    # 5. Senders on ACS, several at a time
+    with ThreadPoolExecutor(PARALLEL) as pool:
+        list(pool.map(lambda x: acs_sender(domain, x[0], f'{x[1]} {x[2]}'.strip()), inboxes))
+    say(f'{len(inboxes)} sender addresses on Azure')
 
-    # 6. Domain + accounts on Stalwart (new passwords each run only for accounts being created)
-    out_path = os.path.join(OUT_DIR, f'{domain}.csv')
-    known = {}
-    if os.path.exists(out_path):
-        with open(out_path) as f:
-            known = {row['Email']: row['IMAP Password'] for row in csv.DictReader(f)}
-    creds = {f'{lp}@{domain}': known.get(f'{lp}@{domain}') or password() for lp in locals_}
+    # 6. Domain + accounts on Stalwart
+    creds = {f'{lp}@{domain}': (known.get(f'{lp}@{domain}') or {}).get('IMAP Password') or password() for lp, _, _ in inboxes}
     plan = [{'@type': 'upsert', 'object': 'Domain', 'matchOn': ['name'],
              'value': {'dom': {'name': domain, 'certificateManagement': {'@type': 'Manual'},
                                        # ACS signs DKIM; a second Stalwart signature would fail DNS checks.
                                        'dkimManagement': {'@type': 'Manual'}}}}]
     accounts = {}
-    for i, lp in enumerate(locals_):
+    for i, (lp, first, last) in enumerate(inboxes):
         accounts[f'acc{i}'] = {'@type': 'User', 'name': lp, 'domainId': '#dom',
-                               'description': a.person,
+                               'description': f'{first} {last}'.strip(),
                                'credentials': {'0': {'@type': 'Password', 'secret': creds[f'{lp}@{domain}']}}}
     plan.append({'@type': 'upsert', 'object': 'Account', 'matchOn': ['name', 'domainId'], 'value': accounts})
     stalwart_apply(plan)
-    say(f'{len(locals_)} inboxes on {MX_HOST}')
+    say(f'{len(inboxes)} inboxes on {MX_HOST}')
 
-    # 7. Instantly CSV
+    # 7. Instantly CSV (also the file the Firstsend /admin import reads)
     os.makedirs(OUT_DIR, mode=0o700, exist_ok=True)
     header = ['Email', 'First Name', 'Last Name', 'IMAP Username', 'IMAP Password', 'IMAP Host', 'IMAP Port',
               'SMTP Username', 'SMTP Password', 'SMTP Host', 'SMTP Port', 'Daily Limit', 'Warmup Enabled',
@@ -274,10 +369,13 @@ def main():
     with os.fdopen(fd, 'w', newline='') as f:
         w = csv.writer(f)
         w.writerow(header)
-        for addr, pw in creds.items():
-            w.writerow([addr, first, last, addr, pw, MX_HOST, 993, addr, pw, MX_HOST, 587, DAILY_LIMIT, 'TRUE', 10, 1])
+        for lp, first, last in inboxes:
+            addr = f'{lp}@{domain}'
+            pw = creds[addr]
+            w.writerow([addr, first, last, addr, pw, MX_HOST, 993, addr, pw, MX_HOST, 587,
+                        a.daily_limit, 'TRUE', a.warmup_limit, 1])
     say(f'Instantly CSV with logins: {out_path}')
-    print('\nInboxes:\n  ' + '\n  '.join(creds))
+    print(f'\n{len(inboxes)} inboxes, e.g. ' + ', '.join(f'{lp}@{domain}' for lp, _, _ in inboxes[:5]) + ' …')
 
 
 if __name__ == '__main__':

@@ -1208,3 +1208,34 @@ legend.brief__q {
   background: var(--ink);
   color: var(--cream);
 }
+
+/* Settings > API */
+.api-key {
+  display: block;
+  padding: 12px 14px;
+  background: var(--ink);
+  color: var(--cream);
+  font: 400 14px var(--mono);
+  word-break: break-all;
+  user-select: all;
+}
+.api-snippet {
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font: 400 12.5px/1.55 var(--mono);
+  overflow-x: auto;
+  white-space: pre;
+}
+.api-create {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.api-create .ui-field {
+  flex: 1 1 260px;
+}

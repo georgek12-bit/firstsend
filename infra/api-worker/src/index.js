@@ -49,7 +49,11 @@ export default {
     // Supabase's own "function not found" (the Edge Function isn't deployed): don't leak its wording.
     if (res.status === 404) {
       const text = await res.clone().text();
-      if (/Requested function was not found/i.test(text) || !text.trim().startsWith('{"error"')) {
+      let ours = false;
+      try {
+        ours = typeof JSON.parse(text)?.error?.code === 'string'; // the API's own 404, e.g. "No inbox with that id"
+      } catch {}
+      if (!ours) {
         return json({ error: { code: 'not_found', message: 'No such endpoint. See https://firstsend.site/docs/api' } }, 404);
       }
     }

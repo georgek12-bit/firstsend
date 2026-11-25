@@ -6,9 +6,10 @@ import { usePathname } from 'next/navigation';
 const TABS = [
   { href: '/app/settings', label: 'Account' },
   { href: '/app/billing', label: 'Billing' },
+  { href: '/app/api', label: 'API' },
 ];
 
-/** Account and Billing live under Settings in the sidebar; this switches between them. */
+/** Account, Billing and API live under Settings in the sidebar; this switches between them. */
 export default function SettingsTabs() {
   const path = usePathname().replace(/\/$/, '');
   return (

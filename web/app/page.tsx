@@ -10,6 +10,7 @@ import Nav from '@/components/Nav';
 import Stats from '@/components/Stats';
 import TrustedBy from '@/components/TrustedBy';
 import Volume from '@/components/Volume';
+import Why from '@/components/Why';
 
 export default function Home() {
   return (
@@ -17,13 +18,14 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-        <Marquee />
         <TrustedBy />
-        <Volume />
         <HowItWorks />
+        <Stats />
+        <Why />
         <LaunchKit />
         <Guarantee />
-        <Stats />
+        <Volume />
+        <Marquee />
         <Faq />
       </main>
       <FinalCta />

@@ -5,16 +5,16 @@ export default function Guarantee() {
   return (
     <section className="guarantee">
       <div className="guarantee__copy" {...reveal()}>
-        <div className="badge">Burned inbox guarantee</div>
-        <h2 className="h2">
-          Inbox died? <span className="accent">We replace it free.</span>
+        <p className="sh__label">Burned inbox guarantee</p>
+        <h2 className="sh__title">
+          Inbox died? <span className="sh__muted">We replace it free</span>
         </h2>
         <p>We check every inbox&apos;s health for you. When one burns, you get a new one in a click. No ticket. No argument.</p>
       </div>
-      <div className="health" {...reveal('40px', 120)}>
-        <div className="health__head label">
+      <div className="health" {...reveal('12px', 80)}>
+        <div className="health__head">
           <span>Inbox health</span>
-          <span>live</span>
+          <span className="mono">Checked 4 min ago</span>
         </div>
         {healthRows.map(h => (
           <div key={h.addr} className="health__row">

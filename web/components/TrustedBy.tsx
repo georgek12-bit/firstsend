@@ -3,7 +3,7 @@ import { reveal } from '@/lib/reveal';
 
 export default function TrustedBy() {
   return (
-    <section className="trust" {...reveal('16px')}>
+    <section className="trust" {...reveal('12px')}>
       <div className="trust__label">Trusted by</div>
       {/* One fixed row split per breakpoint; CSS shows the one that fits. */}
       {trustLayouts.map(layout => (

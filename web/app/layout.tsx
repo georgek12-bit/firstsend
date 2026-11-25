@@ -4,6 +4,7 @@ import { BRAND } from '@/lib/content';
 import './globals.css';
 import './theme.css';
 import './landing.css';
+import './dark.css';
 
 const serif = Instrument_Serif({ weight: '400', style: ['normal', 'italic'], subsets: ['latin'], variable: '--font-serif' });
 const sans = Geist({ weight: ['400', '500', '600'], subsets: ['latin'], variable: '--font-sans' });

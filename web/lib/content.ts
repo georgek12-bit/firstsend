@@ -11,9 +11,41 @@ export const HEALTH = {
 
 export const SLIDER = { min: 200, max: 1600, step: 50, initial: 800 };
 
+// What every plan includes, shown as the checklist on each pricing card.
+export const planIncludes = [
+  'Unlimited leads with verified emails',
+  'Outlook inboxes, named and ready',
+  'Domains bought, SPF, DKIM and DMARC set',
+  'Warmup started on day one',
+  'One-click push to your sequencer',
+  'Copy templates for your first campaign',
+  'Burned inboxes replaced free',
+  'Monthly, cancel anytime',
+];
+
+export const why = [
+  {
+    title: 'Start at 800 a day',
+    body: 'Other providers start you at hundreds of inboxes. We start at 800 emails a day, so you pay for what your first clients need.',
+  },
+  {
+    title: 'Done for you, start to finish',
+    body: 'Domains, DNS, inbox names and warmup are all handled. You never open a DNS panel or chase a setup guide.',
+  },
+  {
+    title: 'Straight into your sequencer',
+    body: 'Push inboxes into Instantly or Smartlead with an API key, or download a CSV for EmailBison, lemlist and Apollo.',
+  },
+  {
+    title: 'Unlimited leads, free',
+    body: 'Describe your buyers and build as many lists as you like, up to 5,000 leads each. Every lead has a verified work email. No credits to buy.',
+  },
+];
+
 export const navLinks = [
   { href: '/pricing', label: 'Pricing' },
   { href: '/#how', label: 'How it works' },
+  { href: '/#why', label: `Why ${BRAND}` },
   { href: '/#kit', label: 'Launch kit' },
   { href: '/#faq', label: 'FAQ' },
 ];
@@ -25,10 +57,23 @@ export const dashStats = [
 ];
 
 export const dashInboxes = [
-  { addr: 'alex@getacme-mail.com', status: 'Good to send', dot: HEALTH.green },
-  { addr: 'alex@tryacmehq.com', status: 'Good to send', dot: HEALTH.green },
-  { addr: 'sam@getacme-mail.com', status: 'Warming up', dot: HEALTH.amber },
-  { addr: 'sam@tryacmehq.com', status: 'Replacing, free', dot: HEALTH.red },
+  { addr: 'alex@getacme-mail.com', status: 'Good to send', dot: HEALTH.green, sent: '100 / 100' },
+  { addr: 'alex@tryacmehq.com', status: 'Good to send', dot: HEALTH.green, sent: '96 / 100' },
+  { addr: 'sam@getacme-mail.com', status: 'Warming up', dot: HEALTH.amber, sent: '24 / 40' },
+  { addr: 'sam@tryacmehq.com', status: 'Replacing, free', dot: HEALTH.red, sent: '0' },
+];
+
+// Sends per hour on the hero dashboard, 8am to 6pm. The last bar is the current hour.
+export const dashHours = [
+  { h: '8', n: 96 },
+  { h: '9', n: 148 },
+  { h: '10', n: 162 },
+  { h: '11', n: 155 },
+  { h: '12', n: 118 },
+  { h: '13', n: 124 },
+  { h: '14', n: 151 },
+  { h: '15', n: 140 },
+  { h: '16', n: 90 },
 ];
 
 export type SequencerLogo = {
@@ -94,11 +139,7 @@ export const steps = [
   { n: '3', title: 'Export to your sequencer', body: 'One click into Instantly, Smartlead, EmailBison, lemlist or Apollo. Or grab a CSV and go.' },
 ];
 
-export const kitInboxes = [
-  { a: 'alex@getacme-mail.com', indent: 0 },
-  { a: 'sam@getacme-mail.com', indent: 16 },
-  { a: 'jo@tryacmehq.com', indent: 32 },
-];
+export const kitInboxes = ['alex@getacme-mail.com', 'sam@getacme-mail.com', 'jo@tryacmehq.com'];
 
 export const dnsRecords = ['SPF', 'DKIM', 'DMARC'];
 
@@ -118,12 +159,11 @@ export const healthRows = [
   { addr: 'dev@northgrowth.io', status: 'Burned', dot: HEALTH.red },
 ];
 
-// Placeholder numbers from the design. Replace with real ones.
 export const stats = [
-  { to: 800, suf: '', label: 'emails a day is where you can start' },
-  { to: 6, suf: '', label: 'things in every launch kit' },
-  { to: 5, suf: '', label: 'sequencers, one-click export' },
-  { to: 100, suf: '%', label: 'of burned inboxes replaced free' },
+  { to: 800, suf: '', label: 'Emails a day on the smallest plan' },
+  { to: 5000, suf: '', label: 'Free leads per list, as many lists as you like' },
+  { to: 5, suf: '', label: 'Sequencers with one-click export' },
+  { to: 100, suf: '%', label: 'Of burned inboxes replaced free' },
 ];
 
 export const faqs = [
@@ -132,6 +172,7 @@ export const faqs = [
   { q: "I don't know anything about DNS. Is that a problem?", a: "Not at all. We set up SPF, DKIM and DMARC for you. Your dashboard tells you when you're ready to send." },
   { q: 'What counts as a burned inbox?', a: 'Any inbox our health checks flag as damaged. You request a swap in one click and we replace it free.' },
   { q: 'Can I change my volume later?', a: 'Yes. Move up or down from your dashboard. Billing is monthly and you can cancel anytime.' },
+  { q: 'Are the leads really unlimited?', a: 'Yes. Build as many lists as you like from your dashboard, up to 5,000 leads each. Every lead has a verified work email, at most 3 per company, and you never get the same person twice. It is included in your plan.' },
   { q: 'Which sequencers do you work with?', a: 'Instantly, Smartlead, EmailBison, lemlist and Apollo, all with one-click export. Anything else works with a CSV.' },
 ];
 

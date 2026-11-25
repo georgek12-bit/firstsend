@@ -1,22 +1,19 @@
 import { steps } from '@/lib/content';
 import { reveal } from '@/lib/reveal';
+import SectionHead from './SectionHead';
 
 export default function HowItWorks() {
   return (
     <section id="how" className="how">
-      <div className="shead" {...reveal()}>
-        <div className="badge">How it works</div>
-        <h2 className="h2">
-          Buy it, set it, <span className="accent">send it.</span>
-        </h2>
-        <p className="lede">Three steps, all in one day.</p>
-      </div>
+      <SectionHead label="How it works" title="From checkout to first send" muted="in a day" />
       <ol className="how__list">
         {steps.map((s, i) => (
-          <li key={s.n} className="step" {...reveal('24px', i * 80)}>
-            <span className="step__n">0{s.n}</span>
-            <h3 className="step__title">{s.title}</h3>
-            <p className="step__body">{s.body}</p>
+          <li key={s.n} className="step" {...reveal('12px', i * 60)}>
+            <span className="step__n mono">0{s.n}</span>
+            <div>
+              <h3 className="step__title">{s.title}</h3>
+              <p className="step__body">{s.body}</p>
+            </div>
           </li>
         ))}
       </ol>

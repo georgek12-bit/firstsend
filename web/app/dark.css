@@ -1,0 +1,587 @@
+/*
+ * Marketing pages, dark. Graphite ramp, orange only on the primary action and the live
+ * moments inside the product view (current hour, send progress). The health dot next to a
+ * mono inbox address is the signature. Scoped to .page so the app (.product) stays light.
+ * Loaded after landing.css and overrides it. Spacing on a 4px grid.
+ */
+.page {
+  --bg: #111112;
+  --deep: #0c0c0d;
+  --surface: #18181a;
+  --raised: #222224;
+  --hair: rgb(237 237 237 / 0.08);
+  --hair-strong: rgb(237 237 237 / 0.14);
+  --t1: #ededed;
+  --t2: #a1a1a6;
+  --t3: #85858b;
+  --heading-muted: #85858b;
+  --on-orange: #111112;
+  --shadow-float: 0 32px 64px -32px rgb(0 0 0 / 0.7);
+
+  /* Older tokens used by globals.css and theme.css. */
+  --cream: var(--bg);
+  --paper: var(--surface);
+  --sand: var(--bg);
+  --ink: var(--t1);
+  --ink-line: var(--hair-strong);
+  --line: var(--hair);
+  --line-soft: var(--hair);
+  --text-2: var(--t2);
+  --text-3: var(--t3);
+  --text-4: var(--t3);
+  --trust-grey: var(--t3);
+  --orange-text: #ff8a4c;
+  --orange-soft: rgb(242 100 25 / 0.12);
+
+  overflow: clip;
+  background: var(--bg);
+  color: var(--t1);
+  color-scheme: dark;
+}
+html:has(.page),
+body:has(.page) {
+  background: #111112;
+}
+
+/* ---------- Buttons: orange for the primary action, off-white in the nav ---------- */
+.page .btn--orange,
+.page .final .btn--orange,
+.page .btn--orange:hover {
+  color: var(--on-orange);
+}
+.page .btn--ink {
+  background: var(--t1);
+  color: var(--bg);
+}
+.page .btn--ink:hover {
+  background: #fff;
+  color: var(--bg);
+}
+.page .btn--ghost {
+  background: var(--raised);
+  border-color: var(--hair);
+  color: var(--t1);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+.page .btn--ghost:hover {
+  background: #2a2a2d;
+  border-color: var(--hair-strong);
+  color: var(--t1);
+}
+
+/* ---------- Nav: a bordered bar that stays in view ---------- */
+.page .nav {
+  position: sticky;
+  top: 12px;
+  z-index: 50;
+  max-width: 1180px;
+  height: 56px;
+  margin: 12px auto 0;
+  padding: 0 12px 0 20px;
+  border: 1px solid var(--hair);
+  border-radius: 14px;
+  background: rgb(24 24 26 / 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+@container (max-width: 1220px) {
+  .page .nav {
+    margin-inline: var(--gutter);
+  }
+}
+.page .mark--cream {
+  border-color: var(--t1);
+}
+
+/* ---------- Section frame ---------- */
+.page .how,
+.page .stats,
+.page .why,
+.page .kit,
+.page .guarantee,
+.page .volume,
+.page .faq {
+  max-width: 1180px;
+  padding: clamp(64px, 9cqi, 128px) var(--gutter) 0;
+}
+
+/* Centred head: a quiet label, a white heading with a grey tail, a lede under it. */
+.page .sh {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto clamp(32px, 4cqi, 48px);
+  padding: 0;
+  border: 0;
+  text-align: center;
+}
+.page .sh__label {
+  font: 400 13px/16px var(--mono);
+  color: var(--t3);
+}
+.page .sh__title {
+  max-width: 760px;
+  font: 500 clamp(32px, 4cqi, 48px) / 1.08 var(--sans);
+  letter-spacing: -0.03em;
+  color: var(--t1);
+}
+.page .sh__lede {
+  max-width: 520px;
+  justify-self: auto;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--t2);
+}
+
+/* ---------- Hero: short centred head over a large product view ---------- */
+.page .hero {
+  max-width: 1180px;
+  padding-top: clamp(64px, 9cqi, 112px);
+  text-align: center;
+}
+.page .hero__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.page .hero__title {
+  max-width: 880px;
+  font: 500 clamp(40px, 6cqi, 72px) / 1.04 var(--sans);
+  letter-spacing: -0.035em;
+  color: var(--t1);
+}
+.page .hero__sub {
+  max-width: 576px;
+  font-size: clamp(17px, 1.5cqi, 19px);
+  line-height: 1.55;
+  color: var(--t2);
+}
+.page .hero__buttons {
+  justify-content: center;
+  margin-top: 8px;
+}
+.page .hero__stage {
+  max-width: 1120px;
+  margin: clamp(48px, 6cqi, 80px) auto 0;
+  text-align: left;
+}
+.page .hero__stage::after {
+  height: 160px;
+  background: linear-gradient(to bottom, rgb(17 17 18 / 0), var(--bg));
+}
+.page .dash {
+  border-color: var(--hair-strong);
+  border-radius: 16px 16px 0 0;
+  background: var(--surface);
+}
+.page .dash__bar {
+  background: var(--deep);
+}
+.page .dash__stat,
+.page .dash__panel {
+  background: var(--bg);
+}
+.page .hours__bar,
+.page .warm > div {
+  background: rgb(237 237 237 / 0.14);
+}
+
+/* ---------- Trusted by ---------- */
+.page .trust {
+  padding-top: clamp(40px, 5cqi, 64px);
+  padding-bottom: 0;
+}
+.page .trust__label {
+  font: 400 13px var(--mono);
+  color: var(--t3);
+}
+.page .trust__row img {
+  filter: brightness(0) invert(1);
+  opacity: 0.4;
+}
+
+/* ---------- How it works: one panel, three columns on hairlines ---------- */
+.page .how__list {
+  gap: 0;
+  border: 1px solid var(--hair);
+  border-radius: 16px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.page .how__list .step,
+.page .how__list .step + .step {
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.page .how__list .step + .step {
+  border-left: 1px solid var(--hair);
+}
+.page .how__list .step__n {
+  margin: 0;
+  font: 400 13px/16px var(--mono);
+  color: var(--t3);
+}
+.page .how__list .step__title {
+  font: 500 20px/1.3 var(--sans);
+  letter-spacing: -0.01em;
+  color: var(--t1);
+}
+.page .how__list .step__body {
+  margin-top: 8px;
+  color: var(--t2);
+}
+@container (max-width: 860px) {
+  .page .how__list .step + .step {
+    border-left: 0;
+    border-top: 1px solid var(--hair);
+  }
+}
+
+/* ---------- Stats: heading left, figures on hairlines right ---------- */
+.page .stats {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+.stats__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.page .stats__copy .sh__title {
+  text-align: left;
+}
+.page .stats__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--hair);
+}
+.page .stat,
+.page .stat + .stat,
+.page .stat:nth-child(odd) {
+  gap: 8px;
+  padding: 24px 24px 24px 0;
+  border: 0;
+  border-bottom: 1px solid var(--hair);
+  border-radius: 0;
+  background: none;
+}
+.page .stat:nth-child(even) {
+  padding-left: 24px;
+  border-left: 1px solid var(--hair);
+}
+.page .stat__n {
+  font: 500 clamp(36px, 4cqi, 48px) / 1 var(--sans);
+  letter-spacing: -0.03em;
+  color: var(--t1);
+}
+.page .stat__label {
+  color: var(--t2);
+}
+@container (min-width: 900px) {
+  .page .stats {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 64px;
+  }
+}
+
+/* ---------- Why: four cards ---------- */
+.why {
+  margin: 0 auto;
+}
+.why__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+@container (min-width: 760px) {
+  .why__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.why__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 28px;
+  border: 1px solid var(--hair);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.why__title {
+  font: 500 18px/1.3 var(--sans);
+  letter-spacing: -0.01em;
+}
+.why__body {
+  max-width: 480px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--t2);
+}
+
+/* ---------- Launch kit ---------- */
+.page .kit__grid {
+  gap: 12px;
+}
+.page .tile--paper,
+.page .tile--ink {
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  color: var(--t1);
+}
+.page .tile--ink .tile__body {
+  color: var(--t2);
+}
+.page .kit-inbox,
+.page .email,
+.page .dns {
+  background: var(--bg);
+}
+.page .seq {
+  border-color: var(--hair);
+  background: var(--bg);
+}
+
+/* ---------- Guarantee ---------- */
+.page .guarantee__copy {
+  padding-top: 0;
+  border-top: 0;
+}
+.page .health__btn {
+  color: var(--on-orange);
+}
+
+/* ---------- Pricing: two tier cards ---------- */
+.page .volume {
+  display: block;
+}
+.tiers {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  max-width: 880px;
+  margin: 0 auto;
+}
+@container (min-width: 760px) {
+  .tiers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.tier {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 32px;
+  border: 1px solid var(--hair);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.tier--feature {
+  border-color: var(--hair-strong);
+  background: var(--raised);
+}
+.tier__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.tier__name {
+  font: 500 18px/1.3 var(--sans);
+}
+.tier__badge {
+  font: 400 13px/16px var(--mono);
+  color: var(--orange-text);
+}
+.tier__vol {
+  font-size: 15px;
+  color: var(--t2);
+}
+.tier__price {
+  margin: 16px 0 24px;
+  font: 500 clamp(44px, 5cqi, 56px) / 1 var(--sans);
+  letter-spacing: -0.03em;
+  color: var(--t1);
+  font-variant-numeric: tabular-nums;
+}
+.tier__price span {
+  margin-left: 4px;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--t3);
+}
+.tier .btn {
+  width: 100%;
+}
+.tier__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0 0;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--hair);
+  list-style: none;
+  font-size: 15px;
+  color: var(--t2);
+}
+.tier__list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tier__list svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--t3);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tiers__more {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px 24px;
+  max-width: 880px;
+  margin: 12px auto 0;
+  padding: 24px 32px;
+  border: 1px solid var(--hair);
+  border-radius: 16px;
+}
+.tiers__more h3 {
+  font: 500 17px/1.3 var(--sans);
+}
+.tiers__more p {
+  margin-top: 4px;
+  font-size: 15px;
+  color: var(--t2);
+}
+
+/* ---------- Sequencers ---------- */
+.page .marquee {
+  flex-direction: column;
+  gap: 8px;
+  max-width: 1180px;
+  margin: clamp(64px, 9cqi, 128px) auto 0;
+  padding: 0 var(--gutter);
+  min-height: 0;
+  background: none;
+}
+.page .marquee__label {
+  background: none;
+  font: 400 13px var(--mono);
+  color: var(--t3);
+}
+.page .marquee__item {
+  opacity: 0.7;
+}
+
+/* ---------- FAQ: centred list on hairlines ---------- */
+.page .faq {
+  display: block;
+}
+.page .faq .sh {
+  margin-bottom: clamp(24px, 3cqi, 40px);
+}
+.page .faq__list {
+  max-width: 760px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--hair);
+}
+.page .faq__item {
+  border-top: 1px solid var(--hair);
+}
+.page .faq__q {
+  color: var(--t1);
+}
+.page .faq__q:hover {
+  color: var(--t2);
+}
+
+/* ---------- Final CTA: one card ---------- */
+.page .final {
+  margin-top: 0;
+  padding: clamp(64px, 9cqi, 128px) var(--gutter) 32px;
+  background: var(--bg);
+}
+.page .final__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 980px;
+  padding: clamp(40px, 6cqi, 64px) clamp(24px, 4cqi, 48px);
+  border: 1px solid var(--hair);
+  border-radius: 20px;
+  background: var(--surface);
+  text-align: center;
+}
+.page .final__title {
+  padding: 0;
+  font: 500 clamp(32px, 4cqi, 48px) / 1.08 var(--sans);
+  letter-spacing: -0.03em;
+  color: var(--t1);
+}
+.page .final__muted {
+  color: var(--t3);
+}
+.page .final__note {
+  margin-bottom: 8px;
+  font: 400 13px var(--mono);
+  color: var(--t3);
+}
+.page .final > .footer {
+  max-width: calc(1180px - 2 * var(--gutter));
+}
+.page .footer {
+  border-top-color: var(--hair);
+  color: var(--t3);
+}
+.page .footer a:hover {
+  color: var(--t1);
+}
+
+/* ---------- Pricing page ---------- */
+.page .pricing-compare {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.page .pricing-compare__wrap {
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  border: 1px solid var(--hair);
+  background: var(--surface);
+}
+.page .pricing-compare th,
+.page .pricing-compare td {
+  border-bottom-color: var(--hair);
+}
+.page .pricing-compare thead th {
+  font: 400 13px var(--mono);
+  text-transform: none;
+  color: var(--t3);
+}
+.page .pricing-compare thead th:nth-child(2) {
+  color: var(--t1);
+}
+.page .pricing-compare tbody tr:last-child th,
+.page .pricing-compare tbody tr:last-child td {
+  border-bottom: 0;
+}
+.page .pricing-compare {
+  padding-bottom: 0;
+}

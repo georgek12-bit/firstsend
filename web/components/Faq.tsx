@@ -3,17 +3,15 @@
 import { useState } from 'react';
 import { faqs } from '@/lib/content';
 import { reveal } from '@/lib/reveal';
+import SectionHead from './SectionHead';
 
 export default function Faq() {
   const [open, setOpen] = useState(0);
 
   return (
     <section id="faq" className="faq">
-      <div className="shead" {...reveal()}>
-        <div className="badge">FAQ</div>
-        <h2 className="h2">Fair questions.</h2>
-      </div>
-      <div className="faq__list" {...reveal('24px', 80)}>
+      <SectionHead label="FAQ" title="Fair questions" />
+      <div className="faq__list" {...reveal('12px', 60)}>
         {faqs.map((f, i) => {
           const isOpen = open === i;
           return (
@@ -28,9 +26,9 @@ export default function Faq() {
                   onClick={() => setOpen(isOpen ? -1 : i)}
                 >
                   <span>{f.q}</span>
-                  <span className="faq__icon" aria-hidden="true">
-                    +
-                  </span>
+                  <svg className="faq__icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8 3v10M3 8h10" />
+                  </svg>
                 </button>
               </h3>
               <div className="faq__a" id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`} inert={!isOpen}>

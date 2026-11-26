@@ -188,6 +188,23 @@ class Cloudflare:
         return True
 
 
+    def forward(self, zone, domain, target):
+        """Send web visitors (with or without www) to the customer's real site. Mail records are untouched."""
+        for name, typ, content in [(domain, 'A', '192.0.2.1'), (f'www.{domain}', 'CNAME', domain)]:
+            ex = self.call('GET', f'/zones/{zone}/dns_records?name={name}&type={typ}', token=self.token)['result']
+            if not ex:
+                self.call('POST', f'/zones/{zone}/dns_records',
+                          {'type': typ, 'name': name, 'content': content, 'proxied': True, 'ttl': 1}, token=self.token)
+        rule = {'description': f'Forward to {target}', 'expression': 'true', 'action': 'redirect',
+                'action_parameters': {'from_value': {'status_code': 301, 'target_url': {'value': target},
+                                                     'preserve_query_string': False}}}
+        d = self.call('PUT', f'/zones/{zone}/rulesets/phases/http_request_dynamic_redirect/entrypoint',
+                      {'rules': [rule]}, token=self.token)
+        if not d.get('success'):
+            say(f'Could not set up website forwarding: {d.get("errors")}')
+        else:
+            say(f'Website forwards to {target}')
+
 # ---------- Stalwart ----------
 
 def stalwart_apply(lines):
@@ -302,6 +319,7 @@ def main():
     ap.add_argument('--person', help=argparse.SUPPRESS)  # old single-name flag
     ap.add_argument('--count', type=int, default=100, help='Inboxes to create (default 100, the Azure maximum per domain)')
     ap.add_argument('--daily-limit', type=int, default=DAILY_LIMIT, help=f'Sends per inbox per day (default {DAILY_LIMIT})')
+    ap.add_argument('--website', help='Customer site to forward the domain to, e.g. https://wantmorecases.com')
     ap.add_argument('--warmup-limit', type=int, default=WARMUP_LIMIT, help=f'Warmup emails per inbox per day (default {WARMUP_LIMIT})')
     a = ap.parse_args()
     domain = a.domain.lower().strip()
@@ -335,6 +353,8 @@ def main():
     changed += cf.upsert(zone, 'TXT', f'_dmarc.{domain}', 'v=DMARC1; p=reject; pct=100; adkim=r; aspf=r',
                          replace_prefix='v=dmarc1')
     say(f'DNS ready in Cloudflare ({changed} record{"s" if changed != 1 else ""} added or changed)')
+    if a.website:
+        cf.forward(zone, domain, a.website if a.website.startswith('http') else f'https://{a.website}')
 
     # 3-4. Verify and link
     acs_verify(domain)
